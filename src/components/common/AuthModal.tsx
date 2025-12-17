@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Shield, Store, MapPin } from 'lucide-react';
+import { X, User, Shield, Store, MapPin, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,8 +19,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     name: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  const { login } = useAuth();
+  const { login, register } = useAuth();
 
   const roles = [
     {
@@ -56,18 +57,36 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
     setStep('form');
+    setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
     try {
-      await login(formData.email, formData.password, selectedRole);
+      if (!isLogin) {
+        // Registration validation
+        if (formData.password !== formData.confirmPassword) {
+          setError('Passwords do not match');
+          setIsLoading(false);
+          return;
+        }
+        if (formData.password.length < 6) {
+          setError('Password must be at least 6 characters');
+          setIsLoading(false);
+          return;
+        }
+        await register(formData.email, formData.password, formData.name, selectedRole);
+      } else {
+        await login(formData.email, formData.password, selectedRole);
+      }
       onClose();
       resetForm();
-    } catch (error) {
-      console.error('Login failed:', error);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Authentication failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -78,6 +97,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setSelectedRole('');
     setFormData({ email: '', password: '', confirmPassword: '', name: '' });
     setIsLogin(true);
+    setError(null);
   };
 
   const handleClose = () => {
@@ -109,6 +129,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="p-6">
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-center space-x-2"
+            >
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </motion.div>
+          )}
+
           <AnimatePresence mode="wait">
             {step === 'role' && (
               <motion.div
@@ -174,7 +206,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   </div>
                   <div className="flex space-x-1 mb-4">
                     <button
-                      onClick={() => setIsLogin(true)}
+                      onClick={() => { setIsLogin(true); setError(null); }}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         isLogin
                           ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
@@ -184,7 +216,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                       Login
                     </button>
                     <button
-                      onClick={() => setIsLogin(false)}
+                      onClick={() => { setIsLogin(false); setError(null); }}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         !isLogin
                           ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
@@ -289,7 +321,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
                 <div className="mt-4 text-center">
                   <button
-                    onClick={() => setStep('role')}
+                    onClick={() => { setStep('role'); setError(null); }}
                     className="text-sm text-green-600 hover:text-green-700 transition-colors"
                   >
                     ← Back to role selection
