@@ -133,19 +133,6 @@ Navigate to: **http://localhost:5173**
 
 ---
 
-## 🔐 Test Credentials
-
-After running the seed script, use these credentials to test:
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@yatri.ai | admin123 |
-| Tourist | john.doe@example.com | tourist123 |
-| Guide | ravi.kumar@example.com | guide123 |
-| Seller | tribal.crafts@example.com | seller123 |
-
----
-
 ## 📁 Project Structure
 
 ```
