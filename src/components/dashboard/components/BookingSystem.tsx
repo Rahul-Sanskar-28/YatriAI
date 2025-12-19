@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2, Wallet } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bookings } from '../../../data/mockData';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -7,16 +7,58 @@ import { BorderBeam } from '../../magicui/BorderBeam';
 import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
-import { blockchainService, paymentService, type VerificationResult, type PaymentResult } from '../../../lib/services';
+import { WalletConnect, BlockchainVerification, VerificationBadge } from '../../blockchain';
+import { blockchainService, paymentService, type VerificationResult, type PaymentResult, type WalletState, type BlockchainRecord } from '../../../lib/services';
+import { isMetaMaskAvailable, ActiveNetwork } from '../../../lib/services/config';
 
 const BookingSystem: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'new'>('current');
   const [verificationResults, setVerificationResults] = useState<Record<string, VerificationResult>>({});
+  const [blockchainRecords, setBlockchainRecords] = useState<Record<string, BlockchainRecord>>({});
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
+  const [walletState, setWalletState] = useState<WalletState>(blockchainService.getWalletState());
+  const [recordingOnChain, setRecordingOnChain] = useState<string | null>(null);
 
   const currentBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
   const historyBookings = bookings.filter(b => b.status === 'cancelled');
+
+  // Handle wallet connection
+  const handleWalletConnect = (state: WalletState) => {
+    setWalletState(state);
+    console.log('🔗 Wallet connected:', state.address);
+  };
+
+  // Record booking on blockchain (requires wallet)
+  const handleRecordOnBlockchain = async (booking: typeof bookings[0]) => {
+    if (!walletState.isConnected) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
+    setRecordingOnChain(booking.id);
+    try {
+      const record = await blockchainService.recordBooking({
+        id: booking.id,
+        userId: 'user-123', // Would come from auth context
+        guideId: booking.type === 'guide' ? 'guide-456' : undefined,
+        amount: booking.amount,
+        type: booking.type,
+        details: {
+          title: booking.title,
+          date: booking.date,
+        },
+      });
+
+      setBlockchainRecords(prev => ({ ...prev, [booking.id]: record }));
+      console.log('✅ Booking recorded on blockchain:', record.txHash);
+    } catch (error: any) {
+      console.error('Failed to record on blockchain:', error);
+      alert(error.message || 'Failed to record on blockchain');
+    } finally {
+      setRecordingOnChain(null);
+    }
+  };
 
   // Verify booking on blockchain via Beeceptor/ETHIndia service
   const handleVerifyOnBlockchain = async (bookingId: string, txHash: string) => {
@@ -92,18 +134,29 @@ const BookingSystem: React.FC = () => {
   return (
     <div className="space-y-8">
       <BlurFade delay={0.1} inView>
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
-            <Shield className="w-7 h-7 text-white" />
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
+              <Shield className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Secure Booking System{' '}
+                <AnimatedGradientText className="text-3xl">🔒</AnimatedGradientText>
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Blockchain-verified bookings on {ActiveNetwork.name}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Secure Booking System{' '}
-              <AnimatedGradientText className="text-3xl">🔒</AnimatedGradientText>
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Blockchain-verified bookings for complete trust and transparency
-            </p>
+          
+          {/* Wallet Connection */}
+          <div className="flex items-center gap-3">
+            <WalletConnect 
+              compact 
+              onConnect={handleWalletConnect}
+              onDisconnect={() => setWalletState(blockchainService.getWalletState())}
+            />
           </div>
         </div>
       </BlurFade>
@@ -193,67 +246,57 @@ const BookingSystem: React.FC = () => {
                       </div>
                     </div>
 
-                    {booking.blockchainHash && (
+                    {/* Blockchain Verification Section */}
+                    {(booking.blockchainHash || blockchainRecords[booking.id]) ? (
+                      <BlockchainVerification
+                        txHash={blockchainRecords[booking.id]?.txHash || booking.blockchainHash}
+                        record={blockchainRecords[booking.id] || (verificationResults[booking.id]?.record as BlockchainRecord)}
+                        showDetails={false}
+                        className="mb-4"
+                      />
+                    ) : (
+                      /* Record on Blockchain Button */
                       <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 mb-4 border border-green-200 dark:border-green-800"
+                        className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4 mb-4 border border-amber-200 dark:border-amber-800"
                       >
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
-                            <span className="text-sm font-semibold text-green-700 dark:text-green-300">
-                              Blockchain Verified ✓
+                            <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                            <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                              Not Yet on Blockchain
                             </span>
                           </div>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleVerifyOnBlockchain(booking.id, booking.blockchainHash!)}
-                            disabled={verifyingId === booking.id}
-                            className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1 disabled:opacity-50"
-                          >
-                            {verifyingId === booking.id ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <ExternalLink className="w-3 h-3" />
-                            )}
-                            {verifyingId === booking.id ? 'Verifying...' : 'Verify on Testnet'}
-                          </motion.button>
+                          {walletState.isConnected ? (
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handleRecordOnBlockchain(booking)}
+                              disabled={recordingOnChain === booking.id}
+                              className="text-xs bg-amber-600 text-white px-3 py-1.5 rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-1 disabled:opacity-50"
+                            >
+                              {recordingOnChain === booking.id ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  Recording...
+                                </>
+                              ) : (
+                                <>
+                                  <Shield className="w-3 h-3" />
+                                  Record on {ActiveNetwork.name.split(' ')[0]}
+                                </>
+                              )}
+                            </motion.button>
+                          ) : (
+                            <span className="text-xs text-amber-600 dark:text-amber-400">
+                              Connect wallet to record
+                            </span>
+                          )}
                         </div>
-                        <p className="text-xs text-green-600 dark:text-green-400 font-mono bg-white dark:bg-gray-800 p-2 rounded-lg break-all">
-                          Hash: {booking.blockchainHash}
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                          Record this booking on the blockchain for immutable verification and transparency.
                         </p>
-                        
-                        {/* Verification Result */}
-                        {verificationResults[booking.id] && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="mt-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-300 dark:border-green-700"
-                          >
-                            <div className="flex items-center gap-2 text-sm">
-                              <CheckCircle className="w-4 h-4 text-green-500" />
-                              <span className="text-green-700 dark:text-green-300 font-medium">
-                                {verificationResults[booking.id].message}
-                              </span>
-                            </div>
-                            {verificationResults[booking.id].record && (
-                              <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                                <p>Network: <span className="font-mono">{verificationResults[booking.id].record?.network}</span></p>
-                                <p>Block: <span className="font-mono">#{verificationResults[booking.id].record?.blockNumber}</span></p>
-                                <a 
-                                  href={verificationResults[booking.id].record?.explorerUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:underline flex items-center gap-1"
-                                >
-                                  View on Explorer <ExternalLink className="w-3 h-3" />
-                                </a>
-                              </div>
-                            )}
-                          </motion.div>
-                        )}
                       </motion.div>
                     )}
 
