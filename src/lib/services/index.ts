@@ -98,17 +98,24 @@ export type {
 } from './blockchain.service';
 
 export { voiceService, AVAILABLE_VOICES } from './voice.service';
-export type { VoiceConfig, SpeechResult } from './voice.service';
+export type { 
+  VoiceConfig, 
+  SpeechResult, 
+  VoiceSettings,
+  AudioGuideContent,
+  AudioGuideSection 
+} from './voice.service';
 
 export { translateService, LANGUAGE_NAMES } from './translate.service';
 export type { SupportedLanguage, TranslationResult } from './translate.service';
 
 // Service status helper
-import { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured, ServiceFlags } from './config';
+import { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured, isElevenLabsConfigured, ServiceFlags } from './config';
 import { axicovService } from './axicov.service';
 import { n8nService } from './n8n.service';
 import { analyticsService } from './analytics.service';
-export { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured };
+import { voiceService } from './voice.service';
+export { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured, isElevenLabsConfigured };
 
 /**
  * Initialize all services (call once on app startup)
@@ -118,12 +125,14 @@ export const initializeServices = async (): Promise<{
   usingMocks: boolean;
   usingAxicov: boolean;
   usingN8n: boolean;
+  usingElevenLabs: boolean;
   analyticsEnabled: boolean;
 }> => {
   const status = getServiceStatus();
   const usingMocks = isUsingMocks();
   const usingAxicov = isAxicovConfigured();
   const usingN8n = isN8nConfigured();
+  const usingElevenLabs = isElevenLabsConfigured();
   const analyticsEnabled = ServiceFlags.ENABLE_ANALYTICS;
 
   // Log Axicov status
@@ -143,6 +152,21 @@ export const initializeServices = async (): Promise<{
       'color: #ff6d5a; font-weight: bold;'
     );
     console.log('n8n configured:', n8nService.isConfigured());
+  }
+
+  // Log ElevenLabs status
+  if (usingElevenLabs) {
+    console.log(
+      '%c🎙️ YatriAI Voice: Powered by ElevenLabs',
+      'color: #10b981; font-weight: bold;'
+    );
+    const usageStats = voiceService.getUsageStats();
+    console.log('ElevenLabs Usage:', `${usageStats.charactersUsed}/${usageStats.charactersRemaining + usageStats.charactersUsed} characters used this month`);
+  } else {
+    console.log(
+      '%c🔊 YatriAI Voice: Using browser TTS (add VITE_ELEVENLABS_API_KEY for premium voices)',
+      'color: #f59e0b; font-weight: bold;'
+    );
   }
 
   // Log analytics status
@@ -170,6 +194,6 @@ export const initializeServices = async (): Promise<{
   // Log setup hints
   console.log('%c📋 Service Configuration:', 'color: #6b7280; font-weight: bold;', status);
 
-  return { status, usingMocks, usingAxicov, usingN8n, analyticsEnabled };
+  return { status, usingMocks, usingAxicov, usingN8n, usingElevenLabs, analyticsEnabled };
 };
 

@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, User, Globe, Sparkles, Mic, Volume2, StopCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { X, Send, Bot, User, Globe, Sparkles, Mic, Volume2, StopCircle, Headphones, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { BorderBeam } from '../../magicui/BorderBeam';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
-import { aiService, voiceService, type ChatMessage as ServiceChatMessage, type ChatResponse } from '../../../lib/services';
+import { VoiceButton, SoundWave } from '../../voice';
+import { aiService, voiceService, type ChatMessage as ServiceChatMessage, type ChatResponse, AVAILABLE_VOICES } from '../../../lib/services';
 
 interface AIChatProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface Message {
   timestamp: Date;
   language?: string;
   suggestions?: string[];
+  isPlaying?: boolean;
 }
 
 const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
@@ -34,6 +36,9 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
+  const [autoSpeak, setAutoSpeak] = useState(false);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [chatHistory, setChatHistory] = useState<ServiceChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
@@ -53,22 +58,48 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
     '💰 Budget travel?'
   ];
 
+  // Voice status
+  const voiceConfigured = voiceService.isConfigured();
+  const usageStats = voiceService.getUsageStats();
+
   // Voice playback functions using voiceService
-  const handleSpeak = async (text: string) => {
-    if (isSpeaking) {
-      voiceService.stopBrowserTTS();
+  const handleSpeak = useCallback(async (messageId: string, text: string) => {
+    // If already playing this message, stop it
+    if (currentPlayingId === messageId && isSpeaking) {
+      voiceService.stopPlayback();
       setIsSpeaking(false);
+      setCurrentPlayingId(null);
       return;
     }
     
-    setIsSpeaking(true);
-    voiceService.speakWithBrowserTTS(text, selectedLanguage);
+    // Stop any current playback
+    voiceService.stopPlayback();
     
-    // Estimate speaking duration and reset state
-    const words = text.split(' ').length;
-    const duration = (words / 150) * 60 * 1000; // ms
-    setTimeout(() => setIsSpeaking(false), duration);
-  };
+    setIsSpeaking(true);
+    setCurrentPlayingId(messageId);
+    
+    try {
+      await voiceService.speakChatResponse(text, {
+        language: selectedLanguage,
+        onStart: () => {
+          setIsSpeaking(true);
+        },
+        onEnd: () => {
+          setIsSpeaking(false);
+          setCurrentPlayingId(null);
+        },
+        onError: (error) => {
+          console.error('Voice error:', error);
+          setIsSpeaking(false);
+          setCurrentPlayingId(null);
+        },
+      });
+    } catch (error) {
+      console.error('Speech error:', error);
+      setIsSpeaking(false);
+      setCurrentPlayingId(null);
+    }
+  }, [currentPlayingId, isSpeaking, selectedLanguage]);
 
   useEffect(() => {
     scrollToBottom();
@@ -101,11 +132,12 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
     setChatHistory(updatedHistory);
 
     try {
-      // Call AI service (uses Beeceptor mock or local fallback)
+      // Call AI service (uses Axicov, Beeceptor mock, or local fallback)
       const response: ChatResponse = await aiService.chat(currentInput, updatedHistory);
       
+      const botMessageId = (Date.now() + 1).toString();
       const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: botMessageId,
         type: 'bot',
         content: response.message,
         timestamp: new Date(),
@@ -120,6 +152,13 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
         ...prev,
         { role: 'assistant', content: response.message, timestamp: new Date() }
       ]);
+
+      // Auto-speak bot response if enabled
+      if (autoSpeak) {
+        setTimeout(() => {
+          handleSpeak(botMessageId, response.message);
+        }, 500);
+      }
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage: Message = {
@@ -179,12 +218,29 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
                   </span>
-                  <span className="text-xs text-green-100">Online • Multilingual</span>
+                  <span className="text-xs text-green-100">
+                    {voiceConfigured ? 'ElevenLabs Voice' : 'Browser Voice'}
+                  </span>
                 </div>
               </div>
             </div>
             
             <div className="flex items-center gap-2">
+              {/* Voice Settings Toggle */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-colors ${
+                  showVoiceSettings 
+                    ? 'bg-white/30 border-white/50' 
+                    : 'bg-white/20 border-white/30 hover:bg-white/30'
+                }`}
+                title="Voice Settings"
+              >
+                <Headphones className="w-4 h-4 text-white" />
+              </motion.button>
+
               {/* Language Selector */}
               <select
                 value={selectedLanguage}
@@ -208,6 +264,56 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
               </motion.button>
             </div>
           </div>
+
+          {/* Voice Settings Panel */}
+          <AnimatePresence>
+            {showVoiceSettings && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="mt-3 overflow-hidden"
+              >
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-white/80">Auto-speak responses</span>
+                    <button
+                      onClick={() => setAutoSpeak(!autoSpeak)}
+                      className={`w-10 h-5 rounded-full transition-colors ${
+                        autoSpeak ? 'bg-white/40' : 'bg-white/20'
+                      }`}
+                    >
+                      <motion.div
+                        animate={{ x: autoSpeak ? 20 : 2 }}
+                        className="w-4 h-4 bg-white rounded-full shadow"
+                      />
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-white/80">Voice Status</span>
+                    <span className="text-xs text-white/60">
+                      {voiceConfigured 
+                        ? `${usageStats.charactersRemaining.toLocaleString()} chars left`
+                        : 'Browser TTS'
+                      }
+                    </span>
+                  </div>
+
+                  {voiceConfigured && (
+                    <div className="mt-2">
+                      <div className="w-full bg-white/20 rounded-full h-1.5">
+                        <div 
+                          className="bg-white/60 h-1.5 rounded-full transition-all"
+                          style={{ width: `${Math.min(usageStats.percentUsed, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Messages */}
@@ -248,21 +354,48 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
                     }`}>
                       <span>{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       {message.type === 'bot' && (
-                        <motion.button
-                          whileHover={{ scale: 1.2 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleSpeak(message.content)}
-                          className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
-                          title={isSpeaking ? 'Stop speaking' : 'Listen to message'}
-                        >
-                          {isSpeaking ? (
-                            <StopCircle className="w-3 h-3 text-red-500" />
-                          ) : (
-                            <Volume2 className="w-3 h-3" />
+                        <div className="flex items-center gap-1">
+                          {/* Sound wave when playing */}
+                          {currentPlayingId === message.id && isSpeaking && (
+                            <SoundWave isPlaying={true} className="mr-1" />
                           )}
-                        </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleSpeak(message.id, message.content)}
+                            className={`p-1 rounded-full transition-colors ${
+                              currentPlayingId === message.id && isSpeaking
+                                ? 'bg-emerald-500/20 text-emerald-500'
+                                : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                            }`}
+                            title={currentPlayingId === message.id && isSpeaking ? 'Stop speaking' : 'Listen to message'}
+                          >
+                            {currentPlayingId === message.id && isSpeaking ? (
+                              <StopCircle className="w-3.5 h-3.5 text-red-500" />
+                            ) : (
+                              <Volume2 className="w-3.5 h-3.5" />
+                            )}
+                          </motion.button>
+                        </div>
                       )}
                     </div>
+                    
+                    {/* Suggestions */}
+                    {message.suggestions && message.suggestions.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-3 pt-2 border-t border-gray-200/50 dark:border-gray-600/50">
+                        {message.suggestions.map((suggestion, i) => (
+                          <motion.button
+                            key={i}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setInputMessage(suggestion)}
+                            className="text-xs px-2 py-1 rounded-full bg-white/20 dark:bg-gray-600/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+                          >
+                            {suggestion}
+                          </motion.button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -329,6 +462,7 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               className="p-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors"
+              title="Voice input (coming soon)"
             >
               <Mic className="w-5 h-5" />
             </motion.button>
@@ -355,8 +489,11 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
             </motion.button>
           </div>
           
-          <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-2">
+          <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-2 flex items-center justify-center gap-1">
             Powered by <AnimatedGradientText className="text-xs font-medium">YatriAI</AnimatedGradientText>
+            {voiceConfigured && (
+              <span className="text-emerald-500">+ ElevenLabs</span>
+            )}
           </p>
         </div>
       </motion.div>
