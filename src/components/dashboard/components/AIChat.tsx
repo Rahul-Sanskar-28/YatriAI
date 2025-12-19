@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, User, Globe, Sparkles, Mic, Volume2 } from 'lucide-react';
+import { X, Send, Bot, User, Globe, Sparkles, Mic, Volume2, StopCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { BorderBeam } from '../../magicui/BorderBeam';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
+import { aiService, voiceService, type ChatMessage as ServiceChatMessage, type ChatResponse } from '../../../lib/services';
 
 interface AIChatProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface Message {
   content: string;
   timestamp: Date;
   language?: string;
+  suggestions?: string[];
 }
 
 const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
@@ -24,12 +26,15 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
       id: '1',
       type: 'bot',
       content: 'Namaste! I\'m your AI travel assistant for Jharkhand. How can I help you plan your perfect trip today? 🌟',
-      timestamp: new Date()
+      timestamp: new Date(),
+      suggestions: ['Plan my trip', 'Find a guide', 'Explore destinations']
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [chatHistory, setChatHistory] = useState<ServiceChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
 
@@ -48,13 +53,21 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
     '💰 Budget travel?'
   ];
 
-  const botResponses: Record<string, string> = {
-    'best time': 'The best time to visit Jharkhand is from October to March when the weather is pleasant. Monsoon season (July-September) is perfect for waterfalls! 🌧️',
-    'waterfall': 'Must-visit waterfalls include Hundru Falls (98m), Dassam Falls, and Jonha Falls. Each offers unique beauty and trekking opportunities! 💧',
-    'food': 'Try authentic Jharkhandi cuisine: Dhuska, Pittha, Rugra, and Handia. Don\'t miss tribal delicacies at local markets! 🍽️',
-    'safari': 'Betla National Park offers excellent wildlife safaris. Book early morning slots for best tiger spotting chances. I can help you book! 🐅',
-    'festival': 'Major festivals: Sarhul (March), Karma (August), Sohrai (November). Experience authentic tribal culture and traditions! 🎭',
-    'budget': 'Budget tips: Stay in homestays (₹800-1500/night), use local transport, eat at dhabas, and book guides through our verified network! 💰'
+  // Voice playback functions using voiceService
+  const handleSpeak = async (text: string) => {
+    if (isSpeaking) {
+      voiceService.stopBrowserTTS();
+      setIsSpeaking(false);
+      return;
+    }
+    
+    setIsSpeaking(true);
+    voiceService.speakWithBrowserTTS(text, selectedLanguage);
+    
+    // Estimate speaking duration and reset state
+    const words = text.split(' ').length;
+    const duration = (words / 150) * 60 * 1000; // ms
+    setTimeout(() => setIsSpeaking(false), duration);
   };
 
   useEffect(() => {
@@ -76,42 +89,50 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputMessage;
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI processing
-    setTimeout(() => {
-      const botResponse = generateBotResponse(inputMessage);
+    // Update chat history for context
+    const updatedHistory: ServiceChatMessage[] = [
+      ...chatHistory,
+      { role: 'user', content: currentInput, timestamp: new Date() }
+    ];
+    setChatHistory(updatedHistory);
+
+    try {
+      // Call AI service (uses Beeceptor mock or local fallback)
+      const response: ChatResponse = await aiService.chat(currentInput, updatedHistory);
+      
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: botResponse,
+        content: response.message,
         timestamp: new Date(),
-        language: selectedLanguage
+        language: selectedLanguage,
+        suggestions: response.suggestions
       };
 
       setMessages(prev => [...prev, botMessage]);
+      
+      // Update history with bot response
+      setChatHistory(prev => [
+        ...prev,
+        { role: 'assistant', content: response.message, timestamp: new Date() }
+      ]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: 'I apologize, but I\'m having trouble connecting right now. Please try again in a moment! 🙏',
+        timestamp: new Date(),
+        language: selectedLanguage
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  };
-
-  const generateBotResponse = (input: string): string => {
-    const lowerInput = input.toLowerCase();
-    
-    for (const [key, response] of Object.entries(botResponses)) {
-      if (lowerInput.includes(key)) {
-        return response;
-      }
     }
-
-    // Default responses
-    const defaultResponses = [
-      'That\'s a great question! Let me help you with that. For specific bookings and detailed information, I can connect you with our local experts. 🤝',
-      'I\'d be happy to assist you with that! Jharkhand has so much to offer. Would you like me to suggest some personalized recommendations based on your interests? ✨',
-      'Interesting! Based on your query, I recommend checking out our AI itinerary planner for customized suggestions. I can also help you find verified local guides! 🗺️'
-    ];
-
-    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
   };
 
   const handleQuickQuestion = (question: string) => {
@@ -230,9 +251,15 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
                         <motion.button
                           whileHover={{ scale: 1.2 }}
                           whileTap={{ scale: 0.9 }}
+                          onClick={() => handleSpeak(message.content)}
                           className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"
+                          title={isSpeaking ? 'Stop speaking' : 'Listen to message'}
                         >
-                          <Volume2 className="w-3 h-3" />
+                          {isSpeaking ? (
+                            <StopCircle className="w-3 h-3 text-red-500" />
+                          ) : (
+                            <Volume2 className="w-3 h-3" />
+                          )}
                         </motion.button>
                       )}
                     </div>

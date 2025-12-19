@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ReactNode } from "react";
+import React, { useEffect, useState, ReactNode, useMemo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 
@@ -54,13 +54,16 @@ export function SparklesText({
   children,
   className,
   sparklesCount = 10,
-  colors = { first: "#22c55e", second: "#f97316" },
+  colors,
 }: SparklesTextProps) {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+  
+  // Memoize colors to prevent infinite re-renders
+  const stableColors = useMemo(() => colors || { first: "#22c55e", second: "#f97316" }, [colors?.first, colors?.second]);
 
   useEffect(() => {
     const initialSparkles = Array.from({ length: sparklesCount }, () =>
-      generateSparkle(colors)
+      generateSparkle(stableColors)
     );
     setSparkles(initialSparkles);
 
@@ -68,14 +71,14 @@ export function SparklesText({
       setSparkles((currentSparkles) =>
         currentSparkles.map((sparkle) =>
           Date.now() - parseFloat(sparkle.id) > sparkle.lifespan * 1000
-            ? generateSparkle(colors)
+            ? generateSparkle(stableColors)
             : sparkle
         )
       );
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [sparklesCount, colors]);
+  }, [sparklesCount, stableColors]);
 
   return (
     <span className={cn("relative inline-block", className)}>

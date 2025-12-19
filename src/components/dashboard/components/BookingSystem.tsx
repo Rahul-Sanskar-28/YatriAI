@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight } from 'lucide-react';
+import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bookings } from '../../../data/mockData';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -7,12 +7,55 @@ import { BorderBeam } from '../../magicui/BorderBeam';
 import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
+import { blockchainService, paymentService, type VerificationResult, type PaymentResult } from '../../../lib/services';
 
 const BookingSystem: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'new'>('current');
+  const [verificationResults, setVerificationResults] = useState<Record<string, VerificationResult>>({});
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [processingPayment, setProcessingPayment] = useState<string | null>(null);
 
   const currentBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
   const historyBookings = bookings.filter(b => b.status === 'cancelled');
+
+  // Verify booking on blockchain via Beeceptor/ETHIndia service
+  const handleVerifyOnBlockchain = async (bookingId: string, txHash: string) => {
+    setVerifyingId(bookingId);
+    try {
+      const result = await blockchainService.verifyBooking(txHash);
+      setVerificationResults(prev => ({ ...prev, [bookingId]: result }));
+    } catch (error) {
+      console.error('Blockchain verification failed:', error);
+    } finally {
+      setVerifyingId(null);
+    }
+  };
+
+  // Process payment via Beeceptor/Dodo Payments service
+  const handleCompletePayment = async (booking: typeof bookings[0]) => {
+    setProcessingPayment(booking.id);
+    try {
+      const result: PaymentResult = await paymentService.createPayment({
+        amount: booking.amount,
+        currency: 'INR',
+        description: booking.title,
+        metadata: {
+          bookingId: booking.id,
+          type: booking.type,
+        }
+      });
+
+      if (result.success && result.redirectUrl) {
+        // In production, would redirect to payment gateway
+        // For now, show success message
+        alert(`Payment initiated! Payment ID: ${result.paymentId}\n\nIn production, you would be redirected to: ${result.redirectUrl}`);
+      }
+    } catch (error) {
+      console.error('Payment processing failed:', error);
+    } finally {
+      setProcessingPayment(null);
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -156,15 +199,61 @@ const BookingSystem: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 mb-4 border border-green-200 dark:border-green-800"
                       >
-                        <div className="flex items-center gap-2 mb-2">
-                          <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
-                          <span className="text-sm font-semibold text-green-700 dark:text-green-300">
-                            Blockchain Verified ✓
-                          </span>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
+                            <span className="text-sm font-semibold text-green-700 dark:text-green-300">
+                              Blockchain Verified ✓
+                            </span>
+                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleVerifyOnBlockchain(booking.id, booking.blockchainHash!)}
+                            disabled={verifyingId === booking.id}
+                            className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1 disabled:opacity-50"
+                          >
+                            {verifyingId === booking.id ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <ExternalLink className="w-3 h-3" />
+                            )}
+                            {verifyingId === booking.id ? 'Verifying...' : 'Verify on Testnet'}
+                          </motion.button>
                         </div>
                         <p className="text-xs text-green-600 dark:text-green-400 font-mono bg-white dark:bg-gray-800 p-2 rounded-lg break-all">
                           Hash: {booking.blockchainHash}
                         </p>
+                        
+                        {/* Verification Result */}
+                        {verificationResults[booking.id] && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="mt-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-300 dark:border-green-700"
+                          >
+                            <div className="flex items-center gap-2 text-sm">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-green-700 dark:text-green-300 font-medium">
+                                {verificationResults[booking.id].message}
+                              </span>
+                            </div>
+                            {verificationResults[booking.id].record && (
+                              <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                <p>Network: <span className="font-mono">{verificationResults[booking.id].record?.network}</span></p>
+                                <p>Block: <span className="font-mono">#{verificationResults[booking.id].record?.blockNumber}</span></p>
+                                <a 
+                                  href={verificationResults[booking.id].record?.explorerUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-500 hover:underline flex items-center gap-1"
+                                >
+                                  View on Explorer <ExternalLink className="w-3 h-3" />
+                                </a>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
                       </motion.div>
                     )}
 
@@ -180,8 +269,23 @@ const BookingSystem: React.FC = () => {
                         Contact Support
                       </motion.button>
                       {booking.status === 'pending' && (
-                        <ShimmerButton className="flex-1 py-2.5" background="linear-gradient(135deg, #ea580c 0%, #f97316 100%)">
-                          Complete Payment
+                        <ShimmerButton 
+                          className="flex-1 py-2.5" 
+                          background="linear-gradient(135deg, #ea580c 0%, #f97316 100%)"
+                          onClick={() => handleCompletePayment(booking)}
+                          disabled={processingPayment === booking.id}
+                        >
+                          {processingPayment === booking.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              <CreditCard className="w-4 h-4" />
+                              Complete Payment
+                            </>
+                          )}
                         </ShimmerButton>
                       )}
                     </div>
