@@ -69,10 +69,14 @@ const AppContent: React.FC = () => {
 function App() {
   // Initialize external services on app startup
   useEffect(() => {
-    initializeServices().then(({ status, usingMocks }) => {
-      if (usingMocks) {
-        console.log('📋 External Service Status:', status);
+    initializeServices().then(({ status, usingMocks, usingAxicov }) => {
+      console.log('📋 External Service Status:', status);
+      
+      if (usingAxicov) {
+        console.log('🤖 AI agents powered by Axicov - https://axicov.com');
+      } else if (usingMocks) {
         console.log('💡 To use Beeceptor mocks, set VITE_BEECEPTOR_URL in .env.local');
+        console.log('💡 To use Axicov AI agents, set VITE_USE_AXICOV=true and configure agent IDs');
       }
     });
   }, []);
