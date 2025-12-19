@@ -71,7 +71,7 @@ const AppContent: React.FC = () => {
 function App() {
   // Initialize external services on app startup
   useEffect(() => {
-    initializeServices().then(({ status, usingMocks, usingAxicov, usingN8n, usingElevenLabs, analyticsEnabled }) => {
+    initializeServices().then(({ status, usingMocks, usingAxicov, usingN8n, usingElevenLabs, usingBlockchain, analyticsEnabled }) => {
       console.log('📋 External Service Status:', status);
       
       if (usingAxicov) {
@@ -86,6 +86,10 @@ function App() {
         console.log('🎙️ Voice AI powered by ElevenLabs - https://elevenlabs.io');
       }
       
+      if (usingBlockchain) {
+        console.log('⛓️ Blockchain verification powered by ETHIndia');
+      }
+      
       if (analyticsEnabled) {
         console.log('📊 Analytics tracking enabled');
       }
@@ -96,6 +100,7 @@ function App() {
         console.log('   - Set VITE_USE_AXICOV=true for AI agents');
         console.log('   - Set VITE_USE_N8N=true for workflow automation');
         console.log('   - Set VITE_ELEVENLABS_API_KEY for premium voice');
+        console.log('   - Set VITE_USE_REAL_BLOCKCHAIN=true for Ethereum');
       }
       
       // Log Requestly debug info
