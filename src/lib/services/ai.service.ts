@@ -7,6 +7,8 @@
  * - Travel recommendations
  * 
  * Uses Beeceptor mock in development.
+ * Enhanced with Requestly debug support.
+ * 
  * Prepared for integration with:
  * - OpenAI/Claude API for chat
  * - ElevenLabs for voice synthesis
@@ -14,6 +16,10 @@
  */
 
 import { ServiceURLs, ServiceFlags } from './config';
+import { createServiceFetch } from '../debug';
+
+// Create debug-enabled fetch for this service
+const serviceFetch = createServiceFetch('AIService');
 
 export interface ItineraryPreferences {
   interests: string[];
@@ -114,7 +120,8 @@ class AIService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/generate-itinerary`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/generate-itinerary`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +150,8 @@ class AIService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/chat`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -267,4 +275,3 @@ class AIService {
 
 export const aiService = new AIService();
 export default aiService;
-

@@ -14,6 +14,8 @@ import AdminDashboard from './components/dashboard/AdminDashboard';
 import GuideDashboard from './components/dashboard/GuideDashboard';
 import MarketplaceDashboard from './components/dashboard/MarketplaceDashboard';
 import { initializeServices } from './lib/services';
+import { DEBUG_PANEL_ENABLED } from './lib/debug';
+import { DebugPanel } from './components/debug/DebugPanel';
 
 const LandingPage: React.FC = () => {
   return (
@@ -74,7 +76,40 @@ function App() {
         console.log('📋 External Service Status:', status);
         console.log('💡 To use Beeceptor mocks, set VITE_BEECEPTOR_URL in .env.local');
       }
+      
+      // Log Requestly debug info
+      console.log(
+        '%c🔍 YatriAI Debug Mode: ' + (DEBUG_PANEL_ENABLED ? 'ENABLED' : 'DISABLED'),
+        `color: ${DEBUG_PANEL_ENABLED ? '#10b981' : '#6b7280'}; font-weight: bold;`
+      );
+      if (DEBUG_PANEL_ENABLED) {
+        console.log(
+          '%c💡 Debug Panel available! Click the 🐞 button in the corner.',
+          'color: #8b5cf6;'
+        );
+        console.log(
+          '%c💡 Console commands: YatriAIDebug.toggleDebugMode(), YatriAIDebug.getRequests(), YatriAIDebug.clearRequests()',
+          'color: #8b5cf6;'
+        );
+      }
     });
+
+    // Add keyboard shortcut for debug panel toggle
+    const handleKeydown = (e: KeyboardEvent) => {
+      // Ctrl+Shift+D to toggle debug mode
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        e.preventDefault();
+        const { toggleDebugMode } = window as any;
+        if (typeof (window as any).YatriAIDebug?.toggleDebugMode === 'function') {
+          (window as any).YatriAIDebug.toggleDebugMode();
+          // Force re-render (in a real app, you'd use state management)
+          window.location.reload();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
   }, []);
 
   return (
@@ -93,6 +128,9 @@ function App() {
                 <Route path="/guide-dashboard" element={<GuideDashboard />} />
                 <Route path="/marketplace-dashboard" element={<MarketplaceDashboard />} />
               </Routes>
+              
+              {/* Debug Panel - Only shown in development or when debug mode is enabled */}
+              {DEBUG_PANEL_ENABLED && <DebugPanel />}
             </div>
           </Router>
         </AuthProvider>
