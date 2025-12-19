@@ -31,3 +31,8 @@ router.patch('/bookings/:id/status', authenticate, authorize('guide'), updateGui
 
 export default router;
 
+
+
+
+
+

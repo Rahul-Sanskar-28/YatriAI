@@ -17,3 +17,8 @@ export const verifyToken = (token: string): TokenPayload => {
   return jwt.verify(token, JWT_SECRET) as TokenPayload;
 };
 
+
+
+
+
+
