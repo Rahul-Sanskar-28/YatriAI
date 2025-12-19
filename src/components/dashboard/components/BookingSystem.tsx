@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2, Wallet } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2, Wallet, Receipt, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bookings } from '../../../data/mockData';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -7,9 +7,9 @@ import { BorderBeam } from '../../magicui/BorderBeam';
 import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
-import { WalletConnect, BlockchainVerification, VerificationBadge } from '../../blockchain';
-import { blockchainService, paymentService, type VerificationResult, type PaymentResult, type WalletState, type BlockchainRecord } from '../../../lib/services';
-import { isMetaMaskAvailable, ActiveNetwork } from '../../../lib/services/config';
+import { WalletConnect, BlockchainVerification } from '../../blockchain';
+import { blockchainService, paymentService, type VerificationResult, type PaymentResult, type PaymentIntent, type WalletState, type BlockchainRecord, isDodoPaymentsConfigured } from '../../../lib/services';
+import { DodoPaymentsConfig, isMetaMaskAvailable, ActiveNetwork } from '../../../lib/services/config';
 
 const BookingSystem: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'new'>('current');
@@ -17,19 +17,26 @@ const BookingSystem: React.FC = () => {
   const [blockchainRecords, setBlockchainRecords] = useState<Record<string, BlockchainRecord>>({});
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
+  
+  // Dodo Payments state
+  const [paymentResults, setPaymentResults] = useState<Record<string, PaymentResult>>({});
+  const [paymentStatuses, setPaymentStatuses] = useState<Record<string, PaymentIntent>>({});
+  const [verifyingPayment, setVerifyingPayment] = useState<string | null>(null);
+  
+  // ETHIndia blockchain state
   const [walletState, setWalletState] = useState<WalletState>(blockchainService.getWalletState());
   const [recordingOnChain, setRecordingOnChain] = useState<string | null>(null);
 
   const currentBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
   const historyBookings = bookings.filter(b => b.status === 'cancelled');
 
-  // Handle wallet connection
+  // Handle wallet connection (ETHIndia)
   const handleWalletConnect = (state: WalletState) => {
     setWalletState(state);
     console.log('🔗 Wallet connected:', state.address);
   };
 
-  // Record booking on blockchain (requires wallet)
+  // Record booking on blockchain (requires wallet) - ETHIndia
   const handleRecordOnBlockchain = async (booking: typeof bookings[0]) => {
     if (!walletState.isConnected) {
       alert('Please connect your wallet first');
@@ -60,7 +67,7 @@ const BookingSystem: React.FC = () => {
     }
   };
 
-  // Verify booking on blockchain via Beeceptor/ETHIndia service
+  // Verify booking on blockchain via ETHIndia service
   const handleVerifyOnBlockchain = async (bookingId: string, txHash: string) => {
     setVerifyingId(bookingId);
     try {
@@ -73,29 +80,65 @@ const BookingSystem: React.FC = () => {
     }
   };
 
-  // Process payment via Beeceptor/Dodo Payments service
+  // Process payment via Dodo Payments service
   const handleCompletePayment = async (booking: typeof bookings[0]) => {
     setProcessingPayment(booking.id);
     try {
       const result: PaymentResult = await paymentService.createPayment({
         amount: booking.amount,
-        currency: 'INR',
+        currency: DodoPaymentsConfig.DEFAULT_CURRENCY,
         description: booking.title,
+        items: [{
+          id: booking.id,
+          name: booking.title,
+          price: booking.amount,
+          quantity: 1,
+        }],
         metadata: {
           bookingId: booking.id,
           type: booking.type,
         }
       });
 
-      if (result.success && result.redirectUrl) {
-        // In production, would redirect to payment gateway
-        // For now, show success message
-        alert(`Payment initiated! Payment ID: ${result.paymentId}\n\nIn production, you would be redirected to: ${result.redirectUrl}`);
+      if (result.success) {
+        setPaymentResults(prev => ({ ...prev, [booking.id]: result }));
+        
+        // If Dodo Payments is configured and we have a checkout URL, redirect
+        if (isDodoPaymentsConfigured() && result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+        } else if (result.redirectUrl) {
+          // Show modal or redirect for mock payments
+          console.log('💳 Payment initiated:', result);
+          alert(`Payment initiated!\n\nPayment ID: ${result.paymentId}\nOrder ID: ${result.orderId || 'N/A'}\n\n${result.message || 'Please complete payment to confirm booking.'}`);
+        }
+      } else {
+        alert('Payment creation failed. Please try again.');
       }
     } catch (error) {
       console.error('Payment processing failed:', error);
+      alert('An error occurred while processing payment.');
     } finally {
       setProcessingPayment(null);
+    }
+  };
+
+  // Verify payment status (Dodo Payments)
+  const handleVerifyPayment = async (booking: typeof bookings[0]) => {
+    const paymentResult = paymentResults[booking.id];
+    if (!paymentResult?.paymentId) return;
+
+    setVerifyingPayment(booking.id);
+    try {
+      const status = await paymentService.verifyPayment(paymentResult.paymentId);
+      setPaymentStatuses(prev => ({ ...prev, [booking.id]: status }));
+      
+      if (status.status === 'completed') {
+        alert(`✅ Payment verified!\n\nStatus: ${status.status}\nAmount: ${paymentService.formatAmount(status.amount)}\n\nReceipt: ${status.receiptUrl || 'Will be sent via email'}`);
+      }
+    } catch (error) {
+      console.error('Payment verification failed:', error);
+    } finally {
+      setVerifyingPayment(null);
     }
   };
 
