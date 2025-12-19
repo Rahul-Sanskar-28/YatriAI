@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
 import api from '../lib/api';
+import { n8nService, analyticsService, notificationService } from '../lib/services';
 
 interface AuthContextType {
   user: User | null;
@@ -235,7 +236,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const userData = response.data.user;
-      setUser({
+      const loggedInUser: User = {
         id: userData.id,
         name: userData.name,
         email: userData.email,
@@ -248,14 +249,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           travelStyle: userData.preferences.travelStyle || 'solo',
           duration: userData.preferences.duration || 3
         } : undefined
+      };
+      setUser(loggedInUser);
+
+      // Track login analytics
+      analyticsService.identify(loggedInUser.id, {
+        email: loggedInUser.email,
+        name: loggedInUser.name,
+        role: loggedInUser.role,
+        preferences: loggedInUser.preferences,
       });
+      analyticsService.track('login', 'engagement', { role: loggedInUser.role });
     } catch (apiError) {
       // If API fails and mock auth is enabled, try mock login
       if (USE_MOCK_AUTH) {
         console.log('%c🔄 Backend unavailable, using mock authentication', 'color: #f59e0b;');
         const mockUser = await mockLogin(email, password, role);
         setUser(mockUser);
+
+        // Track login analytics for mock user
+        analyticsService.identify(mockUser.id, {
+          email: mockUser.email,
+          name: mockUser.name,
+          role: mockUser.role,
+        });
+        analyticsService.track('login', 'engagement', { role: mockUser.role, mock: true });
       } else {
+        analyticsService.error('login_failed', (apiError as Error).message);
         throw apiError;
       }
     }
@@ -271,7 +291,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const userData = response.data.user;
-      setUser({
+      const registeredUser: User = {
         id: userData.id,
         name: userData.name,
         email: userData.email,
@@ -284,6 +304,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           travelStyle: userData.preferences.travelStyle || 'solo',
           duration: userData.preferences.duration || 3
         } : undefined
+      };
+      setUser(registeredUser);
+
+      // Trigger n8n user registration workflow (welcome email, etc.)
+      n8nService.onUserRegistration({
+        userId: registeredUser.id,
+        email: registeredUser.email,
+        name: registeredUser.name,
+        role: registeredUser.role as 'tourist' | 'guide' | 'seller' | 'admin',
+        registeredAt: new Date().toISOString(),
+        preferences: registeredUser.preferences ? {
+          interests: registeredUser.preferences.interests,
+          language: 'en',
+        } : undefined,
+      });
+
+      // Track signup analytics
+      analyticsService.identify(registeredUser.id, {
+        email: registeredUser.email,
+        name: registeredUser.name,
+        role: registeredUser.role,
+        createdAt: new Date().toISOString(),
+      });
+      analyticsService.track('signup', 'conversion', { role: registeredUser.role });
+
+      // Send welcome notification
+      notificationService.send({
+        userId: registeredUser.id,
+        userEmail: registeredUser.email,
+        userName: registeredUser.name,
+        type: 'system',
+        title: 'Welcome to YatriAI! 🎉',
+        message: `Hi ${registeredUser.name}! Your account has been created successfully. Start exploring Jharkhand's amazing destinations!`,
+        priority: 'high',
+        actionUrl: '/',
+        actionLabel: 'Start Exploring',
       });
     } catch (apiError) {
       // If API fails and mock auth is enabled, try mock registration
@@ -291,13 +347,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('%c🔄 Backend unavailable, using mock registration', 'color: #f59e0b;');
         const mockUser = await mockRegister(email, password, name, role);
         setUser(mockUser);
+
+        // Track signup analytics for mock user
+        analyticsService.identify(mockUser.id, {
+          email: mockUser.email,
+          name: mockUser.name,
+          role: mockUser.role,
+        });
+        analyticsService.track('signup', 'conversion', { role: mockUser.role, mock: true });
       } else {
+        analyticsService.error('signup_failed', (apiError as Error).message);
         throw apiError;
       }
     }
   };
 
   const logout = () => {
+    // Track logout analytics before clearing user
+    if (user) {
+      analyticsService.track('logout', 'engagement', { userId: user.id });
+    }
+
     api.logout();
     localStorage.removeItem('mock-user');
     setUser(null);

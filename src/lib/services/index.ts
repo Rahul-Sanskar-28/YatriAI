@@ -8,10 +8,10 @@
  * 
  * Integrations:
  * - Axicov: AI agent deployment and orchestration
+ * - n8n: Workflow automation and notifications
  * - ElevenLabs: Voice AI (voiceService)
  * - Dodo Payments: Payment processing (paymentService)
  * - ETHIndia: Blockchain verification (blockchainService)
- * - n8n: Workflow orchestration (via webhooks)
  */
 
 // Configuration
@@ -32,6 +32,41 @@ export type {
   CulturalExpertInput,
   CulturalExpertResponse,
 } from './axicov.service';
+
+// n8n Workflow Automation
+export { n8nService } from './n8n.service';
+export type {
+  WorkflowTriggerResult,
+  UserRegistrationPayload,
+  BookingConfirmationPayload,
+  ItineraryGeneratedPayload,
+  GuideAssignmentPayload,
+  PaymentReceivedPayload,
+  ReminderPayload,
+  EmergencyAlertPayload,
+} from './n8n.service';
+
+// Notification Service
+export { notificationService } from './notification.service';
+export type {
+  Notification,
+  NotificationType,
+  NotificationPriority,
+  NotificationChannel,
+  CreateNotificationParams,
+  NotificationPreferences,
+} from './notification.service';
+
+// Analytics & Event Tracking
+export { analyticsService } from './analytics.service';
+export type {
+  AnalyticsEvent,
+  EventCategory,
+  StandardEvent,
+  UserTraits,
+  Funnel,
+  FunnelStep,
+} from './analytics.service';
 
 // Services
 export { weatherService } from './weather.service';
@@ -69,9 +104,11 @@ export { translateService, LANGUAGE_NAMES } from './translate.service';
 export type { SupportedLanguage, TranslationResult } from './translate.service';
 
 // Service status helper
-import { getServiceStatus, isUsingMocks, isAxicovConfigured } from './config';
+import { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured, ServiceFlags } from './config';
 import { axicovService } from './axicov.service';
-export { getServiceStatus, isUsingMocks, isAxicovConfigured };
+import { n8nService } from './n8n.service';
+import { analyticsService } from './analytics.service';
+export { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured };
 
 /**
  * Initialize all services (call once on app startup)
@@ -80,10 +117,14 @@ export const initializeServices = async (): Promise<{
   status: ReturnType<typeof getServiceStatus>;
   usingMocks: boolean;
   usingAxicov: boolean;
+  usingN8n: boolean;
+  analyticsEnabled: boolean;
 }> => {
   const status = getServiceStatus();
   const usingMocks = isUsingMocks();
   const usingAxicov = isAxicovConfigured();
+  const usingN8n = isN8nConfigured();
+  const analyticsEnabled = ServiceFlags.ENABLE_ANALYTICS;
 
   // Log Axicov status
   if (usingAxicov) {
@@ -95,27 +136,40 @@ export const initializeServices = async (): Promise<{
     console.log('Axicov Agents:', agentStatus);
   }
 
+  // Log n8n status
+  if (usingN8n) {
+    console.log(
+      '%c⚡ YatriAI Workflows: Powered by n8n',
+      'color: #ff6d5a; font-weight: bold;'
+    );
+    console.log('n8n configured:', n8nService.isConfigured());
+  }
+
+  // Log analytics status
+  if (analyticsEnabled) {
+    console.log(
+      '%c📊 YatriAI Analytics: Enabled',
+      'color: #3b82f6; font-weight: bold;'
+    );
+    console.log('Analytics consent:', analyticsService.hasConsent() ? 'given' : 'pending');
+  }
+
   if (usingMocks) {
     console.log(
       '%c🐝 YatriAI Services: Using Beeceptor mocks',
       'color: #f59e0b; font-weight: bold;'
     );
     console.log('Service Status:', status);
-  } else if (!usingAxicov) {
+  } else if (!usingAxicov && !usingN8n) {
     console.log(
       '%c🚀 YatriAI Services: Connected to live APIs',
       'color: #10b981; font-weight: bold;'
     );
   }
 
-  // Log setup hints if services are not configured
-  if (!usingAxicov && !usingMocks) {
-    console.log(
-      '%c💡 Tip: Set VITE_USE_AXICOV=true and configure agent IDs to use AI agents',
-      'color: #6b7280;'
-    );
-  }
+  // Log setup hints
+  console.log('%c📋 Service Configuration:', 'color: #6b7280; font-weight: bold;', status);
 
-  return { status, usingMocks, usingAxicov };
+  return { status, usingMocks, usingAxicov, usingN8n, analyticsEnabled };
 };
 
