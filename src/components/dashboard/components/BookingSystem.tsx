@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2 } from 'lucide-react';
+import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2, Receipt, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bookings } from '../../../data/mockData';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -7,13 +7,17 @@ import { BorderBeam } from '../../magicui/BorderBeam';
 import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
-import { blockchainService, paymentService, type VerificationResult, type PaymentResult } from '../../../lib/services';
+import { blockchainService, paymentService, type VerificationResult, type PaymentResult, type PaymentIntent, isDodoPaymentsConfigured } from '../../../lib/services';
+import { DodoPaymentsConfig } from '../../../lib/services/config';
 
 const BookingSystem: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'new'>('current');
   const [verificationResults, setVerificationResults] = useState<Record<string, VerificationResult>>({});
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
+  const [paymentResults, setPaymentResults] = useState<Record<string, PaymentResult>>({});
+  const [paymentStatuses, setPaymentStatuses] = useState<Record<string, PaymentIntent>>({});
+  const [verifyingPayment, setVerifyingPayment] = useState<string | null>(null);
 
   const currentBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
   const historyBookings = bookings.filter(b => b.status === 'cancelled');
@@ -31,29 +35,65 @@ const BookingSystem: React.FC = () => {
     }
   };
 
-  // Process payment via Beeceptor/Dodo Payments service
+  // Process payment via Dodo Payments service
   const handleCompletePayment = async (booking: typeof bookings[0]) => {
     setProcessingPayment(booking.id);
     try {
       const result: PaymentResult = await paymentService.createPayment({
         amount: booking.amount,
-        currency: 'INR',
+        currency: DodoPaymentsConfig.DEFAULT_CURRENCY,
         description: booking.title,
+        items: [{
+          id: booking.id,
+          name: booking.title,
+          price: booking.amount,
+          quantity: 1,
+        }],
         metadata: {
           bookingId: booking.id,
           type: booking.type,
         }
       });
 
-      if (result.success && result.redirectUrl) {
-        // In production, would redirect to payment gateway
-        // For now, show success message
-        alert(`Payment initiated! Payment ID: ${result.paymentId}\n\nIn production, you would be redirected to: ${result.redirectUrl}`);
+      if (result.success) {
+        setPaymentResults(prev => ({ ...prev, [booking.id]: result }));
+        
+        // If Dodo Payments is configured and we have a checkout URL, redirect
+        if (isDodoPaymentsConfigured() && result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+        } else if (result.redirectUrl) {
+          // Show modal or redirect for mock payments
+          console.log('💳 Payment initiated:', result);
+          alert(`Payment initiated!\n\nPayment ID: ${result.paymentId}\nOrder ID: ${result.orderId || 'N/A'}\n\n${result.message || 'Please complete payment to confirm booking.'}`);
+        }
+      } else {
+        alert('Payment creation failed. Please try again.');
       }
     } catch (error) {
       console.error('Payment processing failed:', error);
+      alert('An error occurred while processing payment.');
     } finally {
       setProcessingPayment(null);
+    }
+  };
+
+  // Verify payment status
+  const handleVerifyPayment = async (booking: typeof bookings[0]) => {
+    const paymentResult = paymentResults[booking.id];
+    if (!paymentResult?.paymentId) return;
+
+    setVerifyingPayment(booking.id);
+    try {
+      const status = await paymentService.verifyPayment(paymentResult.paymentId);
+      setPaymentStatuses(prev => ({ ...prev, [booking.id]: status }));
+      
+      if (status.status === 'completed') {
+        alert(`✅ Payment verified!\n\nStatus: ${status.status}\nAmount: ${paymentService.formatAmount(status.amount)}\n\nReceipt: ${status.receiptUrl || 'Will be sent via email'}`);
+      }
+    } catch (error) {
+      console.error('Payment verification failed:', error);
+    } finally {
+      setVerifyingPayment(null);
     }
   };
 

@@ -92,7 +92,8 @@ export const ServiceKeys = {
   // Get your key at: https://elevenlabs.io/
   ELEVENLABS_API_KEY: import.meta.env.VITE_ELEVENLABS_API_KEY || '',
   
-  // Dodo Payments keys (sandbox mode)
+  // Dodo Payments keys (sandbox mode - free, no credit card required)
+  // Get your keys at: https://dashboard.dodopayments.com
   DODO_PUBLIC_KEY: import.meta.env.VITE_DODO_PUBLIC_KEY || '',
   DODO_SECRET_KEY: import.meta.env.VITE_DODO_SECRET_KEY || '',
   
@@ -102,6 +103,52 @@ export const ServiceKeys = {
   // Axicov API key (free tier with Ethereum wallet login)
   // Get your key at axicov.com after signing in with MetaMask
   AXICOV_API_KEY: import.meta.env.VITE_AXICOV_API_KEY || '',
+};
+
+// ============================================
+// Dodo Payments Configuration
+// ============================================
+
+// Dodo Payments API URLs
+export const DodoPaymentsConfig = {
+  // API Endpoints
+  API_URL: import.meta.env.VITE_DODO_API_URL || 'https://sandbox.dodopayments.com/api',
+  CHECKOUT_URL: import.meta.env.VITE_DODO_CHECKOUT_URL || 'https://sandbox.dodopayments.com/checkout',
+  
+  // Sandbox mode (use sandbox for testing, production for live)
+  IS_SANDBOX: import.meta.env.VITE_DODO_SANDBOX !== 'false',
+  
+  // Supported currencies
+  SUPPORTED_CURRENCIES: ['INR', 'USD', 'EUR', 'GBP'] as const,
+  
+  // Default currency for YatriAI
+  DEFAULT_CURRENCY: 'INR',
+  
+  // Platform fee percentage (for marketplace transactions)
+  PLATFORM_FEE_PERCENT: parseFloat(import.meta.env.VITE_DODO_PLATFORM_FEE || '5'),
+  
+  // Payment methods enabled
+  PAYMENT_METHODS: {
+    UPI: true,
+    CARDS: true,
+    NET_BANKING: true,
+    WALLETS: true,
+  },
+  
+  // Webhook URL for payment notifications
+  WEBHOOK_URL: import.meta.env.VITE_DODO_WEBHOOK_URL || '',
+  
+  // Return URLs
+  SUCCESS_URL: import.meta.env.VITE_DODO_SUCCESS_URL || '/payment/success',
+  CANCEL_URL: import.meta.env.VITE_DODO_CANCEL_URL || '/payment/cancelled',
+  
+  // Split payment settings (for seller payouts)
+  SPLIT_PAYMENTS_ENABLED: import.meta.env.VITE_DODO_SPLIT_PAYMENTS === 'true',
+};
+
+// Helper to check if Dodo Payments is configured
+export const isDodoPaymentsConfigured = () => {
+  return ServiceKeys.DODO_PUBLIC_KEY !== '' && !ServiceFlags.USE_MOCK_PAYMENT;
 };
 
 // ElevenLabs Configuration
@@ -225,11 +272,15 @@ export const getServiceStatus = () => {
   const voiceStatus = isElevenLabsConfigured() 
     ? 'elevenlabs' 
     : (ServiceFlags.USE_MOCK_VOICE ? 'mock' : 'browser-tts');
+  
+  const paymentStatus = isDodoPaymentsConfigured()
+    ? (DodoPaymentsConfig.IS_SANDBOX ? 'dodo-sandbox' : 'dodo-live')
+    : (ServiceFlags.USE_MOCK_PAYMENT ? 'mock' : 'api');
     
   return {
     weather: ServiceFlags.USE_MOCK_WEATHER ? 'mock' : 'live',
     ai: aiStatus,
-    payment: ServiceFlags.USE_MOCK_PAYMENT ? 'mock' : 'live',
+    payment: paymentStatus,
     blockchain: ServiceFlags.USE_MOCK_BLOCKCHAIN ? 'mock' : 'live',
     translate: ServiceFlags.USE_MOCK_TRANSLATE ? 'mock' : 'live',
     voice: voiceStatus,
@@ -237,6 +288,7 @@ export const getServiceStatus = () => {
     axicov: isAxicovConfigured() ? 'configured' : 'not-configured',
     n8n: isN8nConfigured() ? 'configured' : 'not-configured',
     elevenlabs: isElevenLabsConfigured() ? 'configured' : 'not-configured',
+    dodoPayments: isDodoPaymentsConfigured() ? 'configured' : 'not-configured',
     analytics: ServiceFlags.ENABLE_ANALYTICS ? 'enabled' : 'disabled',
   };
 };

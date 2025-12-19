@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Star, Shield, Filter, Search, Heart, Sparkles, Package, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Star, Shield, Filter, Search, Heart, Sparkles, Package, TrendingUp, CreditCard, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { products } from '../../../data/mockData';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -7,13 +7,18 @@ import { BorderBeam } from '../../magicui/BorderBeam';
 import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
+import { CheckoutModal } from '../../payment';
+import { paymentService, type CartItem } from '../../../lib/services/payment.service';
+import { isDodoPaymentsConfigured, DodoPaymentsConfig } from '../../../lib/services/config';
 
 const Marketplace: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('featured');
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [showCartPreview, setShowCartPreview] = useState(false);
 
   const categories = [
     { id: 'all', label: 'All Products', count: products.length, icon: '🛍️' },
@@ -33,7 +38,48 @@ const Marketplace: React.FC = () => {
   ];
 
   const addToCart = (product: any) => {
-    setCart(prev => [...prev, { ...product, quantity: 1 }]);
+    const existingItem = cart.find(item => item.id === product.id);
+    if (existingItem) {
+      setCart(prev => prev.map(item => 
+        item.id === product.id 
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      const cartItem: CartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        image: product.image,
+        sellerId: product.seller?.id,
+      };
+      setCart(prev => [...prev, cartItem]);
+    }
+    setShowCartPreview(true);
+    setTimeout(() => setShowCartPreview(false), 3000);
+  };
+
+  const updateCartQuantity = (itemId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(itemId);
+    } else {
+      setCart(prev => prev.map(item => 
+        item.id === itemId ? { ...item, quantity } : item
+      ));
+    }
+  };
+
+  const removeFromCart = (itemId: string) => {
+    setCart(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleCheckoutComplete = (result: any) => {
+    console.log('✅ Checkout complete:', result);
+    // In production, would clear cart after successful payment confirmation
   };
 
   const toggleWishlist = (productId: string) => {
@@ -84,18 +130,76 @@ const Marketplace: React.FC = () => {
                 </span>
               )}
             </motion.button>
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative bg-green-600 text-white p-3 rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-500/30"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
-                  {cart.length}
-                </span>
-              )}
-            </motion.button>
+            <div className="relative">
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => cart.length > 0 && setIsCheckoutOpen(true)}
+                className="relative bg-green-600 text-white p-3 rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-500/30"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
+                    {cartItemCount}
+                  </span>
+                )}
+              </motion.button>
+
+              {/* Cart Preview Popup */}
+              <AnimatePresence>
+                {showCartPreview && cart.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-50"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">
+                        Cart ({cartItemCount})
+                      </h4>
+                      <button
+                        onClick={() => setShowCartPreview(false)}
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                      >
+                        <X className="w-4 h-4 text-gray-400" />
+                      </button>
+                    </div>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {cart.slice(-3).map(item => (
+                        <div key={item.id} className="flex items-center gap-2 text-sm">
+                          {item.image && (
+                            <img src={item.image} alt={item.name} className="w-10 h-10 rounded object-cover" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="truncate text-gray-900 dark:text-white">{item.name}</p>
+                            <p className="text-gray-500">{item.quantity} × {paymentService.formatAmount(item.price)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-gray-600 dark:text-gray-400">Total</span>
+                        <span className="font-semibold text-green-600">{paymentService.formatAmount(cartTotal)}</span>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setShowCartPreview(false);
+                          setIsCheckoutOpen(true);
+                        }}
+                        className="w-full py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium flex items-center justify-center gap-2"
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        Checkout
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <ShimmerButton className="px-5 py-3">
               <TrendingUp className="w-4 h-4" />
               <span>Become a Seller</span>
@@ -351,6 +455,33 @@ const Marketplace: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Checkout Modal */}
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        items={cart}
+        onUpdateQuantity={updateCartQuantity}
+        onRemoveItem={removeFromCart}
+        onCheckoutComplete={handleCheckoutComplete}
+      />
+
+      {/* Dodo Payments Badge */}
+      {isDodoPaymentsConfigured() && (
+        <div className="fixed bottom-4 left-4 z-40">
+          <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 text-xs">
+            <Shield className="w-4 h-4 text-green-500" />
+            <span className="text-gray-600 dark:text-gray-400">
+              Payments by <span className="font-semibold text-gray-900 dark:text-white">Dodo</span>
+              {DodoPaymentsConfig.IS_SANDBOX && (
+                <span className="ml-1 px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded text-[10px]">
+                  SANDBOX
+                </span>
+              )}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
