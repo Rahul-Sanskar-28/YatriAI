@@ -1,3 +1,12 @@
+/**
+ * API Client
+ * 
+ * Main API client for backend communication.
+ * Enhanced with debug interceptor for Requestly integration.
+ */
+
+import { debugFetch, DEBUG_MODE } from './debug';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 interface ApiResponse<T> {
@@ -29,6 +38,9 @@ class ApiClient {
     return this.token;
   }
 
+  /**
+   * Make an API request with debug instrumentation
+   */
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -39,11 +51,18 @@ class ApiClient {
       ...options.headers,
     };
 
+    const url = `${this.baseUrl}${endpoint}`;
+
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      // Use debug-enhanced fetch in debug mode, regular fetch otherwise
+      const fetchFn = DEBUG_MODE ? debugFetch : fetch;
+      
+      const response = await fetchFn(url, {
         ...options,
         headers,
-      });
+        // Source identifier for debug panel
+        ...(DEBUG_MODE && { source: 'ApiClient' }),
+      } as any);
 
       const data = await response.json();
 
@@ -293,9 +312,3 @@ class ApiClient {
 
 export const api = new ApiClient(API_BASE_URL);
 export default api;
-
-
-
-
-
-

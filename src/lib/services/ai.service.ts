@@ -11,6 +11,8 @@
  * 2. Beeceptor mock (development)
  * 3. Direct AI API (production)
  * 
+ * Enhanced with Requestly debug support for API debugging.
+ * 
  * Prepared for integration with:
  * - Axicov for AI agent deployment
  * - OpenAI/Claude API for chat
@@ -20,6 +22,10 @@
 
 import { ServiceURLs, ServiceFlags } from './config';
 import { axicovService } from './axicov.service';
+import { createServiceFetch } from '../debug';
+
+// Create debug-enabled fetch for this service
+const serviceFetch = createServiceFetch('AIService');
 
 export interface ItineraryPreferences {
   interests: string[];
@@ -155,7 +161,8 @@ class AIService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/generate-itinerary`, {
+      // Use debug-enabled fetch for Requestly support
+      const response = await serviceFetch(`${this.baseUrl}/generate-itinerary`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -209,7 +216,8 @@ class AIService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/chat`, {
+      // Use debug-enabled fetch for Requestly support
+      const response = await serviceFetch(`${this.baseUrl}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -479,4 +487,3 @@ class AIService {
 
 export const aiService = new AIService();
 export default aiService;
-

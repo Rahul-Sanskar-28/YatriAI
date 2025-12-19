@@ -7,6 +7,8 @@
  * - Multilingual voice support
  * 
  * Uses Beeceptor mock in development.
+ * Enhanced with Requestly debug support.
+ * 
  * Prepared for ElevenLabs integration:
  * - 10,000 characters free per month
  * - API: https://api.elevenlabs.io/v1
@@ -14,6 +16,10 @@
  */
 
 import { ServiceURLs, ServiceFlags, ServiceKeys } from './config';
+import { createServiceFetch } from '../debug';
+
+// Create debug-enabled fetch for this service
+const serviceFetch = createServiceFetch('VoiceService');
 
 export interface VoiceConfig {
   voiceId: string;
@@ -61,7 +67,7 @@ class VoiceService {
       language?: string;
     } = {}
   ): Promise<SpeechResult> {
-    const { voiceId = 'pNInz6obpgDQGcFmaJgB', language = 'en' } = options;
+    const { voiceId = 'pNInz6obpgDQGcFmaJgB' } = options;
 
     // Check character limit
     if (this.charactersUsed + text.length > this.monthlyLimit) {
@@ -78,12 +84,13 @@ class VoiceService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/tts`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/tts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text, voiceId, language }),
+        body: JSON.stringify({ text, voiceId, language: options.language }),
       });
 
       if (!response.ok) {
@@ -104,7 +111,8 @@ class VoiceService {
    */
   private async callElevenLabs(text: string, voiceId: string): Promise<SpeechResult> {
     try {
-      const response = await fetch(
+      // Use debug-enabled fetch for ElevenLabs too
+      const response = await serviceFetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
         {
           method: 'POST',
@@ -236,4 +244,3 @@ class VoiceService {
 
 export const voiceService = new VoiceService();
 export default voiceService;
-

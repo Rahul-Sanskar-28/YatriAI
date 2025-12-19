@@ -7,6 +7,8 @@
  * - Product authenticity verification
  * 
  * Uses Beeceptor mock in development.
+ * Enhanced with Requestly debug support.
+ * 
  * Prepared for ETHIndia/Ethereum integration:
  * - Testnet: Sepolia or Holesky (free test ETH from faucets)
  * - Smart contracts for booking escrow
@@ -14,6 +16,10 @@
  */
 
 import { ServiceURLs, ServiceFlags } from './config';
+import { createServiceFetch } from '../debug';
+
+// Create debug-enabled fetch for this service
+const serviceFetch = createServiceFetch('BlockchainService');
 
 export interface BlockchainRecord {
   txHash: string;
@@ -82,7 +88,8 @@ class BlockchainService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/record/booking`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/record/booking`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +120,8 @@ class BlockchainService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/verify/booking/${txHash}`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/verify/booking/${txHash}`, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -136,7 +144,8 @@ class BlockchainService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/verify/certificate/${certificateId}`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/verify/certificate/${certificateId}`, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -159,7 +168,8 @@ class BlockchainService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/records/user/${userId}`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/records/user/${userId}`, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -261,4 +271,3 @@ class BlockchainService {
 
 export const blockchainService = new BlockchainService();
 export default blockchainService;
-

@@ -7,10 +7,16 @@
  * - Chat message translation
  * 
  * Uses Beeceptor mock in development.
+ * Enhanced with Requestly debug support.
+ * 
  * Can be replaced with real translation API (LibreTranslate, DeepL, etc.)
  */
 
 import { ServiceURLs, ServiceFlags } from './config';
+import { createServiceFetch } from '../debug';
+
+// Create debug-enabled fetch for this service
+const serviceFetch = createServiceFetch('TranslateService');
 
 export type SupportedLanguage = 'en' | 'hi' | 'bn' | 'ho' | 'sat';
 
@@ -177,7 +183,8 @@ class TranslateService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/translate`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/translate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -285,4 +292,3 @@ class TranslateService {
 
 export const translateService = new TranslateService();
 export default translateService;
-
