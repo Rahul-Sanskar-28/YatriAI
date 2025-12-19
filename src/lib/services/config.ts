@@ -24,6 +24,10 @@ const BEECEPTOR_BASE = import.meta.env.VITE_BEECEPTOR_URL || 'https://yatriai.fr
 // Your deployed agents will have URLs like: https://api.axicov.com/v1/agents/{agent-id}/run
 const AXICOV_BASE = import.meta.env.VITE_AXICOV_URL || 'https://api.axicov.com/v1';
 
+// n8n base URL - Self-hosted or cloud instance
+// Local: http://localhost:5678 | Cloud: https://your-instance.app.n8n.cloud
+const N8N_BASE = import.meta.env.VITE_N8N_URL || 'http://localhost:5678';
+
 // Feature flags to enable/disable external services
 export const ServiceFlags = {
   USE_MOCK_WEATHER: import.meta.env.VITE_USE_MOCK_WEATHER !== 'false',
@@ -32,8 +36,13 @@ export const ServiceFlags = {
   USE_MOCK_BLOCKCHAIN: import.meta.env.VITE_USE_MOCK_BLOCKCHAIN !== 'false',
   USE_MOCK_TRANSLATE: import.meta.env.VITE_USE_MOCK_TRANSLATE !== 'false',
   USE_MOCK_VOICE: import.meta.env.VITE_USE_MOCK_VOICE !== 'false',
+  USE_MOCK_NOTIFICATIONS: import.meta.env.VITE_USE_MOCK_NOTIFICATIONS !== 'false',
   // Axicov - Set to true to use Axicov agents instead of direct AI API
   USE_AXICOV: import.meta.env.VITE_USE_AXICOV === 'true',
+  // n8n - Set to true to use n8n for workflow automation
+  USE_N8N: import.meta.env.VITE_USE_N8N === 'true',
+  // Analytics - Set to true to enable event tracking
+  ENABLE_ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
 };
 
 // Service URLs - Will be replaced with real service URLs when integrating
@@ -66,6 +75,15 @@ export const ServiceURLs = {
   // Axicov API (for AI agent deployment)
   // Agents are deployed as APIs at axicov.com
   AXICOV_API: AXICOV_BASE,
+  
+  // n8n API (for workflow automation)
+  // Self-hosted: http://localhost:5678/webhook/
+  // Cloud: https://your-instance.app.n8n.cloud/webhook/
+  N8N_WEBHOOK: import.meta.env.VITE_N8N_WEBHOOK_URL || `${N8N_BASE}/webhook`,
+  N8N_API: import.meta.env.VITE_N8N_API_URL || `${N8N_BASE}/api/v1`,
+  
+  // Analytics API (for event tracking)
+  ANALYTICS_API: import.meta.env.VITE_ANALYTICS_API_URL || `${BEECEPTOR_BASE}/api/analytics`,
 };
 
 // API Keys (loaded from environment)
@@ -103,6 +121,41 @@ export const AxicovAgents = {
   CULTURAL_EXPERT: import.meta.env.VITE_AXICOV_AGENT_CULTURAL_EXPERT || '',
 };
 
+// n8n Workflow Webhook Paths - Set these after creating workflows
+export const N8nWorkflows = {
+  // User registration workflow - sends welcome email
+  USER_REGISTRATION: import.meta.env.VITE_N8N_WORKFLOW_USER_REGISTRATION || 'user-registration',
+  
+  // Booking confirmation workflow - sends confirmation email + SMS
+  BOOKING_CONFIRMATION: import.meta.env.VITE_N8N_WORKFLOW_BOOKING_CONFIRMATION || 'booking-confirmation',
+  
+  // Itinerary generated workflow - sends itinerary PDF via email
+  ITINERARY_GENERATED: import.meta.env.VITE_N8N_WORKFLOW_ITINERARY_GENERATED || 'itinerary-generated',
+  
+  // Guide assignment workflow - notifies guide and tourist
+  GUIDE_ASSIGNED: import.meta.env.VITE_N8N_WORKFLOW_GUIDE_ASSIGNED || 'guide-assigned',
+  
+  // Payment received workflow - sends receipt and updates blockchain
+  PAYMENT_RECEIVED: import.meta.env.VITE_N8N_WORKFLOW_PAYMENT_RECEIVED || 'payment-received',
+  
+  // Review reminder workflow - sends reminder after trip ends
+  REVIEW_REMINDER: import.meta.env.VITE_N8N_WORKFLOW_REVIEW_REMINDER || 'review-reminder',
+  
+  // Trip reminder workflow - sends reminder before trip starts
+  TRIP_REMINDER: import.meta.env.VITE_N8N_WORKFLOW_TRIP_REMINDER || 'trip-reminder',
+  
+  // Emergency alert workflow - notifies emergency contacts
+  EMERGENCY_ALERT: import.meta.env.VITE_N8N_WORKFLOW_EMERGENCY_ALERT || 'emergency-alert',
+};
+
+// Notification channels configuration
+export const NotificationChannels = {
+  EMAIL_ENABLED: import.meta.env.VITE_EMAIL_NOTIFICATIONS !== 'false',
+  SMS_ENABLED: import.meta.env.VITE_SMS_NOTIFICATIONS === 'true',
+  PUSH_ENABLED: import.meta.env.VITE_PUSH_NOTIFICATIONS === 'true',
+  IN_APP_ENABLED: true, // Always enabled
+};
+
 // Helper to check if using mocks
 export const isUsingMocks = () => {
   const mockFlags = { ...ServiceFlags };
@@ -118,6 +171,11 @@ export const isAxicovConfigured = () => {
          Object.values(AxicovAgents).some(id => id !== '');
 };
 
+// Helper to check if n8n is configured
+export const isN8nConfigured = () => {
+  return ServiceFlags.USE_N8N && import.meta.env.VITE_N8N_URL !== undefined;
+};
+
 // Helper to get service status
 export const getServiceStatus = () => {
   const aiStatus = ServiceFlags.USE_AXICOV 
@@ -131,7 +189,10 @@ export const getServiceStatus = () => {
     blockchain: ServiceFlags.USE_MOCK_BLOCKCHAIN ? 'mock' : 'live',
     translate: ServiceFlags.USE_MOCK_TRANSLATE ? 'mock' : 'live',
     voice: ServiceFlags.USE_MOCK_VOICE ? 'mock' : 'live',
+    notifications: ServiceFlags.USE_MOCK_NOTIFICATIONS ? 'mock' : 'live',
     axicov: isAxicovConfigured() ? 'configured' : 'not-configured',
+    n8n: isN8nConfigured() ? 'configured' : 'not-configured',
+    analytics: ServiceFlags.ENABLE_ANALYTICS ? 'enabled' : 'disabled',
   };
 };
 
