@@ -3,9 +3,14 @@
  * 
  * Provides weather data for destinations.
  * Uses Beeceptor mock in development, can switch to real weather API in production.
+ * Enhanced with Requestly debug support.
  */
 
 import { ServiceURLs, ServiceFlags, ServiceKeys } from './config';
+import { createServiceFetch } from '../debug';
+
+// Create debug-enabled fetch for this service
+const serviceFetch = createServiceFetch('WeatherService');
 
 export interface WeatherData {
   location: string;
@@ -109,7 +114,8 @@ class WeatherService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/${encodeURIComponent(location)}`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/${encodeURIComponent(location)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -184,4 +190,3 @@ class WeatherService {
 
 export const weatherService = new WeatherService();
 export default weatherService;
-

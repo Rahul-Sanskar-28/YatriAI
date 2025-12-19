@@ -7,6 +7,8 @@
  * - Tour packages
  * 
  * Uses Beeceptor mock in development.
+ * Enhanced with Requestly debug support.
+ * 
  * Prepared for Dodo Payments integration (sandbox mode - free, no credit card).
  * 
  * Dodo Payments Integration:
@@ -15,6 +17,10 @@
  */
 
 import { ServiceURLs, ServiceFlags, ServiceKeys } from './config';
+import { createServiceFetch } from '../debug';
+
+// Create debug-enabled fetch for this service
+const serviceFetch = createServiceFetch('PaymentService');
 
 export interface PaymentIntent {
   id: string;
@@ -72,7 +78,8 @@ class PaymentService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/create`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +122,8 @@ class PaymentService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/verify/${paymentId}`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/verify/${paymentId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +151,8 @@ class PaymentService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/refund`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/refund`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +185,8 @@ class PaymentService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/history?email=${encodeURIComponent(customerEmail)}`, {
+      // Use debug-enabled fetch
+      const response = await serviceFetch(`${this.baseUrl}/history?email=${encodeURIComponent(customerEmail)}`, {
         headers: {
           'Content-Type': 'application/json',
           ...(this.publicKey && { 'X-Dodo-Key': this.publicKey }),
@@ -256,4 +266,3 @@ class PaymentService {
 
 export const paymentService = new PaymentService();
 export default paymentService;
-
