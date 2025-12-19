@@ -23,3 +23,8 @@ router.patch('/:id/status', authenticate, authorize('admin'), updateBookingStatu
 
 export default router;
 
+
+
+
+
+

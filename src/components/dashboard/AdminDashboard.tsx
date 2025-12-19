@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
   UserCheck, 
@@ -9,7 +10,8 @@ import {
   DollarSign,
   ShieldCheck,
   Building,
-  LayoutDashboard
+  LayoutDashboard,
+  LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -18,7 +20,13 @@ import { adminUsers } from '../../data/mockData';
 // Main Dashboard Component (This was missing)
 const AdminDashboard: React.FC = () => {
   const [activeView, setActiveView] = useState('analytics');
-  // const { user } = useAuth(); // Assuming useAuth provides the logged-in user's info
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const renderContent = () => {
     switch (activeView) {
@@ -47,7 +55,7 @@ const AdminDashboard: React.FC = () => {
       {/* Sidebar Navigation */}
       <aside className="w-64 bg-white dark:bg-gray-800 p-6 shadow-lg flex flex-col">
         <h1 className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-8">Admin Panel</h1>
-        <nav className="flex flex-col space-y-2">
+        <nav className="flex flex-col space-y-2 flex-1">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -63,9 +71,25 @@ const AdminDashboard: React.FC = () => {
             </button>
           ))}
         </nav>
-        <div className="mt-auto">
-           {/* You can add user info here from useAuth() */}
-           <p className="text-sm text-center text-gray-500 dark:text-gray-400">Logged in as Admin</p>
+        <div className="mt-auto border-t border-gray-200 dark:border-gray-700 pt-4">
+          <div className="flex items-center space-x-3 mb-4">
+            <img
+              src={user?.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'}
+              alt={user?.name}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center px-4 py-3 rounded-lg text-left font-medium transition-all duration-200 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            Logout
+          </button>
         </div>
       </aside>
 

@@ -25,3 +25,8 @@ router.post('/tips', authenticate, authorize('admin'), createAITip);
 
 export default router;
 
+
+
+
+
+

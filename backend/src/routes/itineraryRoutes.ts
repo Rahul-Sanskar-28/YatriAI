@@ -23,3 +23,8 @@ router.post('/generate', authenticate, generateAIItinerary);
 
 export default router;
 
+
+
+
+
+

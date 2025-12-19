@@ -25,3 +25,8 @@ router.delete('/:id', authenticate, authorize('seller'), deleteProduct);
 
 export default router;
 
+
+
+
+
+

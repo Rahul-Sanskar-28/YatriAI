@@ -21,3 +21,8 @@ router.delete('/:id', authenticate, authorize('admin'), deleteDestination);
 
 export default router;
 
+
+
+
+
+

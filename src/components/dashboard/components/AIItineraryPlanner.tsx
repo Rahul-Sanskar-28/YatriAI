@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Clock, DollarSign, Users, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Calendar, MapPin, Clock, DollarSign, Users, Sparkles, Wand2, Route, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { destinations, itineraries } from '../../../data/mockData';
+import { MagicCard } from '../../magicui/MagicCard';
+import { BorderBeam } from '../../magicui/BorderBeam';
+import { ShimmerButton } from '../../magicui/ShimmerButton';
+import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
+import { BlurFade } from '../../magicui/BlurFade';
 
 const AIItineraryPlanner: React.FC = () => {
   const [preferences, setPreferences] = useState({
@@ -49,7 +54,7 @@ const AIItineraryPlanner: React.FC = () => {
   const generateItinerary = async () => {
     setIsGenerating(true);
     
-    // Simulate AI processing
+    // Simulate AI processing with visual steps
     await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Generate mock itinerary based on preferences
@@ -89,217 +94,293 @@ const AIItineraryPlanner: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          AI Itinerary Planner ✨
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Let our AI create the perfect Jharkhand adventure tailored just for you
-        </p>
-      </div>
+      <BlurFade delay={0.1} inView>
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+            <Wand2 className="w-7 h-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              AI Itinerary Planner{' '}
+              <AnimatedGradientText className="text-3xl">✨</AnimatedGradientText>
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Let our AI create the perfect Jharkhand adventure tailored just for you
+            </p>
+          </div>
+        </div>
+      </BlurFade>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Preferences Form */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Tell us your preferences</h3>
-            
-            {/* Interests */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                What interests you? (Select multiple)
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {interestOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => handleInterestToggle(option.id)}
-                    className={`p-3 rounded-lg border-2 transition-all duration-300 ${
-                      preferences.interests.includes(option.id)
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                        : 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500'
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">{option.icon}</div>
-                    <div className="text-sm font-medium">{option.label}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Budget */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Budget Range
-              </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {budgetOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => setPreferences(prev => ({ ...prev, budget: option.id }))}
-                    className={`p-4 rounded-lg border-2 transition-all duration-300 ${
-                      preferences.budget === option.id
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                        : 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500'
-                    }`}
-                  >
-                    <div className="text-2xl mb-2">{option.icon}</div>
-                    <div className="font-medium mb-1">{option.label}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{option.range}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Travel Style */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Travel Style
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {travelStyles.map((style) => (
-                  <button
-                    key={style.id}
-                    onClick={() => setPreferences(prev => ({ ...prev, travelStyle: style.id }))}
-                    className={`p-3 rounded-lg border-2 transition-all duration-300 ${
-                      preferences.travelStyle === style.id
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                        : 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500'
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">{style.icon}</div>
-                    <div className="text-sm font-medium">{style.label}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Duration and Dates */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Trip Duration (days)
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="14"
-                  value={preferences.duration}
-                  onChange={(e) => setPreferences(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  <span>1 day</span>
-                  <span className="font-medium">{preferences.duration} days</span>
-                  <span>14 days</span>
+          <BlurFade delay={0.2} inView>
+            <MagicCard gradientColor="#22c55e" gradientOpacity={0.1}>
+              <div className="p-6">
+                <BorderBeam size={300} duration={15} colorFrom="#22c55e" colorTo="#f97316" />
+                
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-yellow-500" />
+                  Tell us your preferences
+                </h3>
+                
+                {/* Interests */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    What interests you? (Select multiple)
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {interestOptions.map((option) => (
+                      <motion.button
+                        key={option.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleInterestToggle(option.id)}
+                        className={`p-4 rounded-xl border-2 transition-all duration-300 relative overflow-hidden ${
+                          preferences.interests.includes(option.id)
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 shadow-lg shadow-green-500/20'
+                            : 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500 bg-white dark:bg-gray-800'
+                        }`}
+                      >
+                        {preferences.interests.includes(option.id) && (
+                          <motion.div
+                            layoutId="interest-selected"
+                            className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10"
+                          />
+                        )}
+                        <div className="relative z-10">
+                          <div className="text-2xl mb-2">{option.icon}</div>
+                          <div className="text-sm font-medium">{option.label}</div>
+                        </div>
+                        {preferences.interests.includes(option.id) && (
+                          <CheckCircle className="absolute top-2 right-2 w-4 h-4 text-green-500" />
+                        )}
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Start Date
-                </label>
-                <input
-                  type="date"
-                  value={preferences.startDate}
-                  onChange={(e) => setPreferences(prev => ({ ...prev, startDate: e.target.value }))}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
-              </div>
-            </div>
 
-            <button
-              onClick={generateItinerary}
-              disabled={isGenerating || preferences.interests.length === 0}
-              className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-4 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-              {isGenerating ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>AI is crafting your perfect itinerary...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  <span>Generate AI Itinerary</span>
-                </>
-              )}
-            </button>
-          </div>
+                {/* Budget */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    Budget Range
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {budgetOptions.map((option) => (
+                      <motion.button
+                        key={option.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setPreferences(prev => ({ ...prev, budget: option.id }))}
+                        className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                          preferences.budget === option.id
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 shadow-lg shadow-green-500/20'
+                            : 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500 bg-white dark:bg-gray-800'
+                        }`}
+                      >
+                        <div className="text-3xl mb-2">{option.icon}</div>
+                        <div className="font-medium mb-1">{option.label}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{option.range}</div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Travel Style */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    Travel Style
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {travelStyles.map((style) => (
+                      <motion.button
+                        key={style.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setPreferences(prev => ({ ...prev, travelStyle: style.id }))}
+                        className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                          preferences.travelStyle === style.id
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 shadow-lg shadow-green-500/20'
+                            : 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500 bg-white dark:bg-gray-800'
+                        }`}
+                      >
+                        <div className="text-2xl mb-1">{style.icon}</div>
+                        <div className="text-sm font-medium">{style.label}</div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Duration and Dates */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                      Trip Duration: <span className="text-green-600 font-bold">{preferences.duration} days</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="range"
+                        min="1"
+                        max="14"
+                        value={preferences.duration}
+                        onChange={(e) => setPreferences(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                        className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        <span>1 day</span>
+                        <span>14 days</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                      Start Date
+                    </label>
+                    <div className="relative">
+                      <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="date"
+                        value={preferences.startDate}
+                        onChange={(e) => setPreferences(prev => ({ ...prev, startDate: e.target.value }))}
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <ShimmerButton
+                  onClick={generateItinerary}
+                  disabled={isGenerating || preferences.interests.length === 0}
+                  className="w-full"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      <span>AI is crafting your perfect itinerary...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-5 h-5" />
+                      <span>Generate AI Itinerary</span>
+                    </>
+                  )}
+                </ShimmerButton>
+              </div>
+            </MagicCard>
+          </BlurFade>
         </div>
 
         {/* Generated Itinerary */}
         <div className="space-y-6">
-          {generatedItinerary ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg"
-            >
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                {generatedItinerary.title}
-              </h3>
-              
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                  <Clock className="w-4 h-4" />
-                  <span>{generatedItinerary.duration} days</span>
-                </div>
-                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                  <DollarSign className="w-4 h-4" />
-                  <span>₹{generatedItinerary.estimatedCost.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                  <MapPin className="w-4 h-4" />
-                  <span>{generatedItinerary.destinations.length} destinations</span>
-                </div>
-              </div>
+          <AnimatePresence mode="wait">
+            {generatedItinerary ? (
+              <BlurFade key="itinerary" delay={0.1} inView>
+                <MagicCard gradientColor="#f97316" gradientOpacity={0.15}>
+                  <div className="p-6 relative">
+                    <BorderBeam size={200} duration={10} colorFrom="#f97316" colorTo="#22c55e" />
+                    
+                    <div className="flex items-center gap-2 mb-4">
+                      <Route className="w-5 h-5 text-orange-500" />
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Your AI Itinerary
+                      </h3>
+                    </div>
+                    
+                    <h4 className="text-xl font-bold text-gradient mb-4">
+                      {generatedItinerary.title}
+                    </h4>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                        <Clock className="w-4 h-4 text-green-500" />
+                        <span>{generatedItinerary.duration} days</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                        <DollarSign className="w-4 h-4 text-green-500" />
+                        <span>₹{generatedItinerary.estimatedCost.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                        <MapPin className="w-4 h-4 text-green-500" />
+                        <span>{generatedItinerary.destinations.length} destinations</span>
+                      </div>
+                    </div>
 
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 dark:text-white">Highlights:</h4>
-                {generatedItinerary.highlights.map((highlight: string, index: number) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{highlight}</span>
+                    <div className="space-y-2 mb-6">
+                      <h5 className="font-medium text-gray-900 dark:text-white text-sm">Highlights:</h5>
+                      {generatedItinerary.highlights.map((highlight: string, index: number) => (
+                        <motion.div 
+                          key={index} 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center gap-2"
+                        >
+                          <div className="w-1.5 h-1.5 bg-gradient-to-r from-green-500 to-orange-500 rounded-full"></div>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{highlight}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2">
+                      <ShimmerButton className="w-full py-3" background="linear-gradient(135deg, #16a34a 0%, #22c55e 100%)">
+                        View Full Itinerary
+                      </ShimmerButton>
+                      <button className="w-full border-2 border-green-500 text-green-600 dark:text-green-400 py-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors font-medium">
+                        Customize Further
+                      </button>
+                    </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="mt-6 space-y-2">
-                <button className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
-                  View Full Itinerary
-                </button>
-                <button className="w-full border border-green-600 text-green-600 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
-                  Customize Further
-                </button>
-              </div>
-            </motion.div>
-          ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
-              <div className="text-6xl mb-4">🤖</div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                AI Ready to Help!
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Fill in your preferences and let our AI create the perfect Jharkhand itinerary for you.
-              </p>
-            </div>
-          )}
+                </MagicCard>
+              </BlurFade>
+            ) : (
+              <BlurFade key="placeholder" delay={0.2} inView>
+                <MagicCard gradientColor="#6366f1" gradientOpacity={0.1}>
+                  <div className="p-8 text-center">
+                    <motion.div
+                      animate={{ y: [0, -10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="text-6xl mb-4"
+                    >
+                      🤖
+                    </motion.div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                      AI Ready to Help!
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      Fill in your preferences and let our AI create the perfect Jharkhand itinerary for you.
+                    </p>
+                  </div>
+                </MagicCard>
+              </BlurFade>
+            )}
+          </AnimatePresence>
 
           {/* Saved Itineraries */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Saved Itineraries</h3>
-            <div className="space-y-3">
-              {itineraries.slice(0, 2).map((itinerary) => (
-                <div key={itinerary.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <h4 className="font-medium text-gray-900 dark:text-white text-sm">{itinerary.title}</h4>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                    {itinerary.duration} days • ₹{itinerary.estimatedCost.toLocaleString()}
-                  </p>
+          <BlurFade delay={0.3} inView>
+            <MagicCard gradientColor="#8b5cf6" gradientOpacity={0.1}>
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  Saved Itineraries
+                </h3>
+                <div className="space-y-3">
+                  {itineraries.slice(0, 2).map((itinerary, index) => (
+                    <motion.div 
+                      key={itinerary.id}
+                      whileHover={{ scale: 1.02 }}
+                      className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl cursor-pointer hover:shadow-md transition-all"
+                    >
+                      <h4 className="font-medium text-gray-900 dark:text-white text-sm">{itinerary.title}</h4>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        {itinerary.duration} days • ₹{itinerary.estimatedCost.toLocaleString()}
+                      </p>
+                    </motion.div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            </MagicCard>
+          </BlurFade>
         </div>
       </div>
     </div>
