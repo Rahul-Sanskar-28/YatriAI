@@ -97,7 +97,9 @@ export type {
   BlockchainRecord, 
   VerificationResult, 
   BookingOnChain, 
-  CertificateOnChain 
+  CertificateOnChain,
+  WalletState,
+  TransactionRequest,
 } from './blockchain.service';
 
 export { voiceService, AVAILABLE_VOICES } from './voice.service';
@@ -113,13 +115,26 @@ export { translateService, LANGUAGE_NAMES } from './translate.service';
 export type { SupportedLanguage, TranslationResult } from './translate.service';
 
 // Service status helper
-import { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured, isElevenLabsConfigured, isDodoPaymentsConfigured, DodoPaymentsConfig, ServiceFlags } from './config';
+import { 
+  getServiceStatus, 
+  isUsingMocks, 
+  isAxicovConfigured, 
+  isN8nConfigured, 
+  isElevenLabsConfigured, 
+  isDodoPaymentsConfigured, 
+  isBlockchainConfigured, 
+  isMetaMaskAvailable, 
+  DodoPaymentsConfig, 
+  ActiveNetwork, 
+  ServiceFlags 
+} from './config';
 import { axicovService } from './axicov.service';
 import { n8nService } from './n8n.service';
 import { analyticsService } from './analytics.service';
 import { voiceService } from './voice.service';
 import { paymentService } from './payment.service';
-export { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured, isElevenLabsConfigured, isDodoPaymentsConfigured };
+import { blockchainService } from './blockchain.service';
+export { getServiceStatus, isUsingMocks, isAxicovConfigured, isN8nConfigured, isElevenLabsConfigured, isDodoPaymentsConfigured, isBlockchainConfigured, isMetaMaskAvailable };
 
 /**
  * Initialize all services (call once on app startup)
@@ -131,6 +146,7 @@ export const initializeServices = async (): Promise<{
   usingN8n: boolean;
   usingElevenLabs: boolean;
   usingDodoPayments: boolean;
+  usingBlockchain: boolean;
   analyticsEnabled: boolean;
 }> => {
   const status = getServiceStatus();
@@ -139,6 +155,7 @@ export const initializeServices = async (): Promise<{
   const usingN8n = isN8nConfigured();
   const usingElevenLabs = isElevenLabsConfigured();
   const usingDodoPayments = isDodoPaymentsConfigured();
+  const usingBlockchain = isBlockchainConfigured();
   const analyticsEnabled = ServiceFlags.ENABLE_ANALYTICS;
 
   // Log Axicov status
@@ -190,6 +207,27 @@ export const initializeServices = async (): Promise<{
     );
   }
 
+  // Log Blockchain/ETHIndia status
+  if (usingBlockchain) {
+    console.log(
+      `%c⛓️ YatriAI Blockchain: ${ActiveNetwork.name} - ETHIndia`,
+      'color: #f97316; font-weight: bold;'
+    );
+    console.log(`Network: ${ActiveNetwork.name} (Chain ID: ${ActiveNetwork.chainId})`);
+    console.log(`Explorer: ${ActiveNetwork.explorerUrl}`);
+    console.log(`Faucet: ${ActiveNetwork.faucetUrl}`);
+  } else if (isMetaMaskAvailable()) {
+    console.log(
+      '%c🦊 MetaMask detected! Set VITE_USE_REAL_BLOCKCHAIN=true to enable blockchain features',
+      'color: #f59e0b; font-weight: bold;'
+    );
+  } else {
+    console.log(
+      '%c⛓️ YatriAI Blockchain: Simulation mode (install MetaMask for real transactions)',
+      'color: #6b7280; font-weight: bold;'
+    );
+  }
+
   // Log analytics status
   if (analyticsEnabled) {
     console.log(
@@ -205,7 +243,7 @@ export const initializeServices = async (): Promise<{
       'color: #f59e0b; font-weight: bold;'
     );
     console.log('Service Status:', status);
-  } else if (!usingAxicov && !usingN8n && !usingDodoPayments) {
+  } else if (!usingAxicov && !usingN8n && !usingDodoPayments && !usingBlockchain) {
     console.log(
       '%c🚀 YatriAI Services: Connected to live APIs',
       'color: #10b981; font-weight: bold;'
@@ -215,6 +253,5 @@ export const initializeServices = async (): Promise<{
   // Log setup hints
   console.log('%c📋 Service Configuration:', 'color: #6b7280; font-weight: bold;', status);
 
-  return { status, usingMocks, usingAxicov, usingN8n, usingElevenLabs, usingDodoPayments, analyticsEnabled };
+  return { status, usingMocks, usingAxicov, usingN8n, usingElevenLabs, usingDodoPayments, usingBlockchain, analyticsEnabled };
 };
-

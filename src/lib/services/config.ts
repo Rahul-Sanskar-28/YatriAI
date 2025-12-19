@@ -190,6 +190,106 @@ export const isElevenLabsConfigured = () => {
   return ServiceKeys.ELEVENLABS_API_KEY !== '' && !ServiceFlags.USE_MOCK_VOICE;
 };
 
+// ============================================
+// ETHIndia / Ethereum Blockchain Configuration
+// ============================================
+
+// Ethereum Networks Configuration
+export const EthereumNetworks = {
+  // Sepolia Testnet (recommended for testing)
+  sepolia: {
+    chainId: 11155111,
+    chainIdHex: '0xaa36a7',
+    name: 'Sepolia Testnet',
+    rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL || 'https://rpc.sepolia.org',
+    explorerUrl: 'https://sepolia.etherscan.io',
+    faucetUrl: 'https://sepoliafaucet.com',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  // Holesky Testnet (alternative testnet)
+  holesky: {
+    chainId: 17000,
+    chainIdHex: '0x4268',
+    name: 'Holesky Testnet',
+    rpcUrl: import.meta.env.VITE_HOLESKY_RPC_URL || 'https://ethereum-holesky.publicnode.com',
+    explorerUrl: 'https://holesky.etherscan.io',
+    faucetUrl: 'https://holesky-faucet.pk910.de',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  // Polygon Mumbai (alternative L2 testnet)
+  mumbai: {
+    chainId: 80001,
+    chainIdHex: '0x13881',
+    name: 'Polygon Mumbai',
+    rpcUrl: import.meta.env.VITE_MUMBAI_RPC_URL || 'https://rpc-mumbai.maticvigil.com',
+    explorerUrl: 'https://mumbai.polygonscan.com',
+    faucetUrl: 'https://faucet.polygon.technology',
+    symbol: 'MATIC',
+    decimals: 18,
+  },
+};
+
+// Active network selection
+export const ActiveEthNetwork = import.meta.env.VITE_ETH_NETWORK || 'sepolia';
+export const ActiveNetwork = EthereumNetworks[ActiveEthNetwork as keyof typeof EthereumNetworks] || EthereumNetworks.sepolia;
+
+// Smart Contract Addresses (deploy your own contracts for production)
+export const ContractAddresses = {
+  // YatriAI Booking Verification Contract
+  BOOKING_VERIFICATION: import.meta.env.VITE_CONTRACT_BOOKING || '',
+  
+  // Guide Certification NFT Contract
+  GUIDE_CERTIFICATE_NFT: import.meta.env.VITE_CONTRACT_GUIDE_NFT || '',
+  
+  // Product Authenticity NFT Contract
+  PRODUCT_AUTHENTICITY: import.meta.env.VITE_CONTRACT_PRODUCT_NFT || '',
+  
+  // Escrow Contract for Payments
+  PAYMENT_ESCROW: import.meta.env.VITE_CONTRACT_ESCROW || '',
+};
+
+// Blockchain Configuration
+export const BlockchainConfig = {
+  // Whether to use real blockchain (requires wallet & contracts)
+  USE_REAL_BLOCKCHAIN: import.meta.env.VITE_USE_REAL_BLOCKCHAIN === 'true',
+  
+  // Gas settings (for testnet, can use higher values)
+  DEFAULT_GAS_LIMIT: 200000,
+  GAS_PRICE_GWEI: 20,
+  
+  // Confirmation settings
+  CONFIRMATIONS_REQUIRED: 2,
+  POLLING_INTERVAL: 4000, // ms
+  
+  // Wallet connection
+  AUTO_CONNECT_WALLET: import.meta.env.VITE_AUTO_CONNECT_WALLET === 'true',
+  
+  // Supported wallet types
+  SUPPORTED_WALLETS: ['metamask', 'walletconnect', 'coinbase'],
+};
+
+// Helper to check if blockchain is properly configured
+export const isBlockchainConfigured = () => {
+  return (
+    BlockchainConfig.USE_REAL_BLOCKCHAIN &&
+    !ServiceFlags.USE_MOCK_BLOCKCHAIN &&
+    (ContractAddresses.BOOKING_VERIFICATION !== '' || 
+     typeof window !== 'undefined' && (window as any).ethereum)
+  );
+};
+
+// Helper to check if MetaMask is available
+export const isMetaMaskAvailable = () => {
+  return typeof window !== 'undefined' && (window as any).ethereum?.isMetaMask;
+};
+
+// Helper to get network by chainId
+export const getNetworkByChainId = (chainId: number) => {
+  return Object.values(EthereumNetworks).find(n => n.chainId === chainId);
+};
+
 // Axicov Agent IDs - Set these after deploying your agents
 export const AxicovAgents = {
   // Travel Assistant Agent - Handles general chat about Jharkhand tourism
@@ -276,12 +376,16 @@ export const getServiceStatus = () => {
   const paymentStatus = isDodoPaymentsConfigured()
     ? (DodoPaymentsConfig.IS_SANDBOX ? 'dodo-sandbox' : 'dodo-live')
     : (ServiceFlags.USE_MOCK_PAYMENT ? 'mock' : 'api');
+  
+  const blockchainStatus = isBlockchainConfigured()
+    ? `ethereum-${ActiveEthNetwork}`
+    : (ServiceFlags.USE_MOCK_BLOCKCHAIN ? 'mock' : 'simulated');
     
   return {
     weather: ServiceFlags.USE_MOCK_WEATHER ? 'mock' : 'live',
     ai: aiStatus,
     payment: paymentStatus,
-    blockchain: ServiceFlags.USE_MOCK_BLOCKCHAIN ? 'mock' : 'live',
+    blockchain: blockchainStatus,
     translate: ServiceFlags.USE_MOCK_TRANSLATE ? 'mock' : 'live',
     voice: voiceStatus,
     notifications: ServiceFlags.USE_MOCK_NOTIFICATIONS ? 'mock' : 'live',
@@ -289,7 +393,7 @@ export const getServiceStatus = () => {
     n8n: isN8nConfigured() ? 'configured' : 'not-configured',
     elevenlabs: isElevenLabsConfigured() ? 'configured' : 'not-configured',
     dodoPayments: isDodoPaymentsConfigured() ? 'configured' : 'not-configured',
+    ethereum: isBlockchainConfigured() ? `${ActiveEthNetwork}-connected` : 'not-configured',
     analytics: ServiceFlags.ENABLE_ANALYTICS ? 'enabled' : 'disabled',
   };
 };
-

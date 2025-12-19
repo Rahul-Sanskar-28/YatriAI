@@ -71,7 +71,7 @@ const AppContent: React.FC = () => {
 function App() {
   // Initialize external services on app startup
   useEffect(() => {
-    initializeServices().then(({ status, usingMocks, usingAxicov, usingN8n, usingElevenLabs, usingDodoPayments, analyticsEnabled }) => {
+    initializeServices().then(({ status, usingMocks, usingAxicov, usingN8n, usingElevenLabs, usingDodoPayments, usingBlockchain, analyticsEnabled }) => {
       console.log('📋 External Service Status:', status);
       
       if (usingAxicov) {
@@ -90,6 +90,10 @@ function App() {
         console.log('💳 Payments powered by Dodo Payments - https://dodopayments.com');
       }
       
+      if (usingBlockchain) {
+        console.log('⛓️ Blockchain verification powered by ETHIndia');
+      }
+      
       if (analyticsEnabled) {
         console.log('📊 Analytics tracking enabled');
       }
@@ -101,6 +105,7 @@ function App() {
         console.log('   - Set VITE_USE_N8N=true for workflow automation');
         console.log('   - Set VITE_ELEVENLABS_API_KEY for premium voice');
         console.log('   - Set VITE_DODO_PUBLIC_KEY for Dodo Payments');
+        console.log('   - Set VITE_USE_REAL_BLOCKCHAIN=true for Ethereum');
       }
       
       // Log Requestly debug info
