@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -13,6 +13,7 @@ import TouristDashboard from './components/dashboard/TouristDashboard';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import GuideDashboard from './components/dashboard/GuideDashboard';
 import MarketplaceDashboard from './components/dashboard/MarketplaceDashboard';
+import { initializeServices } from './lib/services';
 
 const LandingPage: React.FC = () => {
   return (
@@ -66,6 +67,16 @@ const AppContent: React.FC = () => {
 
 
 function App() {
+  // Initialize external services on app startup
+  useEffect(() => {
+    initializeServices().then(({ status, usingMocks }) => {
+      if (usingMocks) {
+        console.log('📋 External Service Status:', status);
+        console.log('💡 To use Beeceptor mocks, set VITE_BEECEPTOR_URL in .env.local');
+      }
+    });
+  }, []);
+
   return (
     <ThemeProvider>
       <LanguageProvider>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Clock, DollarSign, Users, Sparkles, Wand2, Route, CheckCircle } from 'lucide-react';
+import { Calendar, MapPin, Clock, DollarSign, Users, Sparkles, Wand2, Route, CheckCircle, Cloud, Thermometer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { destinations, itineraries } from '../../../data/mockData';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -7,18 +7,21 @@ import { BorderBeam } from '../../magicui/BorderBeam';
 import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
+import { aiService, weatherService, type ItineraryPreferences, type GeneratedItinerary, type WeatherData } from '../../../lib/services';
 
 const AIItineraryPlanner: React.FC = () => {
   const [preferences, setPreferences] = useState({
     interests: [] as string[],
-    budget: 'mid-range',
-    travelStyle: 'solo',
+    budget: 'mid-range' as 'budget' | 'mid-range' | 'luxury',
+    travelStyle: 'solo' as 'solo' | 'couple' | 'family' | 'group',
     duration: 3,
     startDate: '',
     groupSize: 1
   });
-  const [generatedItinerary, setGeneratedItinerary] = useState<any>(null);
+  const [generatedItinerary, setGeneratedItinerary] = useState<GeneratedItinerary | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [generationStep, setGenerationStep] = useState<string>('');
 
   const interestOptions = [
     { id: 'nature', label: 'Nature & Wildlife', icon: '🌿' },
@@ -53,43 +56,83 @@ const AIItineraryPlanner: React.FC = () => {
 
   const generateItinerary = async () => {
     setIsGenerating(true);
+    setGenerationStep('Analyzing your preferences...');
     
-    // Simulate AI processing with visual steps
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Generate mock itinerary based on preferences
-    const relevantDestinations = destinations.filter(d => 
-      preferences.interests.length === 0 || preferences.interests.includes(d.category)
-    );
-    
-    const mockItinerary = {
-      id: Date.now().toString(),
-      title: `AI-Generated ${preferences.duration}-Day Jharkhand Adventure`,
-      duration: preferences.duration,
-      destinations: relevantDestinations.slice(0, preferences.duration),
-      dailyPlan: Array.from({ length: preferences.duration }, (_, index) => ({
-        day: index + 1,
-        destination: relevantDestinations[index % relevantDestinations.length],
-        activities: [
-          'Morning: Arrival and check-in',
-          'Afternoon: Guided tour and exploration',
-          'Evening: Local cultural experience'
+    try {
+      // Step 1: Fetch weather data via Beeceptor/service
+      setGenerationStep('Checking weather conditions...');
+      const weather = await weatherService.getWeather('Ranchi');
+      setWeatherData(weather);
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Step 2: Get travel recommendations
+      setGenerationStep('Getting AI recommendations...');
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      // Step 3: Generate itinerary via AI service (Beeceptor mock)
+      setGenerationStep('Crafting your perfect itinerary...');
+      const itineraryPrefs: ItineraryPreferences = {
+        interests: preferences.interests,
+        budget: preferences.budget,
+        travelStyle: preferences.travelStyle,
+        duration: preferences.duration,
+        startDate: preferences.startDate,
+        groupSize: preferences.groupSize,
+      };
+      
+      const generatedResult = await aiService.generateItinerary(itineraryPrefs);
+      
+      // Step 4: Finalize
+      setGenerationStep('Adding final touches...');
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      setGeneratedItinerary(generatedResult);
+    } catch (error) {
+      console.error('Error generating itinerary:', error);
+      // Fallback to local generation
+      const relevantDestinations = destinations.filter(d => 
+        preferences.interests.length === 0 || preferences.interests.includes(d.category)
+      );
+      
+      setGeneratedItinerary({
+        id: Date.now().toString(),
+        title: `AI-Generated ${preferences.duration}-Day Jharkhand Adventure`,
+        duration: preferences.duration,
+        destinations: relevantDestinations.slice(0, preferences.duration).map(d => ({
+          id: d.id,
+          name: d.name,
+          category: d.category,
+          image: d.image,
+          duration: '1 day'
+        })),
+        dailyPlan: Array.from({ length: preferences.duration }, (_, index) => ({
+          day: index + 1,
+          destination: relevantDestinations[index % relevantDestinations.length]?.name || 'Ranchi',
+          activities: [
+            'Morning: Arrival and check-in',
+            'Afternoon: Guided tour and exploration',
+            'Evening: Local cultural experience'
+          ],
+          accommodation: 'Eco-friendly resort',
+          meals: ['Traditional Jharkhandi cuisine'],
+          transport: 'Private vehicle with driver',
+          estimatedCost: preferences.budget === 'budget' ? 2500 : preferences.budget === 'mid-range' ? 5000 : 10000
+        })),
+        estimatedCost: preferences.budget === 'budget' ? 8000 : preferences.budget === 'mid-range' ? 15000 : 25000,
+        highlights: [
+          'AI-optimized route planning',
+          'Weather-based activity suggestions',
+          'Local guide recommendations',
+          'Cultural immersion experiences'
         ],
-        accommodation: 'Eco-friendly resort',
-        meals: 'Traditional Jharkhandi cuisine',
-        transport: 'Private vehicle with driver'
-      })),
-      estimatedCost: preferences.budget === 'budget' ? 8000 : preferences.budget === 'mid-range' ? 15000 : 25000,
-      highlights: [
-        'AI-optimized route planning',
-        'Weather-based activity suggestions',
-        'Local guide recommendations',
-        'Cultural immersion experiences'
-      ]
-    };
-    
-    setGeneratedItinerary(mockItinerary);
-    setIsGenerating(false);
+        tips: ['Carry cash for remote areas', 'Book guides in advance'],
+        weather: weatherData?.conditions || 'Pleasant weather expected',
+        bestTimeToVisit: 'Morning activities recommended'
+      });
+    } finally {
+      setIsGenerating(false);
+      setGenerationStep('');
+    }
   };
 
   return (
@@ -257,7 +300,7 @@ const AIItineraryPlanner: React.FC = () => {
                   {isGenerating ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                      <span>AI is crafting your perfect itinerary...</span>
+                      <span>{generationStep || 'AI is crafting your perfect itinerary...'}</span>
                     </>
                   ) : (
                     <>
@@ -266,6 +309,30 @@ const AIItineraryPlanner: React.FC = () => {
                     </>
                   )}
                 </ShimmerButton>
+                
+                {/* Weather Preview - fetched via Beeceptor */}
+                {weatherData && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">{weatherData.icon}</div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Thermometer className="w-4 h-4 text-blue-500" />
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {weatherData.temperature}°C - {weatherData.conditions}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Current weather at {weatherData.location}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </MagicCard>
           </BlurFade>
