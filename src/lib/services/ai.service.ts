@@ -6,16 +6,22 @@
  * - Chat responses
  * - Travel recommendations
  * 
- * Uses Beeceptor mock in development.
- * Enhanced with Requestly debug support.
+ * Integration hierarchy:
+ * 1. Axicov agents (if configured) - Deployed AI agents as APIs
+ * 2. Beeceptor mock (development)
+ * 3. Direct AI API (production)
+ * 
+ * Enhanced with Requestly debug support for API debugging.
  * 
  * Prepared for integration with:
+ * - Axicov for AI agent deployment
  * - OpenAI/Claude API for chat
  * - ElevenLabs for voice synthesis
  * - n8n for workflow orchestration
  */
 
 import { ServiceURLs, ServiceFlags } from './config';
+import { axicovService } from './axicov.service';
 import { createServiceFetch } from '../debug';
 
 // Create debug-enabled fetch for this service
@@ -104,23 +110,58 @@ const mockChatResponses: Record<string, ChatResponse> = {
 class AIService {
   private baseUrl: string;
   private useMock: boolean;
+  private useAxicov: boolean;
 
   constructor() {
     this.baseUrl = ServiceURLs.AI_API;
     this.useMock = ServiceFlags.USE_MOCK_AI;
+    this.useAxicov = ServiceFlags.USE_AXICOV && axicovService.isConfigured();
+  }
+
+  /**
+   * Check if using Axicov agents
+   */
+  isUsingAxicov(): boolean {
+    return this.useAxicov;
   }
 
   /**
    * Generate an AI-powered itinerary
+   * Priority: Axicov > Beeceptor/API > Mock
    */
   async generateItinerary(preferences: ItineraryPreferences): Promise<GeneratedItinerary> {
+    // Try Axicov first if configured
+    if (this.useAxicov) {
+      try {
+        console.log('🤖 Using Axicov Itinerary Planner agent...');
+        const result = await axicovService.planItinerary({
+          preferences: {
+            interests: preferences.interests,
+            budget: preferences.budget,
+            travelStyle: preferences.travelStyle,
+            duration: preferences.duration,
+            startDate: preferences.startDate,
+            groupSize: preferences.groupSize,
+          },
+        });
+
+        if (result.success && result.data) {
+          console.log(`✅ Axicov itinerary generated in ${result.executionTime}ms`);
+          return result.data;
+        }
+        console.warn('⚠️ Axicov agent failed, falling back:', result.error);
+      } catch (error) {
+        console.warn('⚠️ Axicov unavailable, falling back:', error);
+      }
+    }
+
     // If using mock, simulate AI processing
     if (this.useMock && !import.meta.env.VITE_BEECEPTOR_URL) {
       return this.generateMockItinerary(preferences);
     }
 
     try {
-      // Use debug-enabled fetch
+      // Use debug-enabled fetch for Requestly support
       const response = await serviceFetch(`${this.baseUrl}/generate-itinerary`, {
         method: 'POST',
         headers: {
@@ -143,14 +184,39 @@ class AIService {
 
   /**
    * Get AI chat response
+   * Priority: Axicov > Beeceptor/API > Mock
    */
   async chat(message: string, history: ChatMessage[] = []): Promise<ChatResponse> {
+    // Try Axicov first if configured
+    if (this.useAxicov) {
+      try {
+        console.log('🤖 Using Axicov Travel Assistant agent...');
+        const result = await axicovService.askTravelAssistant({
+          message,
+          context: {
+            previousMessages: history.map(h => ({
+              role: h.role === 'user' ? 'user' : 'assistant',
+              content: h.content,
+            })),
+          },
+        });
+
+        if (result.success && result.data) {
+          console.log(`✅ Axicov chat response in ${result.executionTime}ms`);
+          return result.data;
+        }
+        console.warn('⚠️ Axicov agent failed, falling back:', result.error);
+      } catch (error) {
+        console.warn('⚠️ Axicov unavailable, falling back:', error);
+      }
+    }
+
     if (this.useMock && !import.meta.env.VITE_BEECEPTOR_URL) {
       return this.getMockChatResponse(message);
     }
 
     try {
-      // Use debug-enabled fetch
+      // Use debug-enabled fetch for Requestly support
       const response = await serviceFetch(`${this.baseUrl}/chat`, {
         method: 'POST',
         headers: {
@@ -172,6 +238,7 @@ class AIService {
 
   /**
    * Get travel recommendations based on user preferences
+   * Priority: Axicov > Mock
    */
   async getRecommendations(preferences: {
     interests: string[];
@@ -182,6 +249,30 @@ class AIService {
     activities: string[];
     tips: string[];
   }> {
+    // Try Axicov first if configured
+    if (this.useAxicov) {
+      try {
+        console.log('🤖 Using Axicov Recommendations agent...');
+        const result = await axicovService.getRecommendations({
+          interests: preferences.interests,
+          budget: preferences.budget,
+          duration: preferences.duration,
+        });
+
+        if (result.success && result.data) {
+          console.log(`✅ Axicov recommendations in ${result.executionTime}ms`);
+          return {
+            destinations: result.data.destinations.map(d => d.name),
+            activities: result.data.activities.map(a => a.name),
+            tips: result.data.tips,
+          };
+        }
+        console.warn('⚠️ Axicov agent failed, falling back:', result.error);
+      } catch (error) {
+        console.warn('⚠️ Axicov unavailable, falling back:', error);
+      }
+    }
+
     // Mock implementation - would call AI API in production
     const recommendations = {
       destinations: [] as string[],
@@ -210,6 +301,127 @@ class AIService {
     ];
 
     return recommendations;
+  }
+
+  /**
+   * Get cultural insights about Jharkhand
+   * Uses Axicov Cultural Expert agent
+   */
+  async getCulturalInsights(topic: string): Promise<{
+    title: string;
+    content: string;
+    keyFacts: string[];
+    relatedTopics: string[];
+  }> {
+    if (this.useAxicov) {
+      try {
+        console.log('🤖 Using Axicov Cultural Expert agent...');
+        const result = await axicovService.askCulturalExpert({
+          topic,
+          depth: 'detailed',
+        });
+
+        if (result.success && result.data) {
+          console.log(`✅ Axicov cultural insights in ${result.executionTime}ms`);
+          return result.data;
+        }
+        console.warn('⚠️ Axicov agent failed:', result.error);
+      } catch (error) {
+        console.warn('⚠️ Axicov unavailable:', error);
+      }
+    }
+
+    // Fallback mock response
+    return {
+      title: `About ${topic}`,
+      content: `Jharkhand is rich in tribal culture and heritage. The topic "${topic}" is an important part of the local traditions.`,
+      keyFacts: [
+        'Jharkhand has 32 tribal communities',
+        'Rich tradition of folk art and music',
+        'Famous for Dokra metal craft',
+      ],
+      relatedTopics: ['Tribal festivals', 'Traditional crafts', 'Local cuisine'],
+    };
+  }
+
+  /**
+   * Match tourist with appropriate guides
+   * Uses Axicov Guide Matcher agent
+   */
+  async matchGuides(preferences: {
+    interests: string[];
+    language: string;
+    budget: string;
+    dates: string[];
+  }, availableGuides?: {
+    id: string;
+    name: string;
+    specialties: string[];
+    languages: string[];
+    rating: number;
+  }[]): Promise<{
+    matches: {
+      guideId: string;
+      guideName: string;
+      matchScore: number;
+      matchReasons: string[];
+    }[];
+  }> {
+    if (this.useAxicov) {
+      try {
+        console.log('🤖 Using Axicov Guide Matcher agent...');
+        const result = await axicovService.matchGuide({
+          touristPreferences: preferences,
+          availableGuides,
+        });
+
+        if (result.success && result.data) {
+          console.log(`✅ Axicov guide matching in ${result.executionTime}ms`);
+          return {
+            matches: result.data.matches.map(m => ({
+              guideId: m.guideId,
+              guideName: m.guideName,
+              matchScore: m.matchScore,
+              matchReasons: m.matchReasons,
+            })),
+          };
+        }
+        console.warn('⚠️ Axicov agent failed:', result.error);
+      } catch (error) {
+        console.warn('⚠️ Axicov unavailable:', error);
+      }
+    }
+
+    // Fallback: simple matching based on interests
+    if (availableGuides && availableGuides.length > 0) {
+      const matches = availableGuides
+        .map(guide => {
+          const matchingSpecialties = guide.specialties.filter(s => 
+            preferences.interests.some(i => s.toLowerCase().includes(i.toLowerCase()))
+          );
+          const languageMatch = guide.languages.includes(preferences.language) ? 1 : 0;
+          const matchScore = (matchingSpecialties.length / preferences.interests.length) * 0.7 + 
+                            languageMatch * 0.2 + 
+                            (guide.rating / 5) * 0.1;
+          
+          return {
+            guideId: guide.id,
+            guideName: guide.name,
+            matchScore: Math.round(matchScore * 100) / 100,
+            matchReasons: [
+              ...matchingSpecialties.map(s => `Specializes in ${s}`),
+              ...(languageMatch ? [`Speaks ${preferences.language}`] : []),
+              `Rating: ${guide.rating}/5`,
+            ],
+          };
+        })
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, 3);
+
+      return { matches };
+    }
+
+    return { matches: [] };
   }
 
   private generateMockItinerary(preferences: ItineraryPreferences): GeneratedItinerary {

@@ -8,7 +8,8 @@
  * - Development with mocks: Use Beeceptor URLs
  * - Production: Use real service URLs
  * 
- * Future integrations prepared:
+ * Integrations prepared:
+ * - Axicov: AI agent deployment and orchestration
  * - ElevenLabs: Voice AI for chat responses and audio guides
  * - Dodo Payments: Payment processing for marketplace/bookings
  * - ETHIndia: Blockchain verification on Ethereum testnets
@@ -19,6 +20,10 @@
 // Example: https://yatriai.free.beeceptor.com
 const BEECEPTOR_BASE = import.meta.env.VITE_BEECEPTOR_URL || 'https://yatriai.free.beeceptor.com';
 
+// Axicov base URL - Deployed agents at axicov.com
+// Your deployed agents will have URLs like: https://api.axicov.com/v1/agents/{agent-id}/run
+const AXICOV_BASE = import.meta.env.VITE_AXICOV_URL || 'https://api.axicov.com/v1';
+
 // Feature flags to enable/disable external services
 export const ServiceFlags = {
   USE_MOCK_WEATHER: import.meta.env.VITE_USE_MOCK_WEATHER !== 'false',
@@ -27,6 +32,8 @@ export const ServiceFlags = {
   USE_MOCK_BLOCKCHAIN: import.meta.env.VITE_USE_MOCK_BLOCKCHAIN !== 'false',
   USE_MOCK_TRANSLATE: import.meta.env.VITE_USE_MOCK_TRANSLATE !== 'false',
   USE_MOCK_VOICE: import.meta.env.VITE_USE_MOCK_VOICE !== 'false',
+  // Axicov - Set to true to use Axicov agents instead of direct AI API
+  USE_AXICOV: import.meta.env.VITE_USE_AXICOV === 'true',
 };
 
 // Service URLs - Will be replaced with real service URLs when integrating
@@ -55,6 +62,10 @@ export const ServiceURLs = {
   
   // Notification webhooks (for n8n integration)
   WEBHOOK_URL: import.meta.env.VITE_WEBHOOK_URL || `${BEECEPTOR_BASE}/webhooks`,
+  
+  // Axicov API (for AI agent deployment)
+  // Agents are deployed as APIs at axicov.com
+  AXICOV_API: AXICOV_BASE,
 };
 
 // API Keys (loaded from environment)
@@ -68,22 +79,59 @@ export const ServiceKeys = {
   
   // Weather API key (if using a real weather service)
   WEATHER_API_KEY: import.meta.env.VITE_WEATHER_API_KEY || '',
+  
+  // Axicov API key (free tier with Ethereum wallet login)
+  // Get your key at axicov.com after signing in with MetaMask
+  AXICOV_API_KEY: import.meta.env.VITE_AXICOV_API_KEY || '',
+};
+
+// Axicov Agent IDs - Set these after deploying your agents
+export const AxicovAgents = {
+  // Travel Assistant Agent - Handles general chat about Jharkhand tourism
+  TRAVEL_ASSISTANT: import.meta.env.VITE_AXICOV_AGENT_TRAVEL_ASSISTANT || '',
+  
+  // Itinerary Planner Agent - Generates personalized travel itineraries
+  ITINERARY_PLANNER: import.meta.env.VITE_AXICOV_AGENT_ITINERARY_PLANNER || '',
+  
+  // Recommendations Agent - Provides destination and activity recommendations
+  RECOMMENDATIONS: import.meta.env.VITE_AXICOV_AGENT_RECOMMENDATIONS || '',
+  
+  // Guide Matcher Agent - Matches tourists with appropriate local guides
+  GUIDE_MATCHER: import.meta.env.VITE_AXICOV_AGENT_GUIDE_MATCHER || '',
+  
+  // Cultural Expert Agent - Provides insights on tribal culture and heritage
+  CULTURAL_EXPERT: import.meta.env.VITE_AXICOV_AGENT_CULTURAL_EXPERT || '',
 };
 
 // Helper to check if using mocks
 export const isUsingMocks = () => {
-  return Object.values(ServiceFlags).some(flag => flag === true);
+  const mockFlags = { ...ServiceFlags };
+  // Exclude USE_AXICOV from mock check as it's not a mock flag
+  delete (mockFlags as Record<string, boolean>).USE_AXICOV;
+  return Object.values(mockFlags).some(flag => flag === true);
+};
+
+// Helper to check if Axicov is configured
+export const isAxicovConfigured = () => {
+  return ServiceFlags.USE_AXICOV && 
+         ServiceKeys.AXICOV_API_KEY !== '' && 
+         Object.values(AxicovAgents).some(id => id !== '');
 };
 
 // Helper to get service status
 export const getServiceStatus = () => {
+  const aiStatus = ServiceFlags.USE_AXICOV 
+    ? (isAxicovConfigured() ? 'axicov' : 'axicov-unconfigured')
+    : (ServiceFlags.USE_MOCK_AI ? 'mock' : 'live');
+    
   return {
     weather: ServiceFlags.USE_MOCK_WEATHER ? 'mock' : 'live',
-    ai: ServiceFlags.USE_MOCK_AI ? 'mock' : 'live',
+    ai: aiStatus,
     payment: ServiceFlags.USE_MOCK_PAYMENT ? 'mock' : 'live',
     blockchain: ServiceFlags.USE_MOCK_BLOCKCHAIN ? 'mock' : 'live',
     translate: ServiceFlags.USE_MOCK_TRANSLATE ? 'mock' : 'live',
     voice: ServiceFlags.USE_MOCK_VOICE ? 'mock' : 'live',
+    axicov: isAxicovConfigured() ? 'configured' : 'not-configured',
   };
 };
 
