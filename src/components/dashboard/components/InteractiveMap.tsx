@@ -1,12 +1,32 @@
 import React, { useState } from 'react';
-import { MapPin, Navigation, Clock, Bus, Train, Car } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { MapPin, Navigation, Clock, Bus, Train, Car, Headphones, Volume2, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { destinations } from '../../../data/mockData';
+import { AudioGuide } from '../../voice';
+import { VoiceButton } from '../../voice';
 
 const InteractiveMap: React.FC = () => {
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
   const [userLocation, setUserLocation] = useState({ lat: 23.3441, lng: 85.3096 }); // Ranchi
   const [transportMode, setTransportMode] = useState<'bus' | 'train' | 'car'>('car');
+  const [showAudioGuide, setShowAudioGuide] = useState(false);
+
+  // Generate audio guide content from destination
+  const getAudioGuideContent = (destination: any) => ({
+    introduction: destination.description || `${destination.name} is one of Jharkhand's most treasured destinations, offering visitors a unique blend of natural beauty and cultural heritage.`,
+    history: `${destination.name} has been an important landmark in Jharkhand's history, attracting visitors from across India and abroad. The area is known for its rich tribal heritage and connection to the local Santal, Munda, and Ho communities.`,
+    highlights: [
+      `The main attraction at ${destination.name} offers breathtaking views and unique photo opportunities.`,
+      `Local artisans near ${destination.name} create beautiful handicrafts that make perfect souvenirs.`,
+      `The surrounding area features pristine nature trails perfect for eco-tourism enthusiasts.`,
+    ],
+    tips: [
+      'Best time to visit is during early morning or late afternoon for optimal lighting',
+      'Carry water and snacks as facilities may be limited',
+      'Hire a local guide to learn about the cultural significance of the area',
+      'Respect the local customs and dress modestly when visiting tribal areas',
+    ],
+  });
 
   const transportOptions = [
     { id: 'bus', label: 'Bus', icon: Bus, color: 'text-blue-600' },
@@ -142,9 +162,17 @@ const InteractiveMap: React.FC = () => {
                   className="w-24 h-24 rounded-lg object-cover"
                 />
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {selectedDestination.name}
-                  </h3>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {selectedDestination.name}
+                    </h3>
+                    {/* Quick Voice Button */}
+                    <VoiceButton
+                      text={`${selectedDestination.name}. ${selectedDestination.description}`}
+                      size="sm"
+                      variant="ghost"
+                    />
+                  </div>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     {selectedDestination.description}
                   </p>
@@ -163,12 +191,74 @@ const InteractiveMap: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                  Get Directions
-                </button>
+                <div className="flex flex-col gap-2">
+                  <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    Get Directions
+                  </button>
+                  <button 
+                    onClick={() => setShowAudioGuide(true)}
+                    className="flex items-center gap-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-4 py-2 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors"
+                  >
+                    <Headphones className="w-4 h-4" />
+                    Audio Guide
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
+
+          {/* Audio Guide Modal */}
+          <AnimatePresence>
+            {showAudioGuide && selectedDestination && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                onClick={() => setShowAudioGuide(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={selectedDestination.image}
+                        alt={selectedDestination.name}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          {selectedDestination.name}
+                        </h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Powered by ElevenLabs AI Voice
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowAudioGuide(false)}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      <X className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                  
+                  {/* Audio Guide Component */}
+                  <AudioGuide
+                    destination={selectedDestination.name}
+                    content={getAudioGuideContent(selectedDestination)}
+                    className="border-none shadow-none"
+                  />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Sidebar */}

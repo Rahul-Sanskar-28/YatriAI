@@ -89,6 +89,7 @@ export const ServiceURLs = {
 // API Keys (loaded from environment)
 export const ServiceKeys = {
   // ElevenLabs API key (10k chars free/month)
+  // Get your key at: https://elevenlabs.io/
   ELEVENLABS_API_KEY: import.meta.env.VITE_ELEVENLABS_API_KEY || '',
   
   // Dodo Payments keys (sandbox mode)
@@ -101,6 +102,45 @@ export const ServiceKeys = {
   // Axicov API key (free tier with Ethereum wallet login)
   // Get your key at axicov.com after signing in with MetaMask
   AXICOV_API_KEY: import.meta.env.VITE_AXICOV_API_KEY || '',
+};
+
+// ElevenLabs Configuration
+export const ElevenLabsConfig = {
+  // API endpoint
+  API_URL: 'https://api.elevenlabs.io/v1',
+  
+  // Model to use (eleven_monolingual_v1, eleven_multilingual_v1, eleven_multilingual_v2)
+  MODEL_ID: import.meta.env.VITE_ELEVENLABS_MODEL || 'eleven_multilingual_v2',
+  
+  // Monthly character limit (free tier: 10,000)
+  MONTHLY_LIMIT: parseInt(import.meta.env.VITE_ELEVENLABS_LIMIT || '10000', 10),
+  
+  // Default voice settings
+  DEFAULT_STABILITY: 0.5,
+  DEFAULT_SIMILARITY: 0.75,
+  DEFAULT_STYLE: 0.5,
+  
+  // Preferred voices for different use cases
+  VOICES: {
+    // Chat responses - friendly and conversational
+    CHAT_ENGLISH: import.meta.env.VITE_ELEVENLABS_VOICE_CHAT_EN || 'pNInz6obpgDQGcFmaJgB', // Adam
+    CHAT_HINDI: import.meta.env.VITE_ELEVENLABS_VOICE_CHAT_HI || 'pNInz6obpgDQGcFmaJgB',
+    
+    // Audio guides - clear and informative
+    GUIDE_ENGLISH: import.meta.env.VITE_ELEVENLABS_VOICE_GUIDE_EN || 'AZnzlk1XvdvUeBnXmlld', // Domi (Indian accent)
+    GUIDE_HINDI: import.meta.env.VITE_ELEVENLABS_VOICE_GUIDE_HI || 'AZnzlk1XvdvUeBnXmlld',
+    
+    // Emergency/alerts - serious and urgent
+    ALERT: import.meta.env.VITE_ELEVENLABS_VOICE_ALERT || '21m00Tcm4TlvDq8ikWAM', // Rachel
+  },
+  
+  // Audio output format
+  OUTPUT_FORMAT: 'mp3_44100_128', // Options: mp3_44100_128, mp3_44100_64, pcm_16000
+};
+
+// Helper to check if ElevenLabs is configured
+export const isElevenLabsConfigured = () => {
+  return ServiceKeys.ELEVENLABS_API_KEY !== '' && !ServiceFlags.USE_MOCK_VOICE;
 };
 
 // Axicov Agent IDs - Set these after deploying your agents
@@ -181,6 +221,10 @@ export const getServiceStatus = () => {
   const aiStatus = ServiceFlags.USE_AXICOV 
     ? (isAxicovConfigured() ? 'axicov' : 'axicov-unconfigured')
     : (ServiceFlags.USE_MOCK_AI ? 'mock' : 'live');
+  
+  const voiceStatus = isElevenLabsConfigured() 
+    ? 'elevenlabs' 
+    : (ServiceFlags.USE_MOCK_VOICE ? 'mock' : 'browser-tts');
     
   return {
     weather: ServiceFlags.USE_MOCK_WEATHER ? 'mock' : 'live',
@@ -188,10 +232,11 @@ export const getServiceStatus = () => {
     payment: ServiceFlags.USE_MOCK_PAYMENT ? 'mock' : 'live',
     blockchain: ServiceFlags.USE_MOCK_BLOCKCHAIN ? 'mock' : 'live',
     translate: ServiceFlags.USE_MOCK_TRANSLATE ? 'mock' : 'live',
-    voice: ServiceFlags.USE_MOCK_VOICE ? 'mock' : 'live',
+    voice: voiceStatus,
     notifications: ServiceFlags.USE_MOCK_NOTIFICATIONS ? 'mock' : 'live',
     axicov: isAxicovConfigured() ? 'configured' : 'not-configured',
     n8n: isN8nConfigured() ? 'configured' : 'not-configured',
+    elevenlabs: isElevenLabsConfigured() ? 'configured' : 'not-configured',
     analytics: ServiceFlags.ENABLE_ANALYTICS ? 'enabled' : 'disabled',
   };
 };
