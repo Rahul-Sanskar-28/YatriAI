@@ -641,3 +641,4 @@ const HeritageNFT: React.FC = () => {
 
 export default HeritageNFT;
 
+

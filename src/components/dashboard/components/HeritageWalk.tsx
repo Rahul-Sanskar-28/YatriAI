@@ -618,3 +618,4 @@ const HeritageWalk: React.FC = () => {
 
 export default HeritageWalk;
 
+

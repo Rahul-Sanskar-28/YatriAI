@@ -706,3 +706,4 @@ const VerifiedMarketplace: React.FC = () => {
 
 export default VerifiedMarketplace;
 
+

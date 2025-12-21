@@ -624,3 +624,4 @@ const RecipeVault: React.FC = () => {
 
 export default RecipeVault;
 
+
