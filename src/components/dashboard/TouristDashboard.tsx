@@ -255,7 +255,7 @@ const DashboardHome: React.FC = () => {
           {t('dashboard.welcome')}, {user?.name}! 🪔
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Ready for your next adventure in Kolkata? <span className="font-bengali">কলকাতায় স্বাগতম!</span>
+          Ready for your next adventure in Kolkata?
         </p>
       </div>
 

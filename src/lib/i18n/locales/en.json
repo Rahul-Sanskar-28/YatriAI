@@ -1,0 +1,253 @@
+{
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "viewAll": "View All",
+    "learnMore": "Learn more",
+    "explore": "Explore",
+    "subscribe": "Subscribe",
+    "subscribed": "Subscribed!",
+    "selectLanguage": "Select Language",
+    "searchLanguage": "Search languages...",
+    "builtFor": "Built for",
+    "hackathonName": "Calcutta Hacks 2025"
+  },
+  "nav": {
+    "home": "Home",
+    "heritage": "Heritage",
+    "pujo": "Pujo",
+    "artisans": "Artisans",
+    "about": "About",
+    "marketplace": "Marketplace",
+    "dashboard": "Dashboard",
+    "destinations": "Destinations",
+    "guides": "Guides"
+  },
+  "brand": {
+    "name": "Kolkata Heritage",
+    "tagline": "City of Joy",
+    "subtitle": "আমাদের কলকাতা"
+  },
+  "hero": {
+    "badge": "City of Joy",
+    "title": "Kolkata Heritage",
+    "subtitle": "City of Joy",
+    "description": "From the legacy of <trams>trams</trams>, <tea>tea</tea>, and <tagore>Tagore</tagore> — Experience where tradition meets transformation.",
+    "searchPlaceholder": "Search Victoria Memorial, Howrah Bridge, College Street...",
+    "heritageWalks": "Heritage Walks",
+    "heritageWalksBn": "ঐতিহ্য পথচলা",
+    "pujoExperience": "Pujo Experience",
+    "pujoExperienceBn": "পুজো অভিজ্ঞতা",
+    "artisanCrafts": "Artisan Crafts",
+    "artisanCraftsBn": "শিল্পী শিল্প"
+  },
+  "features": {
+    "sectionTitle": "Experience Kolkata",
+    "sectionSubtitle": "কলকাতা অভিজ্ঞতা",
+    "sectionDescription": "From <tramTracks>tram tracks</tramTracks> to <techStacks>tech stacks</techStacks> — Discover the City of Joy with AI-powered heritage experiences and blockchain-verified authenticity.",
+    "poweredBy": "Powered by AI & Blockchain",
+    "tramTracker": {
+      "title": "Tram Heritage Tracker",
+      "subtitle": "ট্রাম ঐতিহ্য",
+      "description": "Track real-time tram locations and discover the history of Asia's oldest running tram network"
+    },
+    "pujoPlanner": {
+      "title": "Pujo Route Planner",
+      "subtitle": "পুজো পথ",
+      "description": "AI-optimized pandal hopping with crowd predictions and cultural insights for Durga Puja"
+    },
+    "heritageAudio": {
+      "title": "Heritage Walk Audio",
+      "subtitle": "ঐতিহ্য কথা",
+      "description": "AI-narrated walking tours of Victoria Memorial, Marble Palace, and historic Kolkata"
+    },
+    "artisanMarket": {
+      "title": "Verified Artisan Market",
+      "subtitle": "শিল্পী বাজার",
+      "description": "Buy authentic Kumartuli crafts and tribal art with blockchain-verified authenticity"
+    },
+    "literaryKolkata": {
+      "title": "Literary Kolkata",
+      "subtitle": "সাহিত্যিক কলকাতা",
+      "description": "Explore College Street, Coffee House, and discover Tagore's Kolkata with curated tours"
+    },
+    "addaBot": {
+      "title": "Adda AI Companion",
+      "subtitle": "আড্ডা সঙ্গী",
+      "description": "Chat with an AI that knows Kolkata's soul - from mishti doi to metro shortcuts"
+    },
+    "cta": "Start Your Kolkata Journey",
+    "ctaSubtext": "Free heritage walk included • AI-powered itinerary • Blockchain verified"
+  },
+  "stats": {
+    "heritageSites": "Heritage Sites",
+    "heritageSitesBn": "ঐতিহ্যবাহী স্থান",
+    "pujoPandals": "Pujo Pandals",
+    "pujoPandalsBn": "পুজো প্যান্ডেল",
+    "artisanCrafts": "Artisan Crafts",
+    "artisanCraftsBn": "শিল্পী শিল্প",
+    "tramStops": "Tram Stops",
+    "tramStopsBn": "ট্রাম স্টপ"
+  },
+  "hackathon": {
+    "title": "Calcutta Hacks 2025",
+    "slogan": "Tram Tracks to Tech Stacks",
+    "date": "Dec 27-28, 2025",
+    "themes": {
+      "heritage": "Heritage & Stories",
+      "heritageBn": "ঐতিহ্য ও কথা",
+      "smart": "Smart & Sustainable",
+      "smartBn": "স্মার্ট ও টেকসই",
+      "digital": "Digital Preservation",
+      "digitalBn": "ডিজিটাল সংরক্ষণ",
+      "tradition": "Tradition + Tech",
+      "traditionBn": "ঐতিহ্য + প্রযুক্তি"
+    }
+  },
+  "testimonials": {
+    "title": "What Explorers Say",
+    "subtitle": "অভিযাত্রীদের কথা",
+    "description": "Real experiences from travelers who discovered the soul of the City of Joy",
+    "badge": "Real Stories from Kolkata Explorers"
+  },
+  "footer": {
+    "newsletter": {
+      "title": "Stay Connected with Kolkata",
+      "description": "Get AI-powered heritage tips, Pujo updates, and exclusive offers",
+      "placeholder": "Enter your email"
+    },
+    "about": "Your AI-powered companion for exploring the City of Joy. Discover heritage walks, connect with artisans, and experience the soul of Kolkata through technology.",
+    "explore": {
+      "title": "Explore",
+      "heritageSites": "Heritage Sites",
+      "durgaPuja": "Durga Puja",
+      "artisanMarketplace": "Artisan Marketplace",
+      "tramRoutes": "Tram Routes",
+      "foodGuide": "Food Guide",
+      "emergency": "Emergency"
+    },
+    "services": {
+      "title": "Features",
+      "aiPlanner": "AI Itinerary Planner",
+      "blockchain": "Blockchain Verification",
+      "audioTours": "Heritage Audio Tours",
+      "pujoOptimizer": "Pujo Route Optimizer",
+      "artisanConnect": "Artisan Connect",
+      "addaAI": "Adda AI Companion"
+    },
+    "contact": {
+      "title": "Contact",
+      "email": "hello@kolkataheritage.in",
+      "phone": "+91 33-HERITAGE",
+      "location": "Kolkata, West Bengal"
+    },
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    },
+    "copyright": "© 2025 Kolkata Heritage. Made with ❤️ for the City of Joy",
+    "builtFor": "Built for",
+    "byTeam": "by Apex Circle"
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "createAccount": "Create an Account",
+    "chooseRole": "Choose Your Role",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Full Name",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUp": "Sign up",
+    "signIn": "Sign in",
+    "roles": {
+      "tourist": {
+        "title": "Tourist / Traveler",
+        "description": "Explore Kolkata with AI-powered recommendations"
+      },
+      "admin": {
+        "title": "Local Authority / Admin",
+        "description": "Manage tourism services and certifications"
+      },
+      "seller": {
+        "title": "Marketplace Seller",
+        "description": "Sell authentic handicrafts and local products"
+      },
+      "guide": {
+        "title": "Local Guide",
+        "description": "Share your knowledge and earn as a certified guide"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "overview": "Overview",
+    "explore": "Explore",
+    "map": "Interactive Map",
+    "planner": "AI Planner",
+    "bookings": "Bookings",
+    "chat": "AI Chat",
+    "marketplace": "Marketplace",
+    "safety": "Safety",
+    "feedback": "Feedback",
+    "transport": "Transport",
+    "heritage": "Heritage Walk",
+    "artisans": "Artisan Chronicles",
+    "recipes": "Recipe Vault",
+    "patachitra": "Patachitra Archive",
+    "verifiedMarket": "Verified Market",
+    "heritageNft": "Heritage NFT",
+    "pandalDonations": "Pandal Donations",
+    "settings": "Settings"
+  },
+  "tips": {
+    "title": "AI Kolkata Tips",
+    "subtitle": "কলকাতা টিপস",
+    "live": "Live"
+  },
+  "landmarks": {
+    "victoriaMemorial": "Victoria Memorial",
+    "howrahBridge": "Howrah Bridge",
+    "kumartuli": "Kumartuli",
+    "durgaPuja": "Durga Puja",
+    "princepGhat": "Princep Ghat",
+    "collegeStreet": "College Street",
+    "indianCoffeeHouse": "Indian Coffee House",
+    "marblePalace": "Marble Palace",
+    "kalighatTemple": "Kalighat Temple",
+    "parkStreet": "Park Street"
+  },
+  "transport": {
+    "tram": "Tram",
+    "metro": "Metro",
+    "bus": "Bus",
+    "train": "Train",
+    "taxi": "Taxi",
+    "rickshaw": "Rickshaw"
+  },
+  "errors": {
+    "general": "Something went wrong. Please try again.",
+    "notFound": "Page not found",
+    "unauthorized": "You are not authorized to view this page",
+    "networkError": "Network error. Please check your connection."
+  }
+}
+

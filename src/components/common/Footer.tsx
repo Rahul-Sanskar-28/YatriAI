@@ -1,34 +1,101 @@
-import React from 'react';
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ArrowRight, Heart, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useLanguage } from '../../contexts/LanguageContext';
+import React, { useState } from 'react';
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ArrowRight, Heart, Sparkles, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../contexts/AuthContext';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { ShimmerButton } from '../magicui/ShimmerButton';
-import { TramIcon, DurgaIcon, VictoriaMemorialIcon, BookIcon } from '../kolkata/KolkataIcons';
+import LanguageSelector from './LanguageSelector';
+import { TramIcon } from '../kolkata/KolkataIcons';
 
 const Footer: React.FC = () => {
-  const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
-    { code: 'bn', name: 'বাংলা', flag: '🪔' }
-  ];
+  const handleSubscribe = () => {
+    if (email && email.includes('@')) {
+      setIsSubscribed(true);
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
+    }
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleQuickLinkClick = (linkName: string) => {
+    const linkMapping: { [key: string]: { section?: string; dashboardTab?: string } } = {
+      'Heritage Sites': { section: 'features', dashboardTab: 'heritage' },
+      'Durga Puja': { section: 'features', dashboardTab: 'pandal-donations' },
+      'Artisan Marketplace': { section: 'features', dashboardTab: 'verified-marketplace' },
+      'Tram Routes': { section: 'features', dashboardTab: 'transport' },
+      'Food Guide': { section: 'features', dashboardTab: 'recipes' },
+      'Emergency': { section: 'features', dashboardTab: 'safety' }
+    };
+
+    const link = linkMapping[linkName];
+    if (link) {
+      if (isAuthenticated && link.dashboardTab) {
+        navigate(`/tourist-dashboard?tab=${link.dashboardTab}`);
+      } else if (link.section) {
+        scrollToSection(link.section);
+      }
+    }
+  };
+
+  const handleServiceClick = (serviceName: string) => {
+    const serviceMapping: { [key: string]: string } = {
+      'AI Itinerary Planner': 'planner',
+      'Blockchain Verification': 'heritage-nft',
+      'Heritage Audio Tours': 'heritage',
+      'Pujo Route Optimizer': 'pandal-donations',
+      'Artisan Connect': 'artisans',
+      'Adda AI Companion': 'chat'
+    };
+
+    const dashboardTab = serviceMapping[serviceName];
+    if (isAuthenticated && dashboardTab) {
+      navigate(`/tourist-dashboard?tab=${dashboardTab}`);
+    } else {
+      scrollToSection('features');
+    }
+  };
+
+  const openSocialLink = (platform: string) => {
+    const socialUrls: { [key: string]: string } = {
+      'Facebook': 'https://facebook.com',
+      'Twitter': 'https://twitter.com',
+      'Instagram': 'https://instagram.com',
+      'Youtube': 'https://youtube.com'
+    };
+    window.open(socialUrls[platform], '_blank', 'noopener,noreferrer');
+  };
 
   const socialLinks = [
-    { icon: Facebook, href: '#', color: 'hover:bg-blue-500' },
-    { icon: Twitter, href: '#', color: 'hover:bg-sky-500' },
-    { icon: Instagram, href: '#', color: 'hover:bg-pink-500' },
-    { icon: Youtube, href: '#', color: 'hover:bg-red-500' }
+    { icon: Facebook, name: 'Facebook', color: 'hover:bg-blue-500' },
+    { icon: Twitter, name: 'Twitter', color: 'hover:bg-sky-500' },
+    { icon: Instagram, name: 'Instagram', color: 'hover:bg-pink-500' },
+    { icon: Youtube, name: 'Youtube', color: 'hover:bg-red-500' }
   ];
 
   const quickLinks = [
-    { name: 'Heritage Sites', bengali: 'ঐতিহ্যবাহী স্থান' },
-    { name: 'Durga Puja', bengali: 'দুর্গা পূজা' },
-    { name: 'Artisan Marketplace', bengali: 'শিল্পী বাজার' },
-    { name: 'Tram Routes', bengali: 'ট্রাম রুট' },
-    { name: 'Food Guide', bengali: 'খাবার গাইড' },
-    { name: 'Emergency', bengali: 'জরুরি' }
+    { name: 'Heritage Sites', key: 'footer.explore.heritageSites' },
+    { name: 'Durga Puja', key: 'footer.explore.durgaPuja' },
+    { name: 'Artisan Marketplace', key: 'footer.explore.artisanMarketplace' },
+    { name: 'Tram Routes', key: 'footer.explore.tramRoutes' },
+    { name: 'Food Guide', key: 'footer.explore.foodGuide' },
+    { name: 'Emergency', key: 'footer.explore.emergency' }
   ];
 
   const services = [
@@ -65,27 +132,54 @@ const Footer: React.FC = () => {
             <div>
               <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2 font-heritage">
                 <Sparkles className="w-6 h-6 text-kolkata-yellow" />
-                Stay Connected with Kolkata
+                {t('footer.newsletter.title')}
               </h3>
               <p className="text-gray-400">
-                Get AI-powered heritage tips, Pujo updates, and exclusive offers 
-                <span className="font-bengali text-kolkata-gold ml-2">আমাদের সাথে থাকুন</span>
+                {t('footer.newsletter.description')}
               </p>
             </div>
             <div className="flex gap-3 w-full md:w-auto">
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="flex-1 md:w-72 px-4 py-3 rounded-xl bg-gray-800 border border-kolkata-gold/20 text-white placeholder-gray-500 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent"
+                disabled={isSubscribed}
+                className="flex-1 md:w-72 px-4 py-3 rounded-xl bg-gray-800 border border-kolkata-gold/20 text-white placeholder-gray-500 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent disabled:opacity-50"
               />
               <ShimmerButton 
+                onClick={handleSubscribe}
                 className="px-6 py-3"
-                background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
+                background={isSubscribed ? "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)" : "linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"}
               >
-                <span>Subscribe</span>
-                <ArrowRight className="w-4 h-4" />
+                {isSubscribed ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Subscribed!</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Subscribe</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </ShimmerButton>
             </div>
+
+            {/* Toast Notification */}
+            <AnimatePresence>
+              {showToast && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="fixed bottom-8 right-8 z-50 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2"
+                >
+                  <Check className="w-5 h-5" />
+                  <span>Welcome to Kolkata Heritage! 🪔</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -107,9 +201,9 @@ const Footer: React.FC = () => {
               </motion.div>
               <div className="flex flex-col">
                 <AnimatedGradientText className="text-xl font-bold font-heritage">
-                  Kolkata Heritage
+                  {t('brand.name')}
                 </AnimatedGradientText>
-                <span className="text-xs text-kolkata-gold/60 font-bengali">আমাদের কলকাতা</span>
+                <span className="text-xs text-kolkata-gold/60">{t('brand.tagline')}</span>
               </div>
             </motion.div>
             <p className="text-gray-400 text-sm leading-relaxed">
@@ -121,15 +215,15 @@ const Footer: React.FC = () => {
               {socialLinks.map((social, index) => {
                 const Icon = social.icon;
                 return (
-                  <motion.a
+                  <motion.button
                     key={index}
-                    href={social.href}
+                    onClick={() => openSocialLink(social.name)}
                     whileHover={{ scale: 1.2, y: -3 }}
                     whileTap={{ scale: 0.95 }}
                     className={`w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center text-gray-400 hover:text-white transition-all ${social.color}`}
                   >
                     <Icon className="w-5 h-5" />
-                  </motion.a>
+                  </motion.button>
                 );
               })}
             </div>
@@ -153,14 +247,13 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <motion.li key={index} whileHover={{ x: 5 }}>
-                  <a 
-                    href="#" 
+                  <button 
+                    onClick={() => handleQuickLinkClick(link.name)}
                     className="text-gray-400 hover:text-kolkata-gold transition-colors text-sm flex items-center gap-2 group"
                   >
                     <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-kolkata-yellow" />
-                    <span>{link.name}</span>
-                    <span className="text-xs text-kolkata-gold/50 font-bengali">({link.bengali})</span>
-                  </a>
+                    <span>{t(link.key)}</span>
+                  </button>
                 </motion.li>
               ))}
             </ul>
@@ -175,13 +268,13 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               {services.map((service, index) => (
                 <motion.li key={index} whileHover={{ x: 5 }}>
-                  <a 
-                    href="#" 
+                  <button 
+                    onClick={() => handleServiceClick(service.name)}
                     className="text-gray-400 hover:text-kolkata-gold transition-colors text-sm flex items-center gap-2 group"
                   >
                     <span className="text-sm">{service.icon}</span>
                     {service.name}
-                  </a>
+                  </button>
                 </motion.li>
               ))}
             </ul>
@@ -230,27 +323,8 @@ const Footer: React.FC = () => {
               })}
             </div>
 
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium text-white font-heritage">Select Language</h4>
-              <div className="flex flex-wrap gap-2">
-                {languages.map((lang) => (
-                  <motion.button
-                    key={lang.code}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setLanguage(lang.code)}
-                    className={`text-xs px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 ${
-                      language === lang.code
-                        ? 'bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white shadow-lg shadow-kolkata-yellow/30'
-                        : 'text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700'
-                    }`}
-                  >
-                    <span>{lang.flag}</span>
-                    <span className={lang.code === 'bn' ? 'font-bengali' : ''}>{lang.name}</span>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
+            {/* Language Selector */}
+            <LanguageSelector variant="footer" />
           </div>
         </div>
 
@@ -264,19 +338,21 @@ const Footer: React.FC = () => {
             >
               © 2025 Kolkata Heritage. Made with 
               <Heart className="w-4 h-4 text-durga-500 fill-current animate-pulse" /> 
-              <span>for the City of Joy</span>
-              <span className="font-bengali text-kolkata-gold">আনন্দের শহর</span>
+              <span>for the {t('brand.tagline')}</span>
             </motion.div>
             <div className="flex flex-wrap justify-center gap-6">
               {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((link, index) => (
-                <motion.a
+                <motion.button
                   key={index}
-                  href="#"
+                  onClick={() => {
+                    setShowToast(true);
+                    setTimeout(() => setShowToast(false), 2000);
+                  }}
                   whileHover={{ y: -2 }}
                   className="text-gray-400 hover:text-kolkata-gold transition-colors text-sm"
                 >
                   {link}
-                </motion.a>
+                </motion.button>
               ))}
             </div>
           </div>

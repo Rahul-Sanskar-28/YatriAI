@@ -55,7 +55,6 @@ const AITipsMarquee: React.FC = () => {
         <div className="flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
           <Sparkles className="w-4 h-4 text-white animate-pulse" />
           <span className="text-white font-semibold text-sm">AI Kolkata Tips</span>
-          <span className="text-xs font-bengali text-white/80">কলকাতা টিপস</span>
           <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full">Live</span>
         </div>
       </div>

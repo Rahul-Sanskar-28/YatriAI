@@ -10,7 +10,6 @@ const kolkataTestimonials = [
   {
     id: 1,
     name: "Anirban Chatterjee",
-    nameBengali: "অনির্বাণ চট্টোপাধ্যায়",
     location: "Mumbai, India",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
     comment: "The heritage walk through Kumartuli was magical! Watching artisans create Durga idols with such devotion - this app helped me discover the soul of Kolkata.",
@@ -20,7 +19,6 @@ const kolkataTestimonials = [
   {
     id: 2,
     name: "Sarah Chen",
-    nameBengali: "সারা চেন",
     location: "Singapore",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
     comment: "The Durga Puja route planner was a lifesaver! Visited 15 pandals without getting lost. The AI knew exactly when to avoid crowds.",
@@ -30,7 +28,6 @@ const kolkataTestimonials = [
   {
     id: 3,
     name: "Rahul Ghosh",
-    nameBengali: "রাহুল ঘোষ",
     location: "Bangalore, India",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
     comment: "Born in Kolkata but this app showed me places I never knew existed! The College Street book walk was pure nostalgia.",
@@ -40,7 +37,6 @@ const kolkataTestimonials = [
   {
     id: 4,
     name: "Emma Williams",
-    nameBengali: "এমা উইলিয়ামস",
     location: "London, UK",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
     comment: "The tram heritage tour was unforgettable! Riding through Esplanade at sunset while the audio guide narrated history - pure magic.",
@@ -50,7 +46,6 @@ const kolkataTestimonials = [
   {
     id: 5,
     name: "Priya Mukherjee",
-    nameBengali: "প্রিয়া মুখার্জি",
     location: "Delhi, India",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
     comment: "Bought authentic Baluchari saree from verified artisans through this app. Blockchain certificate proves it's genuine handloom!",
@@ -60,7 +55,6 @@ const kolkataTestimonials = [
   {
     id: 6,
     name: "James Thompson",
-    nameBengali: "জেমস থম্পসন",
     location: "New York, USA",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
     comment: "The Adda AI companion talked about Tagore like a true Kolkatan! Recommended the best mishti doi shop - exactly what locals prefer.",
@@ -110,9 +104,6 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof kolkataTe
             <div className="font-semibold text-gray-900 dark:text-white text-sm">
               {testimonial.name}
             </div>
-            <div className="text-xs text-kolkata-terracotta dark:text-kolkata-gold font-bengali">
-              {testimonial.nameBengali}
-            </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
               {testimonial.location}
             </div>
@@ -134,7 +125,7 @@ const TestimonialsCarousel: React.FC = () => {
   const secondRow = allTestimonials.slice(allTestimonials.length / 2);
 
   return (
-    <section className="py-24 bg-kolkata-cream dark:bg-gray-900 transition-colors duration-300 relative overflow-hidden">
+    <section id="testimonials" className="py-24 bg-kolkata-cream dark:bg-gray-900 transition-colors duration-300 relative overflow-hidden">
       {/* Background decoration - Kolkata themed */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-gradient-to-r from-kolkata-yellow/10 to-transparent rounded-full blur-3xl transform -translate-y-1/2" />
@@ -158,9 +149,6 @@ const TestimonialsCarousel: React.FC = () => {
               <AnimatedGradientText>Explorers</AnimatedGradientText>
               {' '}Say
             </h2>
-            <p className="text-xl font-bengali text-kolkata-terracotta dark:text-kolkata-gold">
-              অভিযাত্রীদের কথা
-            </p>
           </BlurFade>
 
           <BlurFade delay={0.3} inView>

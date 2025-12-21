@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Menu, X, Globe, Moon, Sun, User, LogOut, Sparkles } from 'lucide-react';
+import { Menu, X, Moon, Sun, User, LogOut, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import AuthModal from './AuthModal';
+import LanguageSelector from './LanguageSelector';
 import { ShimmerButton } from '../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { TramIcon } from '../kolkata/KolkataIcons';
@@ -12,26 +14,36 @@ import { TramIcon } from '../kolkata/KolkataIcons';
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   
   const { user, logout, isAuthenticated } = useAuth();
   const { isDark, toggleTheme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
-
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
-    { code: 'bn', name: 'বাংলা', flag: '🪔' }
-  ];
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const navItems = [
-    { key: 'home', href: '#', label: 'Home', labelBn: 'হোম' },
-    { key: 'heritage', href: '#', label: 'Heritage', labelBn: 'ঐতিহ্য' },
-    { key: 'pujo', href: '#', label: 'Pujo', labelBn: 'পুজো' },
-    { key: 'marketplace', href: '#', label: 'Artisans', labelBn: 'শিল্পী' },
-    { key: 'about', href: '#', label: 'About', labelBn: 'সম্পর্কে' }
+    { key: 'home', href: '#hero', labelKey: 'nav.home', sectionId: 'hero' },
+    { key: 'heritage', href: '#features', labelKey: 'nav.heritage', sectionId: 'features', dashboardTab: 'heritage' },
+    { key: 'pujo', href: '#features', labelKey: 'nav.pujo', sectionId: 'features', dashboardTab: 'explore' },
+    { key: 'marketplace', href: '#features', labelKey: 'nav.artisans', sectionId: 'features', dashboardTab: 'artisans' },
+    { key: 'about', href: '#testimonials', labelKey: 'nav.about', sectionId: 'testimonials' }
   ];
+
+  const handleNavClick = (item: typeof navItems[0]) => {
+    setIsMenuOpen(false);
+    
+    // If logged in and has dashboard tab, navigate to dashboard
+    if (isAuthenticated && item.dashboardTab) {
+      navigate(`/tourist-dashboard?tab=${item.dashboardTab}`);
+      return;
+    }
+    
+    // Scroll to section on landing page
+    const element = document.getElementById(item.sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <>
@@ -57,7 +69,7 @@ const Header: React.FC = () => {
                   </AnimatedGradientText>
                   <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">Heritage</span>
                 </div>
-                <span className="text-xs text-kolkata-sepia dark:text-kolkata-gold/60 font-bengali -mt-1">আমাদের কলকাতা</span>
+                <span className="text-xs text-kolkata-sepia dark:text-kolkata-gold/60 -mt-1">{t('brand.tagline')}</span>
               </div>
               <Sparkles className="w-4 h-4 text-kolkata-yellow animate-pulse" />
             </motion.div>
@@ -65,15 +77,15 @@ const Header: React.FC = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
               {navItems.map((item) => (
-                <motion.a
+                <motion.button
                   key={item.key}
-                  href={item.href}
+                  onClick={() => handleNavClick(item)}
                   whileHover={{ y: -2 }}
                   className="relative px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors font-medium text-sm group"
                 >
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 group-hover:w-3/4 transition-all duration-300 rounded-full" />
-                </motion.a>
+                </motion.button>
               ))}
             </nav>
 
@@ -86,45 +98,7 @@ const Header: React.FC = () => {
               </div>
 
               {/* Language Selector */}
-              <div className="relative">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-                  className="flex items-center p-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
-                >
-                  <Globe className="w-5 h-5" />
-                </motion.button>
-                <AnimatePresence>
-                  {isLanguageDropdownOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-40 bg-kolkata-cream dark:bg-gray-800 rounded-xl shadow-xl border border-kolkata-gold/20 dark:border-gray-700 overflow-hidden"
-                    >
-                      {languages.map((lang) => (
-                        <motion.button
-                          key={lang.code}
-                          whileHover={{ x: 5, backgroundColor: 'rgba(255, 184, 0, 0.1)' }}
-                          onClick={() => {
-                            setLanguage(lang.code);
-                            setIsLanguageDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm flex items-center gap-2 ${
-                            language === lang.code 
-                              ? 'text-kolkata-terracotta dark:text-kolkata-gold bg-kolkata-yellow/20 dark:bg-kolkata-gold/20' 
-                              : 'text-gray-700 dark:text-gray-300'
-                          }`}
-                        >
-                          <span>{lang.flag}</span>
-                          <span className={lang.code === 'bn' ? 'font-bengali' : ''}>{lang.name}</span>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <LanguageSelector variant="header" />
 
               {/* Theme Toggle */}
               <motion.button
@@ -212,17 +186,16 @@ const Header: React.FC = () => {
               >
                 <nav className="py-4 border-t border-kolkata-gold/20 dark:border-gray-700 space-y-2">
                   {navItems.map((item, index) => (
-                    <motion.a
+                    <motion.button
                       key={item.key}
-                      href={item.href}
+                      onClick={() => handleNavClick(item)}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="block px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10 rounded-xl transition-all font-medium"
+                      className="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10 rounded-xl transition-all font-medium"
                     >
-                      <span>{item.label}</span>
-                      <span className="text-sm text-kolkata-sepia dark:text-kolkata-gold/60 ml-2 font-bengali">({item.labelBn})</span>
-                    </motion.a>
+                      <span>{t(item.labelKey)}</span>
+                    </motion.button>
                   ))}
                 </nav>
               </motion.div>
