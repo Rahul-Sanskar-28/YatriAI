@@ -1,100 +1,171 @@
 import React from 'react';
-import { Brain, Shield, Map, ShoppingBag, Users, Smartphone, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MagicCard } from '../magicui/MagicCard';
 import { BorderBeam } from '../magicui/BorderBeam';
 import { BlurFade } from '../magicui/BlurFade';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { ShimmerButton } from '../magicui/ShimmerButton';
+import { 
+  TramIcon, 
+  DurgaIcon, 
+  VictoriaMemorialIcon, 
+  TerracottaIcon, 
+  BookIcon, 
+  AddaTeaIcon,
+  PatachitraIcon,
+  GhatIcon
+} from '../kolkata/KolkataIcons';
 
 const FeaturesSection: React.FC = () => {
   const features = [
     {
-      icon: Brain,
-      title: 'AI-Powered Itinerary',
-      description: 'Get personalized travel plans based on your preferences, budget, and interests',
-      color: 'from-purple-500 to-pink-500',
-      gradient: '#a855f7'
+      Icon: TramIcon,
+      title: 'Tram Heritage Tracker',
+      titleBengali: 'ট্রাম ঐতিহ্য',
+      description: 'Track real-time tram locations and discover the history of Asia\'s oldest running tram network',
+      color: 'from-kolkata-yellow to-kolkata-gold',
+      gradient: '#FFB800'
     },
     {
-      icon: Shield,
-      title: 'Blockchain Verification',
-      description: 'Trust verified guides and services with our secure blockchain certification system',
-      color: 'from-blue-500 to-cyan-500',
-      gradient: '#3b82f6'
+      Icon: DurgaIcon,
+      title: 'Pujo Route Planner',
+      titleBengali: 'পুজো পথ',
+      description: 'AI-optimized pandal hopping with crowd predictions and cultural insights for Durga Puja',
+      color: 'from-durga-500 to-kolkata-vermillion',
+      gradient: '#E23D28'
     },
     {
-      icon: Map,
-      title: 'Interactive Maps',
-      description: 'Explore destinations with real-time location tracking and offline map support',
-      color: 'from-green-500 to-emerald-500',
-      gradient: '#22c55e'
+      Icon: VictoriaMemorialIcon,
+      title: 'Heritage Walk Audio',
+      titleBengali: 'ঐতিহ্য কথা',
+      description: 'AI-narrated walking tours of Victoria Memorial, Marble Palace, and historic Kolkata',
+      color: 'from-kolkata-sepia to-heritage-700',
+      gradient: '#8B7355'
     },
     {
-      icon: ShoppingBag,
-      title: 'Authentic Marketplace',
-      description: 'Shop for genuine tribal handicrafts and local products from verified sellers',
-      color: 'from-orange-500 to-red-500',
-      gradient: '#f97316'
+      Icon: TerracottaIcon,
+      title: 'Verified Artisan Market',
+      titleBengali: 'শিল্পী বাজার',
+      description: 'Buy authentic Kumartuli crafts and tribal art with blockchain-verified authenticity',
+      color: 'from-kolkata-terracotta to-kolkata-maroon',
+      gradient: '#C45C26'
     },
     {
-      icon: Users,
-      title: 'Local Guide Network',
-      description: 'Connect with certified local guides who know the hidden gems of Jharkhand',
-      color: 'from-indigo-500 to-purple-500',
-      gradient: '#6366f1'
+      Icon: BookIcon,
+      title: 'Literary Kolkata',
+      titleBengali: 'সাহিত্যিক কলকাতা',
+      description: 'Explore College Street, Coffee House, and discover Tagore\'s Kolkata with curated tours',
+      color: 'from-kolkata-blue to-kolkata-purple',
+      gradient: '#1E3A5F'
     },
     {
-      icon: Smartphone,
-      title: 'Multilingual Support',
-      description: 'Access the platform in English, Hindi, and local tribal languages',
-      color: 'from-teal-500 to-green-500',
-      gradient: '#14b8a6'
+      Icon: AddaTeaIcon,
+      title: 'Adda AI Companion',
+      titleBengali: 'আড্ডা সঙ্গী',
+      description: 'Chat with an AI that knows Kolkata\'s soul - from mishti doi to metro shortcuts',
+      color: 'from-kolkata-maidan to-heritage-600',
+      gradient: '#2D5A27'
+    }
+  ];
+
+  const hackathonThemes = [
+    {
+      icon: '🏛️',
+      theme: 'Heritage & Stories',
+      themeBengali: 'ঐতিহ্য ও কথা',
+      description: 'Tech rooted in heritage and human stories'
+    },
+    {
+      icon: '🌱',
+      theme: 'Smart & Sustainable',
+      themeBengali: 'স্মার্ট ও টেকসই',
+      description: 'Smarter, sustainable city experiences'
+    },
+    {
+      icon: '🎨',
+      theme: 'Digital Preservation',
+      themeBengali: 'ডিজিটাল সংরক্ষণ',
+      description: 'Preserving art, language & culture digitally'
+    },
+    {
+      icon: '🔗',
+      theme: 'Tradition + Tech',
+      themeBengali: 'ঐতিহ্য + প্রযুক্তি',
+      description: 'Bridging tradition and technology'
     }
   ];
 
   return (
-    <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-300 relative overflow-hidden">
-      {/* Background decoration */}
+    <section className="py-24 bg-kolkata-cream dark:bg-gray-900 transition-colors duration-300 relative overflow-hidden">
+      {/* Background decoration - Kolkata themed */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-kolkata-yellow/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-durga-500/10 rounded-full blur-3xl" />
+        {/* Tram tracks pattern */}
+        <div className="absolute inset-0 tram-tracks opacity-30" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Hackathon Themes Banner */}
+        <BlurFade delay={0.05} inView>
+          <div className="mb-16 bg-gradient-to-r from-kolkata-yellow/10 via-durga-500/10 to-kolkata-terracotta/10 dark:from-kolkata-yellow/5 dark:via-durga-500/5 dark:to-kolkata-terracotta/5 rounded-2xl p-6 border border-kolkata-yellow/20">
+            <h3 className="text-center text-lg font-semibold text-kolkata-sepia dark:text-kolkata-gold mb-4 font-heritage">
+              Calcutta Hacks 2025 - Four Themes
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {hackathonThemes.map((item, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.05 }}
+                  className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+                >
+                  <span className="text-3xl mb-2 block">{item.icon}</span>
+                  <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{item.theme}</h4>
+                  <p className="text-xs text-kolkata-terracotta dark:text-kolkata-gold font-bengali">{item.themeBengali}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </BlurFade>
+
         <div className="text-center mb-20">
           <BlurFade delay={0.1} inView>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-kolkata-yellow/20 dark:bg-kolkata-yellow/10 border border-kolkata-yellow/40 mb-6">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-kolkata-yellow opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-kolkata-yellow"></span>
               </span>
-              <span className="text-green-700 dark:text-green-300 text-sm font-medium">Powered by Advanced AI</span>
+              <span className="text-kolkata-terracotta dark:text-kolkata-gold text-sm font-medium">Powered by AI & Blockchain</span>
             </div>
           </BlurFade>
 
           <BlurFade delay={0.2} inView>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-              Why Choose{' '}
-              <AnimatedGradientText>YatriAI?</AnimatedGradientText>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4 font-heritage">
+              Experience{' '}
+              <AnimatedGradientText>Kolkata</AnimatedGradientText>
             </h2>
+            <p className="text-2xl font-bengali text-kolkata-terracotta dark:text-kolkata-gold mb-6">
+              কলকাতা অভিজ্ঞতা
+            </p>
           </BlurFade>
 
           <BlurFade delay={0.3} inView>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-              Experience the future of travel with our cutting-edge AI technology and 
-              blockchain-secured services designed specifically for Jharkhand tourism.
+              From <span className="text-kolkata-yellow font-semibold">tram tracks</span> to <span className="text-durga-500 font-semibold">tech stacks</span> — 
+              Discover the City of Joy with AI-powered heritage experiences and 
+              blockchain-verified authenticity.
             </p>
           </BlurFade>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => {
-            const IconComponent = feature.icon;
+            const IconComponent = feature.Icon;
             return (
               <BlurFade key={index} delay={0.1 * index} inView>
                 <MagicCard 
-                  className="h-full"
+                  className="h-full card-heritage"
                   gradientColor={feature.gradient}
                   gradientOpacity={0.15}
                 >
@@ -105,7 +176,7 @@ const FeaturesSection: React.FC = () => {
                       duration={12}
                       delay={index * 2}
                       colorFrom={feature.gradient}
-                      colorTo="#f97316"
+                      colorTo="#FFB800"
                     />
 
                     <motion.div 
@@ -115,9 +186,12 @@ const FeaturesSection: React.FC = () => {
                       <IconComponent className="w-8 h-8 text-white" />
                     </motion.div>
                     
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-kolkata-yellow dark:group-hover:text-kolkata-gold transition-colors font-heritage">
                       {feature.title}
                     </h3>
+                    <p className="text-sm text-kolkata-terracotta dark:text-kolkata-gold mb-4 font-bengali">
+                      {feature.titleBengali}
+                    </p>
                     
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
                       {feature.description}
@@ -126,7 +200,7 @@ const FeaturesSection: React.FC = () => {
                     <motion.a
                       href="#"
                       whileHover={{ x: 5 }}
-                      className="inline-flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-kolkata-yellow dark:text-kolkata-gold hover:text-kolkata-terracotta dark:hover:text-kolkata-yellow transition-colors"
                     >
                       Learn more
                       <ArrowRight className="w-4 h-4" />
@@ -138,23 +212,24 @@ const FeaturesSection: React.FC = () => {
           })}
         </div>
 
-        {/* Stats Section */}
+        {/* Stats Section - Kolkata themed */}
         <BlurFade delay={0.6} inView>
           <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: '500+', label: 'Destinations', icon: '🗺️' },
-              { value: '200+', label: 'Local Guides', icon: '👨‍🏫' },
-              { value: '10K+', label: 'Happy Travelers', icon: '😊' },
-              { value: '1000+', label: 'Handicrafts', icon: '🏺' }
+              { value: '300+', label: 'Heritage Sites', labelBengali: 'ঐতিহ্যবাহী স্থান', icon: '🏛️' },
+              { value: '5000+', label: 'Pujo Pandals', labelBengali: 'পুজো প্যান্ডেল', icon: '🪔' },
+              { value: '1000+', label: 'Artisan Crafts', labelBengali: 'শিল্পী শিল্প', icon: '🎭' },
+              { value: '150+', label: 'Tram Stops', labelBengali: 'ট্রাম স্টপ', icon: '🚃' }
             ].map((stat, index) => (
               <motion.div
                 key={index}
                 whileHover={{ y: -5 }}
-                className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
+                className="text-center p-6 rounded-2xl bg-white dark:bg-gray-800 border border-kolkata-sepia/20 dark:border-kolkata-gold/20 shadow-heritage"
               >
                 <div className="text-3xl mb-2">{stat.icon}</div>
                 <div className="text-3xl md:text-4xl font-bold text-gradient mb-1">{stat.value}</div>
-                <div className="text-gray-600 dark:text-gray-400 text-sm">{stat.label}</div>
+                <div className="text-gray-700 dark:text-gray-300 text-sm font-medium">{stat.label}</div>
+                <div className="text-kolkata-terracotta dark:text-kolkata-gold text-xs font-bengali">{stat.labelBengali}</div>
               </motion.div>
             ))}
           </div>
@@ -165,16 +240,23 @@ const FeaturesSection: React.FC = () => {
           <div className="text-center mt-20">
             <ShimmerButton
               shimmerColor="#ffffff"
-              background="linear-gradient(135deg, #16a34a 0%, #ea580c 100%)"
+              background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
               className="text-lg px-10 py-5"
             >
-              <span>Start Your Journey Today</span>
+              <span className="font-heritage">Start Your Kolkata Journey</span>
               <ArrowRight className="w-5 h-5" />
             </ShimmerButton>
             
-            <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm">
-              No credit card required • Free AI itinerary included
+            <p className="mt-4 text-kolkata-sepia dark:text-gray-400 text-sm">
+              🪔 Free heritage walk included • AI-powered itinerary • Blockchain verified
             </p>
+
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <span className="text-sm text-gray-500 dark:text-gray-400">Built for</span>
+              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-kolkata-yellow/20 to-durga-500/20 text-sm font-medium text-kolkata-terracotta dark:text-kolkata-gold border border-kolkata-yellow/30">
+                Calcutta Hacks 2025
+              </span>
+            </div>
           </div>
         </BlurFade>
       </div>
