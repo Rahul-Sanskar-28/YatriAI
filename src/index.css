@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap');
+/* Kolkata Heritage - Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Tiro+Bangla:ital@0;1&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,6 +9,20 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+    
+    /* Kolkata Heritage Colors */
+    --kolkata-yellow: #FFB800;
+    --kolkata-gold: #D4A015;
+    --kolkata-terracotta: #C45C26;
+    --kolkata-sindoor: #E23D28;
+    --kolkata-vermillion: #FF4136;
+    --kolkata-maroon: #7B2D26;
+    --kolkata-purple: #4A235A;
+    --kolkata-blue: #1E3A5F;
+    --kolkata-hooghly: #1A5276;
+    --kolkata-maidan: #2D5A27;
+    --kolkata-sepia: #8B7355;
+    --kolkata-cream: #FFFEF7;
   }
 
   .dark {
@@ -22,7 +37,7 @@
     text-wrap: balance;
   }
 
-  /* Animated gradient text */
+  /* Animated gradient text - Kolkata Colors */
   .animate-gradient {
     background-size: 300% 100%;
     animation: gradient 6s linear infinite;
@@ -44,14 +59,14 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 184, 0, 0.2) 50%,
       transparent 100%
     );
     animation: shimmer 2s infinite;
     background-size: 200% 100%;
   }
 
-  /* Glow effect for cards */
+  /* Glow effect for cards - Kolkata theme */
   .glow-card {
     position: relative;
   }
@@ -60,7 +75,7 @@
     content: '';
     position: absolute;
     inset: -1px;
-    background: linear-gradient(135deg, #22c55e, #f97316, #22c55e);
+    background: linear-gradient(135deg, #FFB800, #C45C26, #E23D28);
     border-radius: inherit;
     z-index: -1;
     opacity: 0;
@@ -86,6 +101,14 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Heritage glass - cream tinted */
+  .glass-heritage {
+    background: rgba(255, 254, 247, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 184, 0, 0.2);
   }
 
   /* Noise texture overlay */
@@ -118,7 +141,7 @@
     left: -50%;
     background: radial-gradient(
       circle at center,
-      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 184, 0, 0.1) 0%,
       transparent 50%
     );
     animation: rotate 10s linear infinite;
@@ -133,19 +156,27 @@
     }
   }
 
-  /* Text gradient */
+  /* Text gradient - Kolkata Heritage */
   .text-gradient {
-    background: linear-gradient(135deg, #22c55e 0%, #f97316 50%, #eab308 100%);
+    background: linear-gradient(135deg, #FFB800 0%, #C45C26 50%, #E23D28 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Border gradient */
+  /* Durga text gradient */
+  .text-gradient-durga {
+    background: linear-gradient(135deg, #E23D28 0%, #FF4136 50%, #FFB800 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Border gradient - Kolkata colors */
   .border-gradient {
     position: relative;
     background: linear-gradient(var(--bg-color, white), var(--bg-color, white)) padding-box,
-                linear-gradient(135deg, #22c55e, #f97316) border-box;
+                linear-gradient(135deg, #FFB800, #C45C26) border-box;
     border: 2px solid transparent;
   }
 
@@ -153,27 +184,27 @@
     --bg-color: rgb(31, 41, 55);
   }
 
-  /* Scrollbar styling */
+  /* Scrollbar styling - Kolkata theme */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(139, 115, 85, 0.1);
     border-radius: 3px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #22c55e, #f97316);
+    background: linear-gradient(135deg, #FFB800, #C45C26);
     border-radius: 3px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #16a34a, #ea580c);
+    background: linear-gradient(135deg, #D4A015, #9a3412);
   }
 
-  /* Animated underline */
+  /* Animated underline - Kolkata */
   .animated-underline {
     position: relative;
     display: inline-block;
@@ -186,7 +217,7 @@
     height: 2px;
     bottom: -2px;
     left: 50%;
-    background: linear-gradient(90deg, #22c55e, #f97316);
+    background: linear-gradient(90deg, #FFB800, #E23D28);
     transition: all 0.3s ease;
     transform: translateX(-50%);
   }
@@ -195,7 +226,7 @@
     width: 100%;
   }
 
-  /* Pulse ring animation */
+  /* Pulse ring animation - Tram Yellow */
   .pulse-ring {
     position: relative;
   }
@@ -205,7 +236,7 @@
     position: absolute;
     inset: -4px;
     border-radius: inherit;
-    border: 2px solid #22c55e;
+    border: 2px solid #FFB800;
     animation: pulse-ring-animation 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
   }
 
@@ -239,6 +270,112 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* ===== KOLKATA HERITAGE PATTERNS ===== */
+
+  /* Alpona Pattern Border */
+  .alpona-border {
+    position: relative;
+  }
+
+  .alpona-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 3px solid transparent;
+    border-image: repeating-linear-gradient(
+      45deg,
+      #FFB800,
+      #FFB800 10px,
+      #E23D28 10px,
+      #E23D28 20px
+    ) 1;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Terracotta texture */
+  .terracotta-texture {
+    background: 
+      linear-gradient(135deg, rgba(196, 92, 38, 0.05) 25%, transparent 25%),
+      linear-gradient(-135deg, rgba(196, 92, 38, 0.05) 25%, transparent 25%),
+      linear-gradient(45deg, rgba(196, 92, 38, 0.05) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(196, 92, 38, 0.05) 25%, transparent 25%);
+    background-size: 20px 20px;
+  }
+
+  /* Hooghly wave pattern */
+  .hooghly-waves {
+    background: 
+      repeating-linear-gradient(
+        90deg,
+        rgba(26, 82, 118, 0.1) 0px,
+        rgba(26, 82, 118, 0.1) 2px,
+        transparent 2px,
+        transparent 10px
+      );
+    animation: river-flow 15s linear infinite;
+  }
+
+  @keyframes river-flow {
+    from { background-position: 0 0; }
+    to { background-position: 200px 0; }
+  }
+
+  /* Tram tracks pattern */
+  .tram-tracks {
+    background-image: 
+      linear-gradient(0deg, rgba(139, 115, 85, 0.2) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 115, 85, 0.2) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Dhunuchi flame glow */
+  .dhunuchi-glow {
+    box-shadow: 
+      0 0 20px rgba(255, 184, 0, 0.4),
+      0 0 40px rgba(226, 61, 40, 0.3),
+      0 0 60px rgba(255, 65, 54, 0.2);
+    animation: flame-glow 1s ease-in-out infinite alternate;
+  }
+
+  @keyframes flame-glow {
+    from {
+      box-shadow: 
+        0 0 20px rgba(255, 184, 0, 0.4),
+        0 0 40px rgba(226, 61, 40, 0.3);
+    }
+    to {
+      box-shadow: 
+        0 0 30px rgba(255, 184, 0, 0.6),
+        0 0 60px rgba(226, 61, 40, 0.4);
+    }
+  }
+
+  /* Heritage paper texture */
+  .heritage-paper {
+    background-color: #FFFEF7;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%238B7355' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+  }
+
+  /* Victoria Memorial marble */
+  .marble-texture {
+    background: linear-gradient(135deg, #F5F5F0 0%, #FFFEF7 50%, #F5F5F0 100%);
+    background-size: 400% 400%;
+    animation: marble-shift 8s ease infinite;
+  }
+
+  @keyframes marble-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Bengali script decoration */
+  .bengali-accent::first-letter {
+    font-family: 'Tiro Bangla', serif;
+    font-size: 1.5em;
+    color: #C45C26;
+  }
 }
 
 /* Smooth scroll */
@@ -246,20 +383,20 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Selection styling */
+/* Selection styling - Kolkata Gold */
 ::selection {
-  background: rgba(34, 197, 94, 0.3);
+  background: rgba(255, 184, 0, 0.3);
   color: inherit;
 }
 
 ::-moz-selection {
-  background: rgba(34, 197, 94, 0.3);
+  background: rgba(255, 184, 0, 0.3);
   color: inherit;
 }
 
-/* Focus visible styling */
+/* Focus visible styling - Tram Yellow */
 :focus-visible {
-  outline: 2px solid #22c55e;
+  outline: 2px solid #FFB800;
   outline-offset: 2px;
 }
 
@@ -268,4 +405,59 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-family: 'Hind Siliguri', 'Inter', system-ui, sans-serif;
+}
+
+/* Bengali text helper */
+.bengali {
+  font-family: 'Hind Siliguri', 'Tiro Bangla', sans-serif;
+}
+
+/* Heritage headings */
+h1, h2, h3 {
+  font-family: 'Playfair Display', 'Poppins', serif;
+}
+
+/* Tram icon animation */
+.tram-animate {
+  animation: tramMove 20s linear infinite;
+}
+
+/* Kolkata Button Styles */
+.btn-kolkata {
+  background: linear-gradient(135deg, #FFB800 0%, #D4A015 100%);
+  color: #1a1a1a;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.3);
+}
+
+.btn-kolkata:hover {
+  background: linear-gradient(135deg, #D4A015 0%, #FFB800 100%);
+  box-shadow: 0 6px 20px rgba(255, 184, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-durga {
+  background: linear-gradient(135deg, #E23D28 0%, #FF4136 100%);
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(226, 61, 40, 0.3);
+}
+
+.btn-durga:hover {
+  box-shadow: 0 6px 20px rgba(226, 61, 40, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Card hover effect - Heritage style */
+.card-heritage {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(139, 115, 85, 0.2);
+}
+
+.card-heritage:hover {
+  border-color: rgba(255, 184, 0, 0.5);
+  box-shadow: 0 20px 40px rgba(139, 115, 85, 0.15);
 }

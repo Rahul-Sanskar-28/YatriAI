@@ -14,7 +14,15 @@ import {
   Bell,
   Shield,
   TrendingUp,
-  LogOut
+  LogOut,
+  Train,
+  Headphones,
+  Coffee,
+  Palette,
+  ChefHat,
+  Image,
+  Award,
+  Heart
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -28,10 +36,20 @@ import Marketplace from './components/Marketplace';
 import GuideLocator from './components/GuideLocator';
 import FeedbackPortal from './components/FeedbackPortal';
 import SafetyFeatures from './components/SafetyFeatures';
+import TransportTracker from './components/TransportTracker';
+import HeritageWalk from './components/HeritageWalk';
+import AddaBot from './components/AddaBot';
+import ArtisanChronicles from './components/ArtisanChronicles';
+import RecipeVault from './components/RecipeVault';
+import PatachitraArchive from './components/PatachitraArchive';
+import VerifiedMarketplace from './components/VerifiedMarketplace';
+import HeritageNFT from './components/HeritageNFT';
+import PandalDonations from './components/PandalDonations';
 
 const TouristDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isAddaBotOpen, setIsAddaBotOpen] = useState(false);
   const { user, logout } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -44,6 +62,14 @@ const TouristDashboard: React.FC = () => {
   const menuItems = [
     { id: 'dashboard', label: t('dashboard.welcome'), icon: Home },
     { id: 'itinerary', label: t('dashboard.itinerary'), icon: Map },
+    { id: 'transport', label: 'Transport Tracker', icon: Train, isNew: true },
+    { id: 'heritage', label: 'Heritage Walk', icon: Headphones, isNew: true },
+    { id: 'artisans', label: 'Artisan Chronicles', icon: Palette, isNew: true },
+    { id: 'recipes', label: 'Recipe Vault', icon: ChefHat, isNew: true },
+    { id: 'patachitra', label: 'Patachitra Archive', icon: Image, isNew: true },
+    { id: 'verified-market', label: 'Verified Market', icon: Shield, isNew: true, isBlockchain: true },
+    { id: 'heritage-nft', label: 'Heritage NFT', icon: Award, isNew: true, isBlockchain: true },
+    { id: 'pandal-donate', label: 'Pandal Donations', icon: Heart, isNew: true, isBlockchain: true },
     { id: 'bookings', label: t('dashboard.bookings'), icon: CreditCard },
     { id: 'map', label: 'Interactive Maps', icon: MapPin },
     { id: 'marketplace', label: t('dashboard.marketplace'), icon: ShoppingBag },
@@ -59,6 +85,22 @@ const TouristDashboard: React.FC = () => {
         return <DashboardHome />;
       case 'itinerary':
         return <AIItineraryPlanner />;
+      case 'transport':
+        return <TransportTracker />;
+      case 'heritage':
+        return <HeritageWalk />;
+      case 'artisans':
+        return <ArtisanChronicles />;
+      case 'recipes':
+        return <RecipeVault />;
+      case 'patachitra':
+        return <PatachitraArchive />;
+      case 'verified-market':
+        return <VerifiedMarketplace />;
+      case 'heritage-nft':
+        return <HeritageNFT />;
+      case 'pandal-donate':
+        return <PandalDonations />;
       case 'bookings':
         return <BookingSystem />;
       case 'map':
@@ -98,21 +140,32 @@ const TouristDashboard: React.FC = () => {
           </div>
 
           <nav className="p-4 flex flex-col h-[calc(100%-5rem)]">
-            <div className="flex-1">
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
               {menuItems.map((item) => {
                 const IconComponent = item.icon;
+                const isNewFeature = 'isNew' in item && item.isNew;
+                const isBlockchain = 'isBlockchain' in item && item.isBlockchain;
                 return (
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors mb-2 ${
                       activeTab === item.id
-                        ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                        ? 'bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/20 text-kolkata-terracotta dark:text-kolkata-gold border border-kolkata-yellow/30'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <IconComponent className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <IconComponent className={`w-5 h-5 ${isNewFeature ? 'text-kolkata-terracotta' : ''} ${isBlockchain ? 'text-purple-500' : ''}`} />
+                    <span className="font-medium flex-1 text-sm">{item.label}</span>
+                    {isBlockchain ? (
+                      <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold rounded-full">
+                        ⛓️
+                      </span>
+                    ) : isNewFeature && (
+                      <span className="px-2 py-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 text-white text-xs font-bold rounded-full animate-pulse">
+                        NEW
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -137,16 +190,48 @@ const TouristDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Chat Button */}
-      <button
-        onClick={() => setIsChatOpen(true)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-green-600 to-orange-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </button>
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 flex flex-col-reverse gap-3 z-50">
+        {/* Adda Bot Button - Kolkata Personality Chat */}
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsAddaBotOpen(true)}
+          className="bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 relative group"
+          title="Adda Bot - Kolkata Chat"
+        >
+          <Coffee className="w-6 h-6" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-durga-500 rounded-full animate-ping" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-durga-500 rounded-full" />
+          
+          {/* Tooltip */}
+          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            Adda Bot ☕
+          </span>
+        </motion.button>
+
+        {/* AI Chat Button */}
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsChatOpen(true)}
+          className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
+          title="AI Travel Assistant"
+        >
+          <MessageCircle className="w-6 h-6" />
+          
+          {/* Tooltip */}
+          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            AI Assistant 🤖
+          </span>
+        </motion.button>
+      </div>
 
       {/* AI Chat Modal */}
       <AIChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      
+      {/* Adda Bot Modal */}
+      <AddaBot isOpen={isAddaBotOpen} onClose={() => setIsAddaBotOpen(false)} />
     </div>
   );
 };
@@ -157,20 +242,20 @@ const DashboardHome: React.FC = () => {
   const { t } = useLanguage();
 
   const stats = [
-    { label: 'Trips Completed', value: '3', icon: Map, color: 'from-blue-500 to-cyan-500' },
-    { label: 'Bookings Active', value: bookings.filter(b => b.status === 'confirmed').length.toString(), icon: Calendar, color: 'from-green-500 to-emerald-500' },
-    { label: 'Reviews Given', value: '12', icon: Star, color: 'from-yellow-500 to-orange-500' },
-    { label: 'Rewards Points', value: '2,450', icon: TrendingUp, color: 'from-purple-500 to-pink-500' }
+    { label: 'Heritage Sites Visited', value: '5', icon: Map, color: 'from-kolkata-yellow to-kolkata-gold' },
+    { label: 'Active Bookings', value: bookings.filter(b => b.status === 'confirmed').length.toString(), icon: Calendar, color: 'from-kolkata-terracotta to-durga-500' },
+    { label: 'Reviews Given', value: '12', icon: Star, color: 'from-kolkata-hooghly to-kolkata-blue' },
+    { label: 'Joy Points', value: '2,450', icon: TrendingUp, color: 'from-heritage-500 to-kolkata-sepia' }
   ];
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {t('dashboard.welcome')}, {user?.name}! 👋
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 font-heritage">
+          {t('dashboard.welcome')}, {user?.name}! 🪔
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Ready for your next adventure in Jharkhand?
+          Ready for your next adventure in Kolkata? <span className="font-bengali">কলকাতায় স্বাগতম!</span>
         </p>
       </div>
 
@@ -184,7 +269,7 @@ const DashboardHome: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg"
+              className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-kolkata-yellow/10"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -215,7 +300,7 @@ const DashboardHome: React.FC = () => {
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                   booking.status === 'confirmed' 
                     ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                    : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                    : 'bg-kolkata-yellow/20 dark:bg-kolkata-yellow/10 text-kolkata-terracotta dark:text-kolkata-gold'
                 }`}>
                   {booking.status}
                 </span>
@@ -224,21 +309,21 @@ const DashboardHome: React.FC = () => {
           </div>
         </div>
 
-        {/* AI Recommendations */}
+        {/* AI Recommendations - Kolkata Themed */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">AI Recommendations</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Kolkata AI Suggestions</h3>
           <div className="space-y-4">
-            <div className="p-4 bg-gradient-to-r from-green-50 to-orange-50 dark:from-green-900/20 dark:to-orange-900/20 rounded-lg">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🌟 Perfect Weather Alert</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Great weather this weekend for visiting Hundru Falls!</p>
+            <div className="p-4 bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/10 dark:from-kolkata-yellow/10 dark:to-kolkata-terracotta/5 rounded-lg border border-kolkata-yellow/20">
+              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🚃 Tram Heritage Ride</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Perfect weather for the iconic yellow tram ride through the city!</p>
             </div>
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🎭 Cultural Event</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Sarhul festival is coming up - book your cultural tour now!</p>
+            <div className="p-4 bg-gradient-to-r from-durga-50 to-durga-100/50 dark:from-durga-900/20 dark:to-durga-900/10 rounded-lg border border-durga-200/30">
+              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🪔 Durga Puja Season</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pandal hopping time! Explore Kumartuli's idol-making tradition.</p>
             </div>
-            <div className="p-4 bg-gradient-to-r from-yellow-50 to-red-50 dark:from-yellow-900/20 dark:to-red-900/20 rounded-lg">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🏺 Marketplace Deal</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">20% off on authentic Dokra art this week!</p>
+            <div className="p-4 bg-gradient-to-r from-heritage-50 to-kolkata-cream dark:from-heritage-900/20 dark:to-heritage-900/10 rounded-lg border border-heritage-200/30">
+              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🏛️ Victoria Memorial</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Sunset viewing at the memorial - AI audio guide available!</p>
             </div>
           </div>
         </div>

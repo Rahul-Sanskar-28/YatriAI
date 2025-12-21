@@ -8,32 +8,56 @@ import { SparklesText } from '../magicui/SparklesText';
 import { Particles } from '../magicui/Particles';
 import { BlurFade } from '../magicui/BlurFade';
 
+// Kolkata Heritage Icons
+const TramIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+    <path d="M19 16.94V8.5C19 5.79 16.76 3.5 14 3.5H10C7.24 3.5 5 5.79 5 8.5V16.94C5 17.28 5.03 17.62 5.09 17.94L3 20.5V21H21V20.5L18.91 17.94C18.97 17.62 19 17.28 19 16.94ZM8.5 18C7.67 18 7 17.33 7 16.5S7.67 15 8.5 15 10 15.67 10 16.5 9.33 18 8.5 18ZM9 11V7H15V11H9ZM15.5 18C14.67 18 14 17.33 14 16.5S14.67 15 15.5 15 17 15.67 17 16.5 16.33 18 15.5 18Z"/>
+  </svg>
+);
+
+const DurgaIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+    <path d="M12 2L9 6H6L3 12L6 18H18L21 12L18 6H15L12 2ZM12 8C13.1 8 14 8.9 14 10S13.1 12 12 12 10 11.1 10 10 10.9 8 12 8ZM12 14C14.33 14 19 15.17 19 17.5V19H5V17.5C5 15.17 9.67 14 12 14Z"/>
+  </svg>
+);
+
 const HeroSection: React.FC = () => {
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
 
+  // Kolkata Heritage Images
   const heroImages = [
     {
-      url: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop',
-      title: 'Majestic Waterfalls',
-      subtitle: 'Discover the pristine beauty of Hundru Falls'
+      url: 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=1920&h=1080&q=80',
+      title: 'Victoria Memorial',
+      subtitle: 'The crown jewel of Kolkata\'s heritage',
+      bengali: 'ভিক্টোরিয়া মেমোরিয়াল'
     },
     {
-      url: 'https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop',
-      title: 'Rich Tribal Heritage',
-      subtitle: 'Experience authentic cultural traditions'
+      url: 'https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?auto=format&fit=crop&w=1920&h=1080&q=80',
+      title: 'Howrah Bridge',
+      subtitle: 'The iconic gateway to the City of Joy',
+      bengali: 'হাওড়া ব্রিজ'
     },
     {
-      url: 'https://images.pexels.com/photos/1671324/pexels-photo-1671324.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop',
-      title: 'Wildlife Sanctuaries',
-      subtitle: 'Explore diverse flora and fauna at Betla National Park'
+      url: 'https://images.unsplash.com/photo-1599030641314-e7f9e2f5e8e1?auto=format&fit=crop&w=1920&h=1080&q=80',
+      title: 'Kumartuli',
+      subtitle: 'Where gods are crafted with devotion',
+      bengali: 'কুমারটুলি'
     },
     {
-      url: 'https://images.pexels.com/photos/2161467/pexels-photo-2161467.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop',
-      title: 'Sacred Temples',
-      subtitle: 'Find peace in ancient spiritual sites'
+      url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1920&h=1080&q=80',
+      title: 'Durga Puja',
+      subtitle: 'Experience the grandest celebration of Bengal',
+      bengali: 'দুর্গা পূজা'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1920&h=1080&q=80',
+      title: 'Princep Ghat',
+      subtitle: 'Where heritage meets the Hooghly',
+      bengali: 'প্রিন্সেপ ঘাট'
     }
   ];
 
@@ -65,17 +89,29 @@ const HeroSection: React.FC = () => {
           />
         </AnimatePresence>
         
-        {/* Gradient Overlays */}
+        {/* Gradient Overlays - Kolkata Colors */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-kolkata-maroon/40 via-transparent to-black/30" />
         
-        {/* Animated Particles */}
+        {/* Animated Particles - Kolkata Yellow */}
         <Particles 
           className="absolute inset-0" 
           quantity={80} 
-          color="#22c55e" 
+          color="#FFB800" 
           staticity={30}
         />
+
+        {/* Tram Animation - Bottom */}
+        <motion.div
+          animate={{ x: ['100vw', '-100px'] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-20 z-10 opacity-60"
+        >
+          <div className="flex items-center gap-1 text-kolkata-yellow">
+            <TramIcon />
+            <div className="w-32 h-1 bg-gradient-to-r from-kolkata-yellow to-transparent rounded" />
+          </div>
+        </motion.div>
       </div>
 
       {/* Content */}
@@ -84,28 +120,33 @@ const HeroSection: React.FC = () => {
           <div className="max-w-3xl">
             <BlurFade delay={0.1} inView>
               <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-                  <Sparkles className="w-4 h-4 text-yellow-400" />
-                  <span className="text-white/90 text-sm font-medium">AI-Powered Tourism</span>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-kolkata-yellow/20 backdrop-blur-sm border border-kolkata-yellow/40">
+                  <Sparkles className="w-4 h-4 text-kolkata-yellow" />
+                  <span className="text-white/90 text-sm font-medium">আনন্দের শহর • City of Joy</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-durga-500/20 backdrop-blur-sm border border-durga-500/40">
+                  <span className="text-2xl animate-pulse">🪔</span>
                 </div>
               </div>
             </BlurFade>
 
             <BlurFade delay={0.2} inView>
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                <SparklesText sparklesCount={8}>
-                  {t('hero.title').split(' ').slice(0, 2).join(' ')}
+              <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight font-heritage">
+                <SparklesText sparklesCount={8} colors={{ first: '#FFB800', second: '#E23D28' }}>
+                  আমাদের কলকাতা
                 </SparklesText>
-                <br />
-                <AnimatedGradientText className="text-5xl md:text-7xl font-bold">
-                  {t('hero.title').split(' ').slice(2).join(' ') || 'Jharkhand'}
-                </AnimatedGradientText>
               </h1>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">
+                <AnimatedGradientText className="text-3xl md:text-5xl font-bold">
+                  Kolkata Heritage
+                </AnimatedGradientText>
+              </h2>
             </BlurFade>
 
             <BlurFade delay={0.3} inView>
               <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-2xl">
-                {t('hero.subtitle')}
+                From the legacy of <span className="text-kolkata-yellow font-semibold">trams</span>, <span className="text-heritage-400 font-semibold">tea</span>, and <span className="text-durga-400 font-semibold">Tagore</span> — 
+                Experience where tradition meets transformation.
               </p>
             </BlurFade>
 
@@ -113,59 +154,86 @@ const HeroSection: React.FC = () => {
             <BlurFade delay={0.4} inView>
               <form
                 onSubmit={handleSearch}
-                className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 border border-white/20"
+                className="bg-kolkata-cream/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 border border-kolkata-gold/30"
               >
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex-1 relative group">
-                    <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-green-500 transition-colors" />
+                    <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-kolkata-sepia w-5 h-5 group-focus-within:text-kolkata-yellow transition-colors" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={t('search.placeholder')}
-                      className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 transition-all"
+                      placeholder="Search Victoria Memorial, Howrah Bridge, College Street..."
+                      className="w-full pl-12 pr-4 py-4 rounded-xl border border-kolkata-sepia/30 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent text-gray-900 dark:text-white placeholder-kolkata-sepia/60 transition-all font-sans"
                     />
                   </div>
                   <div className="relative group">
-                    <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-green-500 transition-colors" />
+                    <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-kolkata-sepia w-5 h-5 group-focus-within:text-kolkata-yellow transition-colors" />
                     <input
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full md:w-48 pl-12 pr-4 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white transition-all"
+                      className="w-full md:w-48 pl-12 pr-4 py-4 rounded-xl border border-kolkata-sepia/30 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent text-gray-900 dark:text-white transition-all"
                     />
                   </div>
-                  <ShimmerButton type="submit">
+                  <ShimmerButton 
+                    type="submit"
+                    background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
+                  >
                     <Search className="w-5 h-5" />
-                    <span>Search</span>
+                    <span>Explore</span>
                   </ShimmerButton>
                 </div>
               </form>
             </BlurFade>
 
-            {/* Quick Access Cards */}
+            {/* Quick Access Cards - Kolkata Themed */}
             <BlurFade delay={0.5} inView>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                  { title: t('button.planTrip'), icon: '🗺️', color: 'from-blue-500 to-cyan-500', hoverColor: 'hover:from-blue-600 hover:to-cyan-600' },
-                  { title: t('button.shopHandicrafts'), icon: '🏺', color: 'from-green-500 to-emerald-500', hoverColor: 'hover:from-green-600 hover:to-emerald-600' },
-                  { title: t('button.findGuides'), icon: '👨‍🏫', color: 'from-orange-500 to-red-500', hoverColor: 'hover:from-orange-600 hover:to-red-600' }
+                  { 
+                    title: 'Heritage Walks', 
+                    icon: '🏛️', 
+                    bengali: 'ঐতিহ্য পথচলা',
+                    color: 'from-kolkata-yellow to-kolkata-gold', 
+                    hoverColor: 'hover:from-kolkata-gold hover:to-kolkata-yellow',
+                    shadow: 'shadow-tram'
+                  },
+                  { 
+                    title: 'Pujo Experience', 
+                    icon: '🪔', 
+                    bengali: 'পুজো অভিজ্ঞতা',
+                    color: 'from-durga-500 to-kolkata-vermillion', 
+                    hoverColor: 'hover:from-kolkata-vermillion hover:to-durga-500',
+                    shadow: 'shadow-terracotta'
+                  },
+                  { 
+                    title: 'Artisan Crafts', 
+                    icon: '🎭', 
+                    bengali: 'শিল্পী শিল্প',
+                    color: 'from-kolkata-terracotta to-kolkata-maroon', 
+                    hoverColor: 'hover:from-kolkata-maroon hover:to-kolkata-terracotta',
+                    shadow: 'shadow-heritage'
+                  }
                 ].map((card, index) => (
                   <motion.button
                     key={index}
                     whileHover={{ scale: 1.05, y: -5 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`relative bg-gradient-to-r ${card.color} ${card.hoverColor} text-white p-6 rounded-xl transition-all duration-300 group overflow-hidden`}
+                    className={`relative bg-gradient-to-r ${card.color} ${card.hoverColor} text-white p-6 rounded-xl transition-all duration-300 group overflow-hidden ${card.shadow}`}
                   >
                     {/* Shimmer overlay */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     </div>
                     
-                    <div className="relative flex items-center space-x-3">
-                      <span className="text-2xl float-animation">{card.icon}</span>
-                      <span className="font-medium">{card.title}</span>
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                    <div className="relative flex flex-col items-start gap-2">
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-3xl float-animation">{card.icon}</span>
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform opacity-70" />
+                      </div>
+                      <span className="font-semibold text-lg">{card.title}</span>
+                      <span className="text-sm opacity-80 font-bengali">{card.bengali}</span>
                     </div>
                   </motion.button>
                 ))}
@@ -183,7 +251,7 @@ const HeroSection: React.FC = () => {
             onClick={() => setCurrentSlide(index)}
             className={`transition-all duration-300 rounded-full ${
               index === currentSlide 
-                ? 'w-8 h-3 bg-gradient-to-r from-green-500 to-orange-500' 
+                ? 'w-8 h-3 bg-gradient-to-r from-kolkata-yellow to-durga-500' 
                 : 'w-3 h-3 bg-white/50 hover:bg-white/75'
             }`}
           />
@@ -199,8 +267,9 @@ const HeroSection: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="absolute bottom-8 right-8 text-white text-right z-20 hidden md:block"
       >
-        <div className="bg-black/30 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/10">
-          <h3 className="text-xl font-semibold mb-1">{heroImages[currentSlide].title}</h3>
+        <div className="bg-black/30 backdrop-blur-sm rounded-lg px-4 py-3 border border-kolkata-yellow/30">
+          <h3 className="text-xl font-semibold mb-1 font-heritage">{heroImages[currentSlide].title}</h3>
+          <p className="text-kolkata-yellow text-sm font-bengali">{heroImages[currentSlide].bengali}</p>
           <p className="text-gray-300 text-sm">{heroImages[currentSlide].subtitle}</p>
         </div>
       </motion.div>
@@ -211,13 +280,30 @@ const HeroSection: React.FC = () => {
         transition={{ duration: 2, repeat: Infinity }}
         className="absolute bottom-8 left-8 z-20 hidden md:flex flex-col items-center"
       >
-        <span className="text-white/60 text-xs mb-2 rotate-90 origin-center">SCROLL</span>
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
+        <span className="text-kolkata-yellow/60 text-xs mb-2 rotate-90 origin-center tracking-widest">SCROLL</span>
+        <div className="w-6 h-10 border-2 border-kolkata-yellow/30 rounded-full flex justify-center pt-2">
           <motion.div
             animate={{ y: [0, 12, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-1.5 h-1.5 bg-white rounded-full"
+            className="w-1.5 h-1.5 bg-kolkata-yellow rounded-full"
           />
+        </div>
+      </motion.div>
+
+      {/* Hackathon Badge */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+        className="absolute top-24 right-8 z-20 hidden lg:block"
+      >
+        <div className="bg-gradient-to-r from-kolkata-yellow/20 to-durga-500/20 backdrop-blur-md rounded-xl p-4 border border-kolkata-yellow/30">
+          <div className="text-center">
+            <p className="text-xs text-kolkata-yellow font-medium">Calcutta Hacks 2025</p>
+            <p className="text-white font-heritage text-lg">Tram Tracks to</p>
+            <p className="text-kolkata-yellow font-heritage text-lg">Tech Stacks</p>
+            <p className="text-xs text-white/60 mt-1">Dec 27-28, 2025</p>
+          </div>
         </div>
       </motion.div>
     </section>
