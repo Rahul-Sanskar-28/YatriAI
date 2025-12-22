@@ -22,9 +22,7 @@
     "subscribe": "Subscribe",
     "subscribed": "Subscribed!",
     "selectLanguage": "Select Language",
-    "searchLanguage": "Search languages...",
-    "builtFor": "Built for",
-    "hackathonName": "Calcutta Hacks 2025"
+    "searchLanguage": "Search languages..."
   },
   "nav": {
     "home": "Home",
@@ -103,32 +101,62 @@
     "tramStops": "Tram Stops",
     "tramStopsBn": "ট্রাম স্টপ"
   },
-  "hackathon": {
-    "title": "Calcutta Hacks 2025",
-    "slogan": "Tram Tracks to Tech Stacks",
-    "date": "Dec 27-28, 2025",
-    "themes": {
-      "heritage": "Heritage & Stories",
-      "heritageBn": "ঐতিহ্য ও কথা",
-      "smart": "Smart & Sustainable",
-      "smartBn": "স্মার্ট ও টেকসই",
-      "digital": "Digital Preservation",
-      "digitalBn": "ডিজিটাল সংরক্ষণ",
-      "tradition": "Tradition + Tech",
-      "traditionBn": "ঐতিহ্য + প্রযুক্তি"
-    }
-  },
   "testimonials": {
     "title": "What Explorers Say",
     "subtitle": "অভিযাত্রীদের কথা",
     "description": "Real experiences from travelers who discovered the soul of the City of Joy",
-    "badge": "Real Stories from Kolkata Explorers"
+    "badge": "Real Stories from Kolkata Explorers",
+    "happyExplorers": "happy explorers",
+    "rating": "rating",
+    "blockchainVerified": "verified reviews",
+    "blockchain": "Blockchain",
+    "heritageCertified": "certified guides",
+    "heritage": "Heritage",
+    "reviews": {
+      "anirban": {
+        "name": "Anirban Chatterjee",
+        "location": "Mumbai, India",
+        "comment": "The heritage walk through Kumartuli was magical! Watching artisans create Durga idols with such devotion - this app helped me discover the soul of Kolkata.",
+        "sentiment": "Amazing 🎭"
+      },
+      "sarah": {
+        "name": "Sarah Chen",
+        "location": "Singapore",
+        "comment": "The Durga Puja route planner was a lifesaver! Visited 15 pandals without getting lost. The AI knew exactly when to avoid crowds.",
+        "sentiment": "Incredible 🪔"
+      },
+      "rahul": {
+        "name": "Rahul Ghosh",
+        "location": "Bangalore, India",
+        "comment": "Born in Kolkata but this app showed me places I never knew existed! The College Street book walk was pure nostalgia.",
+        "sentiment": "Nostalgic 📚"
+      },
+      "emma": {
+        "name": "Emma Williams",
+        "location": "London, UK",
+        "comment": "The tram heritage tour was unforgettable! Riding through Esplanade at sunset while the audio guide narrated history - pure magic.",
+        "sentiment": "Magical 🚃"
+      },
+      "priya": {
+        "name": "Priya Mukherjee",
+        "location": "Delhi, India",
+        "comment": "Bought authentic Baluchari saree from verified artisans through this app. Blockchain certificate proves it's genuine handloom!",
+        "sentiment": "Verified ✓"
+      },
+      "james": {
+        "name": "James Thompson",
+        "location": "New York, USA",
+        "comment": "The Adda AI companion talked about Tagore like a true Kolkatan! Recommended the best mishti doi shop - exactly what locals prefer.",
+        "sentiment": "Authentic ☕"
+      }
+    }
   },
   "footer": {
     "newsletter": {
       "title": "Stay Connected with Kolkata",
       "description": "Get AI-powered heritage tips, Pujo updates, and exclusive offers",
-      "placeholder": "Enter your email"
+      "placeholder": "Enter your email",
+      "welcome": "Welcome to Kolkata Heritage!"
     },
     "about": "Your AI-powered companion for exploring the City of Joy. Discover heritage walks, connect with artisans, and experience the soul of Kolkata through technology.",
     "explore": {
@@ -160,9 +188,7 @@
       "terms": "Terms of Service",
       "cookies": "Cookie Policy"
     },
-    "copyright": "© 2025 Kolkata Heritage. Made with ❤️ for the City of Joy",
-    "builtFor": "Built for",
-    "byTeam": "by Apex Circle"
+    "copyright": "© 2025 Kolkata Heritage. Made with ❤️ for the City of Joy"
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -221,14 +247,36 @@
   "tips": {
     "title": "AI Kolkata Tips",
     "subtitle": "কলকাতা টিপস",
-    "live": "Live"
+    "live": "Live",
+    "items": {
+      "tramRoute": "Tram Route 36 passes through the most heritage spots - perfect for a vintage tour!",
+      "pujaPandals": "Best Durga Puja pandals are in South Kolkata - start at Ekdalia Evergreen",
+      "coffeeHouse": "For authentic adda, visit Indian Coffee House on College Street since 1942",
+      "kumartuli": "Kumartuli artisans start work on idols 4 months before Pujo - visit in July!",
+      "collegeStreet": "College Street has the largest second-hand book market in the world",
+      "princepGhat": "Princep Ghat sunset views are magical - arrive 30 mins before sunset",
+      "bengaliCuisine": "Try Arsalan's biryani or 6 Ballygunge Place for authentic Bengali cuisine",
+      "victoriaMemorial": "Victoria Memorial is best visited early morning to avoid crowds",
+      "yellowTaxis": "Yellow taxis follow meter + ₹10 rule for short distances in the city",
+      "thakurBari": "Jorasanko Thakur Bari has Tagore's original artworks - don't miss it!",
+      "kalighat": "Kalighat Temple allows short visits - go during aarti for the experience",
+      "howrahBridge": "Howrah Bridge carries 100,000 vehicles daily - walk across at dawn!",
+      "parkStreet": "Park Street transforms during Christmas - best visited after 7 PM",
+      "rabindraSadan": "Rabindra Sadan hosts classical concerts - check schedule for baul performances",
+      "mishtiDoi": "Don't leave without trying mishti doi and sandesh from Balaram Mullick"
+    }
   },
   "landmarks": {
     "victoriaMemorial": "Victoria Memorial",
+    "victoriaMemorialDesc": "The crown jewel of Kolkata's heritage",
     "howrahBridge": "Howrah Bridge",
+    "howrahBridgeDesc": "The iconic gateway to the City of Joy",
     "kumartuli": "Kumartuli",
+    "kumartuliDesc": "Where gods are crafted with devotion",
     "durgaPuja": "Durga Puja",
+    "durgaPujaDesc": "Experience the grandest celebration of Bengal",
     "princepGhat": "Princep Ghat",
+    "princepGhatDesc": "Where heritage meets the Hooghly",
     "collegeStreet": "College Street",
     "indianCoffeeHouse": "Indian Coffee House",
     "marblePalace": "Marble Palace",

@@ -99,19 +99,19 @@ const Footer: React.FC = () => {
   ];
 
   const services = [
-    { name: 'AI Itinerary Planner', icon: '🤖' },
-    { name: 'Blockchain Verification', icon: '⛓️' },
-    { name: 'Heritage Audio Tours', icon: '🎧' },
-    { name: 'Pujo Route Optimizer', icon: '🪔' },
-    { name: 'Artisan Connect', icon: '🎭' },
-    { name: 'Adda AI Companion', icon: '☕' }
+    { name: 'AI Itinerary Planner', key: 'footer.services.aiPlanner', icon: '🤖' },
+    { name: 'Blockchain Verification', key: 'footer.services.blockchain', icon: '⛓️' },
+    { name: 'Heritage Audio Tours', key: 'footer.services.audioTours', icon: '🎧' },
+    { name: 'Pujo Route Optimizer', key: 'footer.services.pujoOptimizer', icon: '🪔' },
+    { name: 'Artisan Connect', key: 'footer.services.artisanConnect', icon: '🎭' },
+    { name: 'Adda AI Companion', key: 'footer.services.addaAI', icon: '☕' }
   ];
 
-  const hackathonSponsors = [
+  const techPartners = [
     { name: 'Axicov', desc: 'AI Agents' },
     { name: 'n8n', desc: 'Automation' },
     { name: 'ElevenLabs', desc: 'Voice AI' },
-    { name: 'ETHIndia', desc: 'Blockchain' },
+    { name: 'Ethereum', desc: 'Blockchain' },
     { name: 'Dodo', desc: 'Payments' }
   ];
 
@@ -143,7 +143,7 @@ const Footer: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder={t('footer.newsletter.placeholder')}
                 disabled={isSubscribed}
                 className="flex-1 md:w-72 px-4 py-3 rounded-xl bg-gray-800 border border-kolkata-gold/20 text-white placeholder-gray-500 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent disabled:opacity-50"
               />
@@ -155,11 +155,11 @@ const Footer: React.FC = () => {
                 {isSubscribed ? (
                   <>
                     <Check className="w-4 h-4" />
-                    <span>Subscribed!</span>
+                    <span>{t('common.subscribed')}</span>
                   </>
                 ) : (
                   <>
-                    <span>Subscribe</span>
+                    <span>{t('common.subscribe')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -176,7 +176,7 @@ const Footer: React.FC = () => {
                   className="fixed bottom-8 right-8 z-50 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2"
                 >
                   <Check className="w-5 h-5" />
-                  <span>Welcome to Kolkata Heritage! 🪔</span>
+                  <span>{t('footer.newsletter.welcome')} 🪔</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -207,9 +207,7 @@ const Footer: React.FC = () => {
               </div>
             </motion.div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Your AI-powered companion for exploring the City of Joy. 
-              Discover heritage walks, connect with artisans, and experience 
-              the soul of Kolkata through technology.
+              {t('footer.about')}
             </p>
             <div className="flex space-x-3">
               {socialLinks.map((social, index) => {
@@ -228,21 +226,13 @@ const Footer: React.FC = () => {
               })}
             </div>
 
-            {/* Hackathon Badge */}
-            <div className="p-4 rounded-xl bg-gradient-to-r from-kolkata-yellow/10 to-durga-500/10 border border-kolkata-yellow/20">
-              <div className="text-center">
-                <p className="text-xs text-kolkata-gold font-medium">Built for</p>
-                <p className="text-white font-heritage font-semibold">Calcutta Hacks 2025</p>
-                <p className="text-xs text-gray-400 mt-1">Tram Tracks to Tech Stacks</p>
-              </div>
-            </div>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2 font-heritage">
               <span className="w-8 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 rounded-full" />
-              Explore
+              {t('footer.explore.title')}
             </h3>
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
@@ -263,7 +253,7 @@ const Footer: React.FC = () => {
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2 font-heritage">
               <span className="w-8 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 rounded-full" />
-              Features
+              {t('footer.services.title')}
             </h3>
             <ul className="space-y-3">
               {services.map((service, index) => (
@@ -273,7 +263,7 @@ const Footer: React.FC = () => {
                     className="text-gray-400 hover:text-kolkata-gold transition-colors text-sm flex items-center gap-2 group"
                   >
                     <span className="text-sm">{service.icon}</span>
-                    {service.name}
+                    {t(service.key)}
                   </button>
                 </motion.li>
               ))}
@@ -281,9 +271,9 @@ const Footer: React.FC = () => {
 
             {/* Powered By */}
             <div className="pt-4 border-t border-gray-800">
-              <p className="text-xs text-gray-500 mb-3">Powered by</p>
+              <p className="text-xs text-gray-500 mb-3">{t('features.poweredBy')}</p>
               <div className="flex flex-wrap gap-2">
-                {hackathonSponsors.map((sponsor, index) => (
+                {techPartners.map((sponsor, index) => (
                   <span 
                     key={index}
                     className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-400 hover:text-kolkata-gold hover:border-kolkata-gold/30 border border-gray-700 transition-colors"
@@ -299,13 +289,13 @@ const Footer: React.FC = () => {
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2 font-heritage">
               <span className="w-8 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 rounded-full" />
-              Contact
+              {t('footer.contact.title')}
             </h3>
             <div className="space-y-4">
               {[
-                { icon: Mail, text: 'hello@kolkataheritage.in' },
-                { icon: Phone, text: '+91 33-HERITAGE' },
-                { icon: MapPin, text: 'Kolkata, West Bengal' }
+                { icon: Mail, key: 'footer.contact.email' },
+                { icon: Phone, key: 'footer.contact.phone' },
+                { icon: MapPin, key: 'footer.contact.location' }
               ].map((item, index) => {
                 const Icon = item.icon;
                 return (
@@ -317,7 +307,7 @@ const Footer: React.FC = () => {
                     <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-kolkata-yellow/20 transition-colors">
                       <Icon className="w-4 h-4 text-kolkata-gold" />
                     </div>
-                    <span className="text-gray-400 text-sm group-hover:text-white transition-colors">{item.text}</span>
+                    <span className="text-gray-400 text-sm group-hover:text-white transition-colors">{t(item.key)}</span>
                   </motion.div>
                 );
               })}
@@ -336,12 +326,10 @@ const Footer: React.FC = () => {
               animate={{ opacity: 1 }}
               className="text-gray-400 text-sm flex items-center gap-2"
             >
-              © 2025 Kolkata Heritage. Made with 
-              <Heart className="w-4 h-4 text-durga-500 fill-current animate-pulse" /> 
-              <span>for the {t('brand.tagline')}</span>
+              {t('footer.copyright')}
             </motion.div>
             <div className="flex flex-wrap justify-center gap-6">
-              {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((link, index) => (
+              {[t('footer.legal.privacy'), t('footer.legal.terms'), t('footer.legal.cookies')].map((link, index) => (
                 <motion.button
                   key={index}
                   onClick={() => {
@@ -357,15 +345,6 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Apex Circle Credit */}
-          <div className="text-center mt-6 pt-6 border-t border-gray-800/50">
-            <p className="text-xs text-gray-500">
-              A project for <span className="text-kolkata-gold">Calcutta Hacks 2025</span> by <span className="text-white">Apex Circle</span>
-            </p>
-            <p className="text-xs text-gray-600 mt-1">
-              December 27-28, 2025 • Kolkata, West Bengal
-            </p>
-          </div>
         </div>
       </div>
     </footer>
