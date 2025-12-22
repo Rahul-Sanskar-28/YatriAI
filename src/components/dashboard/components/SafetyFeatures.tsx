@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Shield, Phone, MapPin, AlertTriangle, Users, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const SafetyFeatures: React.FC = () => {
+  const { t } = useLanguage();
   const [sosActive, setSosActive] = useState(false);
   const [emergencyContacts, setEmergencyContacts] = useState([
     { name: 'Police', number: '100', type: 'police' },

@@ -12,6 +12,7 @@ import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { RosogollaIcon, FishCurryIcon } from '../../kolkata/KolkataIcons';
 import { voiceService, isElevenLabsConfigured } from '../../../lib/services';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Bengali Heritage Recipes with Family Stories
 const recipes = [
@@ -201,6 +202,7 @@ const recipes = [
 ];
 
 const RecipeVault: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedRecipe, setSelectedRecipe] = useState(recipes[0]);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [activeTab, setActiveTab] = useState<'story' | 'recipe' | 'video'>('story');

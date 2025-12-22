@@ -8,8 +8,10 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { aiService, weatherService, type ItineraryPreferences, type GeneratedItinerary, type WeatherData } from '../../../lib/services';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const AIItineraryPlanner: React.FC = () => {
+  const { t } = useLanguage();
   const [preferences, setPreferences] = useState({
     interests: [] as string[],
     budget: 'mid-range' as 'budget' | 'mid-range' | 'luxury',

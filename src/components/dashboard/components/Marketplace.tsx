@@ -10,8 +10,10 @@ import { BlurFade } from '../../magicui/BlurFade';
 import { CheckoutModal } from '../../payment';
 import { paymentService, type CartItem } from '../../../lib/services/payment.service';
 import { isDodoPaymentsConfigured, DodoPaymentsConfig } from '../../../lib/services/config';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const Marketplace: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('featured');

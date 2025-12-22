@@ -9,6 +9,9 @@ import HeroSection from './components/landing/HeroSection';
 import AITipsMarquee from './components/landing/AITipsMarquee';
 import TestimonialsCarousel from './components/landing/TestimonialsCarousel';
 import FeaturesSection from './components/landing/FeaturesSection';
+import HeritageSection from './components/landing/HeritageSection';
+import PujoSection from './components/landing/PujoSection';
+import ArtisansSection from './components/landing/ArtisansSection';
 import TouristDashboard from './components/dashboard/TouristDashboard';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import GuideDashboard from './components/dashboard/GuideDashboard';
@@ -23,6 +26,9 @@ const LandingPage: React.FC = () => {
       <Header />
       <HeroSection />
       <AITipsMarquee />
+      <HeritageSection />
+      <PujoSection />
+      <ArtisansSection />
       <FeaturesSection />
       <TestimonialsCarousel />
       <Footer />

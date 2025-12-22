@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Star, TrendingUp, TrendingDown, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const FeedbackPortal: React.FC = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'submit' | 'analytics' | 'history'>('submit');
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');

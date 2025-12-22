@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Star, MapPin, MessageCircle, Calendar, Shield, Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { guides } from '../../../data/mockData';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const GuideLocator: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedGuide, setSelectedGuide] = useState<any>(null);
   const [filterLocation, setFilterLocation] = useState('all');
   const [filterSpecialty, setFilterSpecialty] = useState('all');

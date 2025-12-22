@@ -11,6 +11,7 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { VictoriaMemorialIcon, HowrahBridgeIcon, TerracottaIcon, DurgaIcon } from '../../kolkata/KolkataIcons';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Heritage locations that can mint NFT badges
 const heritageLocations = [
@@ -104,6 +105,7 @@ const userStats = {
 };
 
 const HeritageNFT: React.FC = () => {
+  const { t } = useLanguage();
   const [locations, setLocations] = useState(heritageLocations);
   const [selectedLocation, setSelectedLocation] = useState(heritageLocations[0]);
   const [isMinting, setIsMinting] = useState(false);
