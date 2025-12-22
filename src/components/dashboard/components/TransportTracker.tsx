@@ -10,6 +10,7 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { TramIcon, HowrahBridgeIcon, VictoriaMemorialIcon } from '../../kolkata/KolkataIcons';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Kolkata Transport Data
 const tramRoutes = [
@@ -188,6 +189,7 @@ const busRoutes = [
 ];
 
 const TransportTracker: React.FC = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'tram' | 'metro' | 'train' | 'bus'>('tram');
   const [selectedRoute, setSelectedRoute] = useState<any>(null);
   const [isLive, setIsLive] = useState(true);
@@ -287,7 +289,7 @@ const TransportTracker: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Navigation className="w-4 h-4 text-kolkata-terracotta" />
                         <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {route.stops?.length || route.majorStops?.length || 0} stops
+                          {route.stops?.length || route.majorStops?.length || 0} {t('dashboard.stops')}
                         </span>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(route.status)}`}>
@@ -299,7 +301,7 @@ const TransportTracker: React.FC = () => {
                   <div className="text-right">
                     <div className="bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white px-4 py-2 rounded-xl shadow-lg">
                       <p className="text-2xl font-bold">{route.nextArrival || route.nextTrain || route.nextBus}</p>
-                      <p className="text-xs opacity-80">min</p>
+                      <p className="text-xs opacity-80">{t('dashboard.min')}</p>
                     </div>
                   </div>
                 </div>
@@ -333,12 +335,12 @@ const TransportTracker: React.FC = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-heritage">
-                Kolkata{' '}
-                <AnimatedGradientText className="text-3xl">Transport</AnimatedGradientText>
-                {' '}Tracker 🚃
+                {t('brand.name')}{' '}
+                <AnimatedGradientText className="text-3xl">{t('dashboard.transport')}</AnimatedGradientText>
+                {' '}🚃
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Live tracking for trams, metro, local trains & buses • <span className="font-bengali">লাইভ ট্র্যাকিং</span>
+                {t('dashboard.liveTracking')}
               </p>
             </div>
           </div>
@@ -348,7 +350,7 @@ const TransportTracker: React.FC = () => {
             <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${isLive ? 'bg-green-100 dark:bg-green-900/50' : 'bg-gray-100 dark:bg-gray-800'}`}>
               <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
               <span className={`text-sm font-medium ${isLive ? 'text-green-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'}`}>
-                {isLive ? 'Live Updates' : 'Paused'}
+                {isLive ? t('tips.live') : t('dashboard.pauseTour')}
               </span>
             </div>
 
@@ -367,7 +369,7 @@ const TransportTracker: React.FC = () => {
               onClick={() => setIsLive(!isLive)}
             >
               <Zap className="w-4 h-4" />
-              <span>{isLive ? 'Pause' : 'Go Live'}</span>
+              <span>{isLive ? t('dashboard.pauseTour') : t('tips.live')}</span>
             </ShimmerButton>
           </div>
         </div>

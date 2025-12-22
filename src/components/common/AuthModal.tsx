@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, User, Shield, Store, MapPin, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState<'role' | 'form' | 'mfa'>('role');
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [isLogin, setIsLogin] = useState(true);
@@ -26,29 +28,29 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const roles = [
     {
       id: 'tourist',
-      title: 'Tourist / Traveler',
-      description: 'Explore Jharkhand with AI-powered recommendations',
+      titleKey: 'auth.roles.tourist.title',
+      descriptionKey: 'auth.roles.tourist.description',
       icon: User,
       color: 'from-blue-500 to-cyan-500'
     },
     {
       id: 'admin',
-      title: 'Local Authority / Admin',
-      description: 'Manage tourism services and certifications',
+      titleKey: 'auth.roles.admin.title',
+      descriptionKey: 'auth.roles.admin.description',
       icon: Shield,
       color: 'from-purple-500 to-pink-500'
     },
     {
       id: 'seller',
-      title: 'Marketplace Seller',
-      description: 'Sell authentic handicrafts and local products',
+      titleKey: 'auth.roles.seller.title',
+      descriptionKey: 'auth.roles.seller.description',
       icon: Store,
       color: 'from-green-500 to-emerald-500'
     },
     {
       id: 'guide',
-      title: 'Local Guide',
-      description: 'Share your knowledge and earn as a certified guide',
+      titleKey: 'auth.roles.guide.title',
+      descriptionKey: 'auth.roles.guide.description',
       icon: MapPin,
       color: 'from-orange-500 to-red-500'
     }
@@ -118,7 +120,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {step === 'role' ? 'Choose Your Role' : isLogin ? 'Welcome Back' : 'Create Account'}
+            {step === 'role' ? t('auth.chooseRole') : isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
           </h2>
           <button
             onClick={handleClose}
@@ -167,10 +169,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-white transition-colors">
-                            {role.title}
+                            {t(role.titleKey)}
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-white/80 transition-colors">
-                            {role.description}
+                            {t(role.descriptionKey)}
                           </p>
                         </div>
                       </div>
@@ -198,7 +200,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                             <IconComponent className="w-5 h-5" />
                           </div>
                           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            {role?.title}
+                            {role?.titleKey ? t(role.titleKey) : ''}
                           </span>
                         </>
                       );
@@ -213,7 +215,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                           : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                       }`}
                     >
-                      Login
+                      {t('auth.login')}
                     </button>
                     <button
                       onClick={() => { setIsLogin(false); setError(null); }}
@@ -223,7 +225,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                           : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                       }`}
                     >
-                      Sign Up
+                      {t('auth.signUp')}
                     </button>
                   </div>
                 </div>
@@ -232,14 +234,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   {!isLogin && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Full Name
+                        {t('auth.fullName')}
                       </label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                        placeholder="Enter your full name"
+                        placeholder={t('auth.enterFullName')}
                         required
                       />
                     </div>
@@ -247,28 +249,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Email Address
+                      {t('auth.emailAddress')}
                     </label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                      placeholder="Enter your email"
+                      placeholder={t('auth.enterEmail')}
                       required
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Password
+                      {t('auth.password')}
                     </label>
                     <input
                       type="password"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                      placeholder="Enter your password"
+                      placeholder={t('auth.enterPassword')}
                       required
                     />
                   </div>
@@ -276,14 +278,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   {!isLogin && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Confirm Password
+                        {t('auth.confirmPassword')}
                       </label>
                       <input
                         type="password"
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                        placeholder="Confirm your password"
+                        placeholder={t('auth.confirmYourPassword')}
                         required
                       />
                     </div>
@@ -298,13 +300,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         required
                       />
                       <label htmlFor="terms" className="text-sm text-gray-600 dark:text-gray-400">
-                        I agree to the{' '}
+                        {t('auth.agreeToTerms')}{' '}
                         <a href="#" className="text-green-600 hover:text-green-700 transition-colors">
-                          Terms of Service
+                          {t('auth.termsOfService')}
                         </a>{' '}
-                        and{' '}
+                        {t('common.and')}{' '}
                         <a href="#" className="text-green-600 hover:text-green-700 transition-colors">
-                          Privacy Policy
+                          {t('auth.privacyPolicy')}
                         </a>
                       </label>
                     </div>
@@ -315,7 +317,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     disabled={isLoading}
                     className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? 'Processing...' : isLogin ? 'Login' : 'Create Account'}
+                    {isLoading ? t('auth.processing') : isLogin ? t('auth.login') : t('auth.createAccount')}
                   </button>
                 </form>
 
@@ -324,7 +326,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     onClick={() => { setStep('role'); setError(null); }}
                     className="text-sm text-green-600 hover:text-green-700 transition-colors"
                   >
-                    ← Back to role selection
+                    ← {t('auth.backToRoleSelection')}
                   </button>
                 </div>
               </motion.div>

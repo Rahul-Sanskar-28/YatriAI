@@ -9,6 +9,7 @@ import { BorderBeam } from '../../magicui/BorderBeam';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { aiService, voiceService, isElevenLabsConfigured } from '../../../lib/services';
 import { AddaTeaIcon, TramIcon, DurgaIcon } from '../../kolkata/KolkataIcons';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface Message {
   id: string;
@@ -130,6 +131,7 @@ const quickTopics = {
 };
 
 const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);

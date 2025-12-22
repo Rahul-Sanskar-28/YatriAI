@@ -12,6 +12,7 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { TerracottaIcon, PatachitraIcon } from '../../kolkata/KolkataIcons';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Verified Artisan Products with blockchain certificates
 const verifiedProducts = [
@@ -152,6 +153,7 @@ interface CartItem {
 }
 
 const VerifiedMarketplace: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedProduct, setSelectedProduct] = useState(verifiedProducts[0]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);

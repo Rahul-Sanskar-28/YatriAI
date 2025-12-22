@@ -10,8 +10,10 @@ import { BlurFade } from '../../magicui/BlurFade';
 import { WalletConnect, BlockchainVerification } from '../../blockchain';
 import { blockchainService, paymentService, type VerificationResult, type PaymentResult, type PaymentIntent, type WalletState, type BlockchainRecord, isDodoPaymentsConfigured } from '../../../lib/services';
 import { DodoPaymentsConfig, isMetaMaskAvailable, ActiveNetwork } from '../../../lib/services/config';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const BookingSystem: React.FC = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'new'>('current');
   const [verificationResults, setVerificationResults] = useState<Record<string, VerificationResult>>({});
   const [blockchainRecords, setBlockchainRecords] = useState<Record<string, BlockchainRecord>>({});

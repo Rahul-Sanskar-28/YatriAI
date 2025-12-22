@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { destinations } from '../../../data/mockData';
 import { AudioGuide } from '../../voice';
 import { VoiceButton } from '../../voice';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const InteractiveMap: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
   const [userLocation, setUserLocation] = useState({ lat: 23.3441, lng: 85.3096 }); // Ranchi
   const [transportMode, setTransportMode] = useState<'bus' | 'train' | 'car'>('car');

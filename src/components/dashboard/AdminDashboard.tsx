@@ -15,18 +15,23 @@ import {
   MessageCircle,
   Bell,
   Settings,
-  Activity
+  Activity,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { adminUsers } from '../../data/mockData';
+import LanguageSelector from '../common/LanguageSelector';
 
 const AdminDashboard: React.FC = () => {
   const [activeView, setActiveView] = useState('analytics');
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { user, logout } = useAuth();
   const { t } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -50,34 +55,62 @@ const AdminDashboard: React.FC = () => {
   };
 
   const navItems = [
-    { id: 'analytics', label: 'Analytics Dashboard', icon: LayoutDashboard, color: 'from-kolkata-yellow to-kolkata-gold' },
-    { id: 'users', label: 'Manage Users', icon: Users, color: 'from-kolkata-terracotta to-durga-500' },
-    { id: 'guides', label: 'Manage Guides', icon: ShieldCheck, color: 'from-heritage-500 to-kolkata-sepia' },
-    { id: 'vendors', label: 'Manage Vendors', icon: Building, color: 'from-kolkata-hooghly to-kolkata-blue' },
+    { id: 'analytics', labelKey: 'dashboard.analytics', icon: LayoutDashboard, color: 'from-kolkata-yellow to-kolkata-gold' },
+    { id: 'users', labelKey: 'dashboard.manageUsers', icon: Users, color: 'from-kolkata-terracotta to-durga-500' },
+    { id: 'guides', labelKey: 'dashboard.manageGuides', icon: ShieldCheck, color: 'from-heritage-500 to-kolkata-sepia' },
+    { id: 'vendors', labelKey: 'dashboard.manageVendors', icon: Building, color: 'from-kolkata-hooghly to-kolkata-blue' },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-kolkata-cream/30 to-heritage-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300">
+      {/* Top Header Bar */}
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta rounded-lg flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white font-heritage">
+              {t('brand.name')} - Admin
+            </h1>
+          </div>
+          <div className="flex items-center space-x-4">
+            {/* Language Selector */}
+            <LanguageSelector variant="header" />
+            
+            {/* Theme Toggle */}
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 180 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleTheme}
+              className="p-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
+              title={isDark ? t('common.lightMode') : t('common.darkMode')}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </motion.button>
+            
+            {/* User Avatar */}
+            <div className="flex items-center space-x-2">
+              <img
+                src={user?.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'}
+                alt={user?.name}
+                className="w-8 h-8 rounded-full object-cover border-2 border-kolkata-yellow"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden md:block">{user?.name}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex">
         {/* Sidebar */}
         <motion.aside 
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          className="w-72 bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl shadow-xl h-screen sticky top-0 overflow-y-auto border-r border-kolkata-yellow/20"
+          className="w-72 bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl shadow-xl h-[calc(100vh-60px)] sticky top-[60px] overflow-y-auto border-r border-kolkata-yellow/20"
         >
           {/* Header */}
           <div className="p-6 border-b border-kolkata-yellow/20 bg-gradient-to-r from-kolkata-yellow/10 to-durga-500/10">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-kolkata-yellow to-kolkata-terracotta rounded-xl flex items-center justify-center shadow-lg">
-                <ShieldCheck className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold font-heritage bg-gradient-to-r from-kolkata-terracotta to-durga-500 bg-clip-text text-transparent">
-                  Admin Panel
-                </h1>
-                <p className="text-xs text-kolkata-sepia dark:text-kolkata-gold">City of Joy Management</p>
-              </div>
-            </div>
             <div className="flex items-center space-x-3 p-3 bg-white/60 dark:bg-gray-700/60 rounded-xl">
               <img
                 src={user?.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'}
@@ -86,7 +119,7 @@ const AdminDashboard: React.FC = () => {
               />
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">{user?.name}</p>
-                <p className="text-xs text-kolkata-terracotta dark:text-kolkata-gold font-medium">🛡️ Administrator</p>
+                <p className="text-xs text-kolkata-terracotta dark:text-kolkata-gold font-medium">🛡️ {t('auth.roles.admin.title')}</p>
               </div>
             </div>
           </div>
@@ -113,7 +146,7 @@ const AdminDashboard: React.FC = () => {
                     <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-r ${item.color} bg-opacity-10`}`}>
                       <IconComponent className={`w-5 h-5 ${isActive ? 'text-white' : 'text-kolkata-terracotta dark:text-kolkata-gold'}`} />
                     </div>
-                    <span className="font-medium">{item.label}</span>
+                    <span className="font-medium">{t(item.labelKey)}</span>
                     {isActive && (
                       <motion.div 
                         layoutId="activeIndicator"
@@ -135,7 +168,7 @@ const AdminDashboard: React.FC = () => {
               <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30">
                 <LogOut className="w-5 h-5" />
               </div>
-              <span className="font-medium">Logout</span>
+              <span className="font-medium">{t('auth.logout')}</span>
             </motion.button>
           </nav>
         </motion.aside>

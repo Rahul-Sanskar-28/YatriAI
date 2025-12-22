@@ -12,6 +12,7 @@ import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { VictoriaMemorialIcon, HowrahBridgeIcon, TerracottaIcon } from '../../kolkata/KolkataIcons';
 import { voiceService, isElevenLabsConfigured } from '../../../lib/services';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Kolkata Heritage Sites with Narration Content
 const heritageSites = [
@@ -120,6 +121,7 @@ const heritageSites = [
 ];
 
 const HeritageWalk: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedSite, setSelectedSite] = useState(heritageSites[0]);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [isPlaying, setIsPlaying] = useState(false);

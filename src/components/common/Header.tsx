@@ -23,10 +23,10 @@ const Header: React.FC = () => {
 
   const navItems = [
     { key: 'home', href: '#hero', labelKey: 'nav.home', sectionId: 'hero' },
-    { key: 'heritage', href: '#features', labelKey: 'nav.heritage', sectionId: 'features', dashboardTab: 'heritage' },
-    { key: 'pujo', href: '#features', labelKey: 'nav.pujo', sectionId: 'features', dashboardTab: 'explore' },
-    { key: 'marketplace', href: '#features', labelKey: 'nav.artisans', sectionId: 'features', dashboardTab: 'artisans' },
-    { key: 'about', href: '#testimonials', labelKey: 'nav.about', sectionId: 'testimonials' }
+    { key: 'heritage', href: '#heritage', labelKey: 'nav.heritage', sectionId: 'heritage', dashboardTab: 'heritage' },
+    { key: 'pujo', href: '#pujo', labelKey: 'nav.pujo', sectionId: 'pujo', dashboardTab: 'explore' },
+    { key: 'marketplace', href: '#artisans', labelKey: 'nav.artisans', sectionId: 'artisans', dashboardTab: 'artisans' },
+    { key: 'about', href: '#footer', labelKey: 'nav.about', sectionId: 'footer' }
   ];
 
   const handleNavClick = (item: typeof navItems[0]) => {
@@ -140,7 +140,7 @@ const Header: React.FC = () => {
                           className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-2"
                         >
                           <LogOut className="w-4 h-4" />
-                          <span>Logout</span>
+                          <span>{t('auth.logout')}</span>
                         </motion.button>
                       </motion.div>
                     )}
@@ -153,7 +153,7 @@ const Header: React.FC = () => {
                   background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
                 >
                   <User className="w-4 h-4" />
-                  <span>Login</span>
+                  <span>{t('auth.login')}</span>
                 </ShimmerButton>
               )}
 
