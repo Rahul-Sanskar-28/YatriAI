@@ -37,27 +37,27 @@ const HeroSection: React.FC = () => {
     {
       url: 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=1920&h=1080&q=80',
       titleKey: 'landmarks.victoriaMemorial',
-      subtitle: 'The crown jewel of Kolkata\'s heritage'
+      subtitleKey: 'landmarks.victoriaMemorialDesc'
     },
     {
       url: 'https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?auto=format&fit=crop&w=1920&h=1080&q=80',
       titleKey: 'landmarks.howrahBridge',
-      subtitle: 'The iconic gateway to the City of Joy'
+      subtitleKey: 'landmarks.howrahBridgeDesc'
     },
     {
       url: 'https://images.unsplash.com/photo-1599030641314-e7f9e2f5e8e1?auto=format&fit=crop&w=1920&h=1080&q=80',
       titleKey: 'landmarks.kumartuli',
-      subtitle: 'Where gods are crafted with devotion'
+      subtitleKey: 'landmarks.kumartuliDesc'
     },
     {
       url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1920&h=1080&q=80',
       titleKey: 'landmarks.durgaPuja',
-      subtitle: 'Experience the grandest celebration of Bengal'
+      subtitleKey: 'landmarks.durgaPujaDesc'
     },
     {
       url: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1920&h=1080&q=80',
       titleKey: 'landmarks.princepGhat',
-      subtitle: 'Where heritage meets the Hooghly'
+      subtitleKey: 'landmarks.princepGhatDesc'
     }
   ];
 
@@ -299,7 +299,7 @@ const HeroSection: React.FC = () => {
       >
         <div className="bg-black/30 backdrop-blur-sm rounded-lg px-4 py-3 border border-kolkata-yellow/30">
           <h3 className="text-xl font-semibold mb-1 font-heritage">{t(heroImages[currentSlide].titleKey)}</h3>
-          <p className="text-gray-300 text-sm">{heroImages[currentSlide].subtitle}</p>
+          <p className="text-gray-300 text-sm">{t(heroImages[currentSlide].subtitleKey)}</p>
         </div>
       </motion.div>
 
@@ -319,22 +319,6 @@ const HeroSection: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Hackathon Badge */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1 }}
-        className="absolute top-24 right-8 z-20 hidden lg:block"
-      >
-        <div className="bg-gradient-to-r from-kolkata-yellow/20 to-durga-500/20 backdrop-blur-md rounded-xl p-4 border border-kolkata-yellow/30">
-          <div className="text-center">
-            <p className="text-xs text-kolkata-yellow font-medium">Calcutta Hacks 2025</p>
-            <p className="text-white font-heritage text-lg">Tram Tracks to</p>
-            <p className="text-kolkata-yellow font-heritage text-lg">Tech Stacks</p>
-            <p className="text-xs text-white/60 mt-1">Dec 27-28, 2025</p>
-          </div>
-        </div>
-      </motion.div>
     </section>
   );
 };

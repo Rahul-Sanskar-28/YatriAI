@@ -91,29 +91,6 @@ const FeaturesSection: React.FC = () => {
     }
   ];
 
-  const hackathonThemes = [
-    {
-      icon: '🏛️',
-      themeKey: 'hackathon.themes.heritage',
-      description: 'Tech rooted in heritage and human stories'
-    },
-    {
-      icon: '🌱',
-      themeKey: 'hackathon.themes.smart',
-      description: 'Smarter, sustainable city experiences'
-    },
-    {
-      icon: '🎨',
-      themeKey: 'hackathon.themes.digital',
-      description: 'Preserving art, language & culture digitally'
-    },
-    {
-      icon: '🔗',
-      themeKey: 'hackathon.themes.tradition',
-      description: 'Bridging tradition and technology'
-    }
-  ];
-
   return (
     <section id="features" className="py-24 bg-kolkata-cream dark:bg-gray-900 transition-colors duration-300 relative overflow-hidden">
       {/* Background decoration - Kolkata themed */}
@@ -125,27 +102,6 @@ const FeaturesSection: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Hackathon Themes Banner */}
-        <BlurFade delay={0.05} inView>
-          <div className="mb-16 bg-gradient-to-r from-kolkata-yellow/10 via-durga-500/10 to-kolkata-terracotta/10 dark:from-kolkata-yellow/5 dark:via-durga-500/5 dark:to-kolkata-terracotta/5 rounded-2xl p-6 border border-kolkata-yellow/20">
-            <h3 className="text-center text-lg font-semibold text-kolkata-sepia dark:text-kolkata-gold mb-4 font-heritage">
-              Calcutta Hacks 2025 - Four Themes
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {hackathonThemes.map((item, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.05 }}
-                  className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
-                >
-                  <span className="text-3xl mb-2 block">{item.icon}</span>
-                  <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{t(item.themeKey)}</h4>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </BlurFade>
-
         <div className="text-center mb-20">
           <BlurFade delay={0.1} inView>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-kolkata-yellow/20 dark:bg-kolkata-yellow/10 border border-kolkata-yellow/40 mb-6">
@@ -265,13 +221,6 @@ const FeaturesSection: React.FC = () => {
             <p className="mt-4 text-kolkata-sepia dark:text-gray-400 text-sm">
               {t('features.ctaSubtext')}
             </p>
-
-            <div className="mt-6 flex items-center justify-center gap-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">{t('common.builtFor')}</span>
-              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-kolkata-yellow/20 to-durga-500/20 text-sm font-medium text-kolkata-terracotta dark:text-kolkata-gold border border-kolkata-yellow/30">
-                {t('common.hackathonName')}
-              </span>
-            </div>
           </div>
         </BlurFade>
       </div>

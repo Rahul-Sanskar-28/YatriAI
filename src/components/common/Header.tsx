@@ -91,12 +91,6 @@ const Header: React.FC = () => {
 
             {/* Right Side Controls */}
             <div className="flex items-center space-x-3">
-              {/* Calcutta Hacks Badge */}
-              <div className="hidden lg:flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-kolkata-yellow/20 to-durga-500/20 border border-kolkata-yellow/30">
-                <span className="text-xs font-medium text-kolkata-terracotta dark:text-kolkata-gold">Calcutta Hacks</span>
-                <span className="text-xs">2025</span>
-              </div>
-
               {/* Language Selector */}
               <LanguageSelector variant="header" />
 

@@ -2,9 +2,9 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// Import base English translations
+// Import base English translations (source of truth)
 import en from './locales/en.json';
-import bn from './locales/bn.json';
+// Bengali and all other languages are translated dynamically via Google Translate API
 
 // All world languages with their native names and codes
 export const SUPPORTED_LANGUAGES = [
@@ -246,7 +246,7 @@ const unflattenTranslations = (items: Array<{ key: string; value: string }>): Re
   return result;
 };
 
-// Dynamic translation loader - translates texts in parallel
+// Dynamic translation loader - translates texts in parallel via Google Translate API
 export const loadTranslationsForLanguage = async (
   langCode: string,
   onProgress?: (progress: number) => void
@@ -256,10 +256,7 @@ export const loadTranslationsForLanguage = async (
     return en;
   }
   
-  // Bengali is pre-translated
-  if (langCode === 'bn') {
-    return bn;
-  }
+  // All other languages (including Bengali) are translated dynamically via API
   
   // Check cache first
   const cached = getCachedTranslations(langCode);
@@ -323,10 +320,9 @@ export const addDynamicTranslations = (langCode: string, translations: Record<st
   i18n.addResourceBundle(langCode, 'translation', translations, true, true);
 };
 
-// Resources for translations - English and Bengali are pre-loaded
+// Resources for translations - Only English is pre-loaded, others are loaded dynamically via API
 const resources = {
   en: { translation: en },
-  bn: { translation: bn },
 };
 
 i18n
