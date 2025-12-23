@@ -1,55 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MapPin, Clock, Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { BlurFade } from '../magicui/BlurFade';
 import { MagicCard } from '../magicui/MagicCard';
 
-const heritageImages = [
-  {
-    url: 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Victoria Memorial',
-    desc: 'The crown jewel of Kolkata\'s heritage',
-    location: 'Queen\'s Way',
-    rating: 4.9,
-    duration: '2-3 hrs'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Howrah Bridge',
-    desc: 'The iconic gateway to the City of Joy',
-    location: 'Howrah',
-    rating: 4.8,
-    duration: '1 hr'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1567157577867-05ccb1388e66?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Marble Palace',
-    desc: 'A magnificent 19th-century mansion with European statues and rare paintings',
-    location: 'Muktaram Babu Street',
-    rating: 4.7,
-    duration: '1.5 hrs'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Kalighat Temple',
-    desc: 'One of the 51 Shakti Peethas, the spiritual heart of Bengal',
-    location: 'Kalighat',
-    rating: 4.9,
-    duration: '1 hr'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'College Street',
-    desc: 'The world\'s largest second-hand book market and literary hub',
-    location: 'College Street',
-    rating: 4.6,
-    duration: '2 hrs'
-  }
-];
-
 const HeritageSection: React.FC = () => {
+  const { t } = useTranslation('translation');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const heritageImages = [
+    {
+      url: 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'heritage.victoria.title',
+      descKey: 'heritage.victoria.description',
+      locationKey: 'heritage.victoria.location',
+      rating: 4.9,
+      duration: '2-3 hrs'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'heritage.howrah.title',
+      descKey: 'heritage.howrah.description',
+      locationKey: 'heritage.howrah.location',
+      rating: 4.8,
+      duration: '1 hr'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1567157577867-05ccb1388e66?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'heritage.marble.title',
+      descKey: 'heritage.marble.description',
+      locationKey: 'heritage.marble.location',
+      rating: 4.7,
+      duration: '1.5 hrs'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'heritage.kalighat.title',
+      descKey: 'heritage.kalighat.description',
+      locationKey: 'heritage.kalighat.location',
+      rating: 4.9,
+      duration: '1 hr'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'heritage.collegeStreet.title',
+      descKey: 'heritage.collegeStreet.description',
+      locationKey: 'heritage.collegeStreet.location',
+      rating: 4.6,
+      duration: '2 hrs'
+    }
+  ];
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -57,7 +59,7 @@ const HeritageSection: React.FC = () => {
       setCurrentSlide((prev) => (prev + 1) % heritageImages.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, heritageImages.length]);
 
   const nextSlide = () => {
     setIsAutoPlaying(false);
@@ -75,13 +77,13 @@ const HeritageSection: React.FC = () => {
         <BlurFade delay={0.1} inView>
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 rounded-full bg-kolkata-sepia/20 dark:bg-kolkata-gold/20 text-kolkata-sepia dark:text-kolkata-gold text-sm font-medium mb-4">
-              🏛️ Explore Heritage
+              {t('heritage.badge')}
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 font-heritage">
-              Timeless Heritage
+              {t('heritage.title')}
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Discover architectural marvels and historical landmarks that tell the story of Kolkata's glorious past
+              {t('heritage.subtitle')}
             </p>
           </div>
         </BlurFade>
@@ -101,7 +103,7 @@ const HeritageSection: React.FC = () => {
                 >
                   <img
                     src={heritageImages[currentSlide].url}
-                    alt={heritageImages[currentSlide].title}
+                    alt={t(heritageImages[currentSlide].titleKey)}
                     className="w-full h-full object-cover"
                   />
                   {/* Gradient Overlay */}
@@ -120,15 +122,15 @@ const HeritageSection: React.FC = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 font-heritage">
-                      {heritageImages[currentSlide].title}
+                      {t(heritageImages[currentSlide].titleKey)}
                     </h3>
                     <p className="text-gray-200 text-lg mb-4 max-w-xl">
-                      {heritageImages[currentSlide].desc}
+                      {t(heritageImages[currentSlide].descKey)}
                     </p>
                     <div className="flex flex-wrap items-center gap-4 text-gray-300">
                       <span className="flex items-center gap-1">
                         <MapPin className="w-4 h-4 text-kolkata-yellow" />
-                        {heritageImages[currentSlide].location}
+                        {t(heritageImages[currentSlide].locationKey)}
                       </span>
                       <span className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-kolkata-yellow fill-current" />

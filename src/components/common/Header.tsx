@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Menu, X, Moon, Sun, User, LogOut, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import AuthModal from './AuthModal';
+import LanguageSelector from './LanguageSelector';
 import { ShimmerButton } from '../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { TramIcon } from '../kolkata/KolkataIcons';
@@ -14,16 +17,19 @@ const Header: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   
+  // Use useTranslation directly for reliable translation updates
+  const { t } = useTranslation('translation');
   const { user, logout, isAuthenticated } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const { currentLanguage } = useLanguage(); // Just for language state
   const navigate = useNavigate();
 
   const navItems = [
-    { key: 'home', href: '#hero', label: 'Home', sectionId: 'hero' },
-    { key: 'heritage', href: '#heritage', label: 'Heritage', sectionId: 'heritage', dashboardTab: 'heritage' },
-    { key: 'pujo', href: '#pujo', label: 'Pujo', sectionId: 'pujo', dashboardTab: 'explore' },
-    { key: 'marketplace', href: '#artisans', label: 'Artisans', sectionId: 'artisans', dashboardTab: 'artisans' },
-    { key: 'about', href: '#footer', label: 'About', sectionId: 'footer' }
+    { key: 'home', href: '#hero', labelKey: 'nav.home', sectionId: 'hero' },
+    { key: 'heritage', href: '#heritage', labelKey: 'nav.heritage', sectionId: 'heritage', dashboardTab: 'heritage' },
+    { key: 'pujo', href: '#pujo', labelKey: 'nav.pujo', sectionId: 'pujo', dashboardTab: 'explore' },
+    { key: 'marketplace', href: '#artisans', labelKey: 'nav.artisans', sectionId: 'artisans', dashboardTab: 'artisans' },
+    { key: 'about', href: '#footer', labelKey: 'nav.about', sectionId: 'footer' }
   ];
 
   const handleNavClick = (item: typeof navItems[0]) => {
@@ -62,11 +68,11 @@ const Header: React.FC = () => {
               <div className="flex flex-col">
                 <div className="flex items-center gap-1">
                   <AnimatedGradientText className="text-xl font-bold font-heritage">
-                    Kolkata
+                    {t('brand.name').split(' ')[0] || 'Kolkata'}
                   </AnimatedGradientText>
-                  <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">Heritage</span>
+                  <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">{t('brand.name').split(' ')[1] || 'Heritage'}</span>
                 </div>
-                <span className="text-xs text-kolkata-sepia dark:text-kolkata-gold/60 -mt-1">City of Joy</span>
+                <span className="text-xs text-kolkata-sepia dark:text-kolkata-gold/60 -mt-1">{t('brand.tagline')}</span>
               </div>
               <Sparkles className="w-4 h-4 text-kolkata-yellow animate-pulse" />
             </motion.div>
@@ -80,7 +86,7 @@ const Header: React.FC = () => {
                   whileHover={{ y: -2 }}
                   className="relative px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors font-medium text-sm group"
                 >
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 group-hover:w-3/4 transition-all duration-300 rounded-full" />
                 </motion.button>
               ))}
@@ -88,6 +94,9 @@ const Header: React.FC = () => {
 
             {/* Right Side Controls */}
             <div className="flex items-center space-x-3">
+              {/* Language Selector */}
+              <LanguageSelector variant="header" />
+              
               {/* Theme Toggle */}
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 180 }}
@@ -134,7 +143,7 @@ const Header: React.FC = () => {
                           className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-2"
                         >
                           <LogOut className="w-4 h-4" />
-                          <span>Logout</span>
+                          <span>{t('auth.logout')}</span>
                         </motion.button>
                       </motion.div>
                     )}
@@ -147,7 +156,7 @@ const Header: React.FC = () => {
                   background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
                 >
                   <User className="w-4 h-4" />
-                  <span>Login</span>
+                  <span>{t('auth.login')}</span>
                 </ShimmerButton>
               )}
 
@@ -182,7 +191,7 @@ const Header: React.FC = () => {
                       transition={{ delay: index * 0.1 }}
                       className="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10 rounded-xl transition-all font-medium"
                     >
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                     </motion.button>
                   ))}
                 </nav>

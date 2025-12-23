@@ -1,55 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MapPin, Users, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { BlurFade } from '../magicui/BlurFade';
 import { MagicCard } from '../magicui/MagicCard';
 
-const pujoImages = [
-  {
-    url: 'https://images.unsplash.com/photo-1601001816339-74036c49426d?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Ekdalia Evergreen',
-    desc: 'Award-winning pandal known for innovative artistic themes and installations',
-    location: 'Ekdalia',
-    crowd: 'High',
-    highlight: 'Theme: Art Installation'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1598431429388-ec5b1a006db6?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Bagbazar Sarbojanin',
-    desc: 'One of the oldest and most traditional Durga Puja celebrations in Kolkata',
-    location: 'Bagbazar',
-    crowd: 'Very High',
-    highlight: 'Traditional Pandal'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Kumartuli Park',
-    desc: 'Located in the heart of the idol-making district with authentic Bengali traditions',
-    location: 'Kumartuli',
-    crowd: 'Medium',
-    highlight: 'Artisan District'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'College Square',
-    desc: 'Historic pandal in the heart of academic Kolkata with cultural programs',
-    location: 'College Square',
-    crowd: 'High',
-    highlight: 'Historic Location'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1623841675698-8a9b9f1a3d6f?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Salt Lake FD Block',
-    desc: 'Modern theme-based pandal showcasing contemporary art and architecture',
-    location: 'Salt Lake',
-    crowd: 'Medium',
-    highlight: 'Modern Architecture'
-  }
-];
-
 const PujoSection: React.FC = () => {
+  const { t } = useTranslation('translation');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const pujoImages = [
+    {
+      url: 'https://images.unsplash.com/photo-1601001816339-74036c49426d?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'pujo.ekdalia.title',
+      descKey: 'pujo.ekdalia.description',
+      locationKey: 'pujo.ekdalia.location',
+      crowd: 'high',
+      highlightKey: 'pujo.ekdalia.highlight'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1598431429388-ec5b1a006db6?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'pujo.bagbazar.title',
+      descKey: 'pujo.bagbazar.description',
+      locationKey: 'pujo.bagbazar.location',
+      crowd: 'veryHigh',
+      highlightKey: 'pujo.bagbazar.highlight'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'pujo.kumartuli.title',
+      descKey: 'pujo.kumartuli.description',
+      locationKey: 'pujo.kumartuli.location',
+      crowd: 'medium',
+      highlightKey: 'pujo.kumartuli.highlight'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'pujo.collegeSquare.title',
+      descKey: 'pujo.collegeSquare.description',
+      locationKey: 'pujo.collegeSquare.location',
+      crowd: 'high',
+      highlightKey: 'pujo.collegeSquare.highlight'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1623841675698-8a9b9f1a3d6f?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'pujo.saltLake.title',
+      descKey: 'pujo.saltLake.description',
+      locationKey: 'pujo.saltLake.location',
+      crowd: 'medium',
+      highlightKey: 'pujo.saltLake.highlight'
+    }
+  ];
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -57,7 +59,7 @@ const PujoSection: React.FC = () => {
       setCurrentSlide((prev) => (prev + 1) % pujoImages.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, pujoImages.length]);
 
   const nextSlide = () => {
     setIsAutoPlaying(false);
@@ -71,11 +73,15 @@ const PujoSection: React.FC = () => {
 
   const getCrowdColor = (crowd: string) => {
     switch (crowd) {
-      case 'Very High': return 'text-red-400';
-      case 'High': return 'text-orange-400';
-      case 'Medium': return 'text-green-400';
+      case 'veryHigh': return 'text-red-400';
+      case 'high': return 'text-orange-400';
+      case 'medium': return 'text-green-400';
       default: return 'text-gray-400';
     }
+  };
+
+  const getCrowdLabel = (crowd: string) => {
+    return t(`pujo.crowdLevels.${crowd}`);
   };
 
   return (
@@ -88,13 +94,13 @@ const PujoSection: React.FC = () => {
         <BlurFade delay={0.1} inView>
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 rounded-full bg-durga-500/20 dark:bg-durga-500/30 text-durga-600 dark:text-durga-400 text-sm font-medium mb-4">
-              🪔 Durga Puja Experience
+              {t('pujo.badge')}
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 font-heritage">
-              The Grand Celebration
+              {t('pujo.title')}
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Experience the world's largest open-air art festival celebrating Goddess Durga
+              {t('pujo.subtitle')}
             </p>
           </div>
         </BlurFade>
@@ -114,7 +120,7 @@ const PujoSection: React.FC = () => {
                 >
                   <img
                     src={pujoImages[currentSlide].url}
-                    alt={pujoImages[currentSlide].title}
+                    alt={t(pujoImages[currentSlide].titleKey)}
                     className="w-full h-full object-cover"
                   />
                   {/* Vermillion themed gradient */}
@@ -133,23 +139,23 @@ const PujoSection: React.FC = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 font-heritage">
-                      {pujoImages[currentSlide].title}
+                      {t(pujoImages[currentSlide].titleKey)}
                     </h3>
                     <p className="text-gray-200 text-lg mb-4 max-w-xl">
-                      {pujoImages[currentSlide].desc}
+                      {t(pujoImages[currentSlide].descKey)}
                     </p>
                     <div className="flex flex-wrap items-center gap-4 text-gray-300">
                       <span className="flex items-center gap-1">
                         <MapPin className="w-4 h-4 text-durga-400" />
-                        {pujoImages[currentSlide].location}
+                        {t(pujoImages[currentSlide].locationKey)}
                       </span>
                       <span className={`flex items-center gap-1 ${getCrowdColor(pujoImages[currentSlide].crowd)}`}>
                         <Users className="w-4 h-4" />
-                        {pujoImages[currentSlide].crowd} Crowd
+                        {getCrowdLabel(pujoImages[currentSlide].crowd)} {t('pujo.crowd')}
                       </span>
                       <span className="flex items-center gap-1 text-kolkata-yellow">
                         <Sparkles className="w-4 h-4" />
-                        {pujoImages[currentSlide].highlight}
+                        {t(pujoImages[currentSlide].highlightKey)}
                       </span>
                     </div>
                   </motion.div>

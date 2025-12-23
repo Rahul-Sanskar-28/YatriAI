@@ -1,55 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MapPin, BadgeCheck, Palette } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { BlurFade } from '../magicui/BlurFade';
 import { MagicCard } from '../magicui/MagicCard';
 
-const artisanImages = [
-  {
-    url: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Kumartuli Idol Makers',
-    desc: 'Generations of artisans sculpting divine idols from clay and straw',
-    location: 'Kumartuli',
-    craft: 'Clay Idol Making',
-    verified: true
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1601933973783-43cf8a7d4c5f?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Kalighat Patachitra',
-    desc: 'Traditional scroll paintings depicting mythological stories and social satire',
-    location: 'Kalighat',
-    craft: 'Scroll Painting',
-    verified: true
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1584286595398-a96c206e0e4d?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Bankura Terracotta',
-    desc: 'Famous terracotta horses and tribal art from Bengal\'s heartland',
-    location: 'Bankura',
-    craft: 'Terracotta Horses',
-    verified: true
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Baluchari Silk',
-    desc: 'Exquisite silk sarees with intricate mythological motifs woven by master weavers',
-    location: 'Bishnupur',
-    craft: 'Silk Weaving',
-    verified: true
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1615460549969-36fa19521a4f?auto=format&fit=crop&w=1200&h=600&q=80',
-    title: 'Dokra Metal Craft',
-    desc: 'Ancient lost-wax metal casting technique creating unique tribal art pieces',
-    location: 'Bankura',
-    craft: 'Metal Casting',
-    verified: true
-  }
-];
-
 const ArtisansSection: React.FC = () => {
+  const { t } = useTranslation('translation');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const artisanImages = [
+    {
+      url: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'artisans.kumartuliIdols.title',
+      descKey: 'artisans.kumartuliIdols.description',
+      location: 'Kumartuli',
+      craftKey: 'artisans.kumartuliIdols.craft',
+      verified: true
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1601933973783-43cf8a7d4c5f?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'artisans.kalighatPata.title',
+      descKey: 'artisans.kalighatPata.description',
+      location: 'Kalighat',
+      craftKey: 'artisans.kalighatPata.craft',
+      verified: true
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1584286595398-a96c206e0e4d?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'artisans.bankuraTerracotta.title',
+      descKey: 'artisans.bankuraTerracotta.description',
+      location: 'Bankura',
+      craftKey: 'artisans.bankuraTerracotta.craft',
+      verified: true
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'artisans.baluchariSilk.title',
+      descKey: 'artisans.baluchariSilk.description',
+      location: 'Bishnupur',
+      craftKey: 'artisans.baluchariSilk.craft',
+      verified: true
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1615460549969-36fa19521a4f?auto=format&fit=crop&w=1200&h=600&q=80',
+      titleKey: 'artisans.dokraMetal.title',
+      descKey: 'artisans.dokraMetal.description',
+      location: 'Bankura',
+      craftKey: 'artisans.dokraMetal.craft',
+      verified: true
+    }
+  ];
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -57,7 +59,7 @@ const ArtisansSection: React.FC = () => {
       setCurrentSlide((prev) => (prev + 1) % artisanImages.length);
     }, 5500);
     return () => clearInterval(timer);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, artisanImages.length]);
 
   const nextSlide = () => {
     setIsAutoPlaying(false);
@@ -79,13 +81,13 @@ const ArtisansSection: React.FC = () => {
         <BlurFade delay={0.1} inView>
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 rounded-full bg-kolkata-terracotta/20 dark:bg-kolkata-terracotta/30 text-kolkata-terracotta dark:text-kolkata-gold text-sm font-medium mb-4">
-              🎭 Artisan Chronicles
+              {t('artisans.badge')}
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 font-heritage">
-              Master Craftsmen
+              {t('artisans.title')}
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Connect with skilled artisans preserving Bengal's rich craft heritage through generations
+              {t('artisans.subtitle')}
             </p>
           </div>
         </BlurFade>
@@ -105,7 +107,7 @@ const ArtisansSection: React.FC = () => {
                 >
                   <img
                     src={artisanImages[currentSlide].url}
-                    alt={artisanImages[currentSlide].title}
+                    alt={t(artisanImages[currentSlide].titleKey)}
                     className="w-full h-full object-cover"
                   />
                   {/* Terracotta themed gradient */}
@@ -124,10 +126,10 @@ const ArtisansSection: React.FC = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 font-heritage">
-                      {artisanImages[currentSlide].title}
+                      {t(artisanImages[currentSlide].titleKey)}
                     </h3>
                     <p className="text-gray-200 text-lg mb-4 max-w-xl">
-                      {artisanImages[currentSlide].desc}
+                      {t(artisanImages[currentSlide].descKey)}
                     </p>
                     <div className="flex flex-wrap items-center gap-4 text-gray-300">
                       <span className="flex items-center gap-1">
@@ -136,12 +138,12 @@ const ArtisansSection: React.FC = () => {
                       </span>
                       <span className="flex items-center gap-1 text-heritage-400">
                         <Palette className="w-4 h-4" />
-                        {artisanImages[currentSlide].craft}
+                        {t(artisanImages[currentSlide].craftKey)}
                       </span>
                       {artisanImages[currentSlide].verified && (
                         <span className="flex items-center gap-1 text-green-400">
                           <BadgeCheck className="w-4 h-4" />
-                          Blockchain Verified
+                          {t('common.blockchainVerified')}
                         </span>
                       )}
                     </div>

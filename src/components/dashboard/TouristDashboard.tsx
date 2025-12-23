@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Home, 
   Map, 
@@ -11,7 +12,6 @@ import {
   Star, 
   User,
   Calendar,
-  Bell,
   Shield,
   TrendingUp,
   LogOut,
@@ -29,7 +29,7 @@ import {
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { bookings, itineraries, destinations, guides, products } from '../../data/mockData';
+import { bookings } from '../../data/mockData';
 import AIItineraryPlanner from './components/AIItineraryPlanner';
 import AIChat from './components/AIChat';
 import BookingSystem from './components/BookingSystem';
@@ -47,8 +47,10 @@ import PatachitraArchive from './components/PatachitraArchive';
 import VerifiedMarketplace from './components/VerifiedMarketplace';
 import HeritageNFT from './components/HeritageNFT';
 import PandalDonations from './components/PandalDonations';
+import LanguageSelector from '../common/LanguageSelector';
 
 const TouristDashboard: React.FC = () => {
+  const { t } = useTranslation('translation');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAddaBotOpen, setIsAddaBotOpen] = useState(false);
@@ -62,23 +64,23 @@ const TouristDashboard: React.FC = () => {
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'itinerary', label: 'AI Itinerary', icon: Map },
-    { id: 'transport', label: 'Transport', icon: Train, isNew: true },
-    { id: 'heritage', label: 'Heritage Walk', icon: Headphones, isNew: true },
-    { id: 'artisans', label: 'Artisan Chronicles', icon: Palette, isNew: true },
-    { id: 'recipes', label: 'Recipe Vault', icon: ChefHat, isNew: true },
-    { id: 'patachitra', label: 'Patachitra Archive', icon: Image, isNew: true },
-    { id: 'verified-market', label: 'Verified Market', icon: Shield, isNew: true, isBlockchain: true },
-    { id: 'heritage-nft', label: 'Heritage NFT', icon: Award, isNew: true, isBlockchain: true },
-    { id: 'pandal-donate', label: 'Pandal Donations', icon: Heart, isNew: true, isBlockchain: true },
-    { id: 'bookings', label: 'Bookings', icon: CreditCard },
-    { id: 'map', label: 'Interactive Map', icon: MapPin },
-    { id: 'marketplace', label: 'Marketplace', icon: ShoppingBag },
-    { id: 'guides', label: 'Find Guides', icon: Users },
-    { id: 'feedback', label: 'Feedback', icon: Star },
-    { id: 'safety', label: 'Safety', icon: Shield },
-    { id: 'profile', label: 'My Profile', icon: User }
+    { id: 'dashboard', labelKey: 'dashboard.menuItems.dashboard', icon: Home },
+    { id: 'itinerary', labelKey: 'dashboard.menuItems.aiItinerary', icon: Map },
+    { id: 'transport', labelKey: 'dashboard.menuItems.transport', icon: Train, isNew: true },
+    { id: 'heritage', labelKey: 'dashboard.menuItems.heritageWalk', icon: Headphones, isNew: true },
+    { id: 'artisans', labelKey: 'dashboard.menuItems.artisanChronicles', icon: Palette, isNew: true },
+    { id: 'recipes', labelKey: 'dashboard.menuItems.recipeVault', icon: ChefHat, isNew: true },
+    { id: 'patachitra', labelKey: 'dashboard.menuItems.patachitraArchive', icon: Image, isNew: true },
+    { id: 'verified-market', labelKey: 'dashboard.menuItems.verifiedMarket', icon: Shield, isNew: true, isBlockchain: true },
+    { id: 'heritage-nft', labelKey: 'dashboard.menuItems.heritageNFT', icon: Award, isNew: true, isBlockchain: true },
+    { id: 'pandal-donate', labelKey: 'dashboard.menuItems.pandalDonations', icon: Heart, isNew: true, isBlockchain: true },
+    { id: 'bookings', labelKey: 'dashboard.menuItems.bookings', icon: CreditCard },
+    { id: 'map', labelKey: 'dashboard.menuItems.interactiveMap', icon: MapPin },
+    { id: 'marketplace', labelKey: 'dashboard.menuItems.marketplace', icon: ShoppingBag },
+    { id: 'guides', labelKey: 'dashboard.menuItems.findGuides', icon: Users },
+    { id: 'feedback', labelKey: 'dashboard.menuItems.feedback', icon: Star },
+    { id: 'safety', labelKey: 'dashboard.menuItems.safety', icon: Shield },
+    { id: 'profile', labelKey: 'dashboard.menuItems.myProfile', icon: User }
   ];
 
   const renderContent = () => {
@@ -132,19 +134,23 @@ const TouristDashboard: React.FC = () => {
               <span className="text-white text-lg">🪔</span>
             </div>
             <h1 className="text-lg font-bold text-gray-900 dark:text-white font-heritage">
-              Kolkata Heritage
+              {t('brand.name')}
             </h1>
           </div>
           <div className="flex items-center space-x-4">
+            {/* Language Selector */}
+            <LanguageSelector />
+            
             {/* Theme Toggle */}
             <motion.button
               whileHover={{ scale: 1.1, rotate: 180 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleTheme}
               className="p-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={isDark ? t('common.lightMode') : t('common.darkMode')}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </motion.button>
             
             {/* User Avatar */}
             <div className="flex items-center space-x-2">
@@ -177,7 +183,7 @@ const TouristDashboard: React.FC = () => {
           </div>
 
           <nav className="p-4 flex flex-col h-[calc(100%-5rem)]">
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
               {menuItems.map((item) => {
                 const IconComponent = item.icon;
                 const isNewFeature = 'isNew' in item && item.isNew;
@@ -193,14 +199,14 @@ const TouristDashboard: React.FC = () => {
                     }`}
                   >
                     <IconComponent className={`w-5 h-5 ${isNewFeature ? 'text-kolkata-terracotta' : ''} ${isBlockchain ? 'text-purple-500' : ''}`} />
-                    <span className="font-medium flex-1 text-sm">{item.label}</span>
+                    <span className="font-medium flex-1 text-sm">{t(item.labelKey)}</span>
                     {isBlockchain ? (
                       <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold rounded-full">
                         ⛓️
                       </span>
                     ) : isNewFeature && (
                       <span className="px-2 py-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 text-white text-xs font-bold rounded-full animate-pulse">
-                        NEW
+                        {t('common.new')}
                       </span>
                     )}
                   </button>
@@ -214,7 +220,7 @@ const TouristDashboard: React.FC = () => {
               className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 mt-4 border-t border-gray-200 dark:border-gray-700 pt-4"
             >
               <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
+              <span className="font-medium">{t('auth.logout')}</span>
             </button>
           </nav>
         </div>
@@ -275,23 +281,24 @@ const TouristDashboard: React.FC = () => {
 
 // Dashboard Home Component
 const DashboardHome: React.FC = () => {
+  const { t } = useTranslation('translation');
   const { user } = useAuth();
 
   const stats = [
-    { label: 'Heritage Sites Visited', value: '5', icon: Map, color: 'from-kolkata-yellow to-kolkata-gold' },
-    { label: 'Active Bookings', value: bookings.filter(b => b.status === 'confirmed').length.toString(), icon: Calendar, color: 'from-kolkata-terracotta to-durga-500' },
-    { label: 'Reviews Given', value: '12', icon: Star, color: 'from-kolkata-hooghly to-kolkata-blue' },
-    { label: 'Joy Points', value: '2,450', icon: TrendingUp, color: 'from-heritage-500 to-kolkata-sepia' }
+    { labelKey: 'dashboard.stats.placesVisited', value: '5', icon: Map, color: 'from-kolkata-yellow to-kolkata-gold' },
+    { labelKey: 'dashboard.stats.totalBookings', value: bookings.filter(b => b.status === 'confirmed').length.toString(), icon: Calendar, color: 'from-kolkata-terracotta to-durga-500' },
+    { labelKey: 'dashboard.stats.upcomingTrips', value: '12', icon: Star, color: 'from-kolkata-hooghly to-kolkata-blue' },
+    { labelKey: 'dashboard.stats.savedPlaces', value: '2,450', icon: TrendingUp, color: 'from-heritage-500 to-kolkata-sepia' }
   ];
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 font-heritage">
-          Welcome, {user?.name}! 🪔
+          {t('dashboard.welcome')}, {user?.name}! 🪔
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Ready for your next adventure in Kolkata?
+          {t('dashboard.overview.title')}
         </p>
       </div>
 
@@ -309,7 +316,7 @@ const DashboardHome: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{stat.label}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t(stat.labelKey)}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                 </div>
                 <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color}`}>
@@ -325,7 +332,7 @@ const DashboardHome: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Bookings */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Recent Bookings</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.overview.recentBookings')}</h3>
           <div className="space-y-4">
             {bookings.slice(0, 3).map((booking) => (
               <div key={booking.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -347,19 +354,19 @@ const DashboardHome: React.FC = () => {
 
         {/* AI Recommendations - Kolkata Themed */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Kolkata AI Suggestions</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.overview.recommendedPlaces')}</h3>
           <div className="space-y-4">
             <div className="p-4 bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/10 dark:from-kolkata-yellow/10 dark:to-kolkata-terracotta/5 rounded-lg border border-kolkata-yellow/20">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🚃 Tram Heritage Ride</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Perfect weather for the iconic yellow tram ride through the city!</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🚃 {t('features.tramHeritage.title')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('features.tramHeritage.description')}</p>
             </div>
             <div className="p-4 bg-gradient-to-r from-durga-50 to-durga-100/50 dark:from-durga-900/20 dark:to-durga-900/10 rounded-lg border border-durga-200/30">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🪔 Durga Puja Season</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Pandal hopping time! Explore Kumartuli's idol-making tradition.</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🪔 {t('features.pujoRoute.title')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('features.pujoRoute.description')}</p>
             </div>
             <div className="p-4 bg-gradient-to-r from-heritage-50 to-kolkata-cream dark:from-heritage-900/20 dark:to-heritage-900/10 rounded-lg border border-heritage-200/30">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🏛️ Victoria Memorial</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Sunset viewing at the memorial - AI audio guide available!</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🏛️ {t('features.heritageWalk.title')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('features.heritageWalk.description')}</p>
             </div>
           </div>
         </div>
@@ -370,28 +377,29 @@ const DashboardHome: React.FC = () => {
 
 // Profile Management Component
 const ProfileManagement: React.FC = () => {
+  const { t } = useTranslation('translation');
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Profile Management</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('dashboard.menuItems.myProfile')}</h1>
         <button
           onClick={() => setIsEditing(!isEditing)}
           className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
         >
-          {isEditing ? 'Save Changes' : 'Edit Profile'}
+          {isEditing ? t('common.save') : t('common.edit')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Info */}
         <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Personal Information</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{t('auth.fullName')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('auth.fullName')}</label>
               <input
                 type="text"
                 value={user?.name}
@@ -400,7 +408,7 @@ const ProfileManagement: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('auth.email')}</label>
               <input
                 type="email"
                 value={user?.email}
@@ -413,7 +421,7 @@ const ProfileManagement: React.FC = () => {
 
         {/* Profile Picture */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Profile Picture</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{t('dashboard.menuItems.myProfile')}</h3>
           <div className="text-center">
             <img
               src={user?.avatar}
@@ -422,7 +430,7 @@ const ProfileManagement: React.FC = () => {
             />
             {isEditing && (
               <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                Change Photo
+                {t('common.edit')}
               </button>
             )}
           </div>

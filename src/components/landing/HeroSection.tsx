@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Calendar, MapPin, ArrowRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { ShimmerButton } from '../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
@@ -17,38 +18,40 @@ const TramIcon = () => (
 );
 
 const HeroSection: React.FC = () => {
+  // Use useTranslation directly for reliable translation updates
+  const { t } = useTranslation('translation');
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
 
-  // Kolkata Heritage Images
+  // Kolkata Heritage Images - with translation keys
   const heroImages = [
     {
       url: 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Victoria Memorial',
-      subtitle: 'The crown jewel of Kolkata\'s heritage'
+      titleKey: 'hero.images.victoria.title',
+      subtitleKey: 'hero.images.victoria.subtitle'
     },
     {
       url: 'https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Howrah Bridge',
-      subtitle: 'The iconic gateway to the City of Joy'
+      titleKey: 'hero.images.howrah.title',
+      subtitleKey: 'hero.images.howrah.subtitle'
     },
     {
       url: 'https://images.unsplash.com/photo-1599030641314-e7f9e2f5e8e1?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Kumartuli',
-      subtitle: 'Where gods are crafted with devotion'
+      titleKey: 'hero.images.kumartuli.title',
+      subtitleKey: 'hero.images.kumartuli.subtitle'
     },
     {
       url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Durga Puja',
-      subtitle: 'Experience the grandest celebration of Bengal'
+      titleKey: 'hero.images.durgaPuja.title',
+      subtitleKey: 'hero.images.durgaPuja.subtitle'
     },
     {
       url: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Princep Ghat',
-      subtitle: 'Where heritage meets the Hooghly'
+      titleKey: 'hero.images.princepGhat.title',
+      subtitleKey: 'hero.images.princepGhat.subtitle'
     }
   ];
 
@@ -131,7 +134,7 @@ const HeroSection: React.FC = () => {
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-kolkata-yellow/20 backdrop-blur-sm border border-kolkata-yellow/40">
                   <Sparkles className="w-4 h-4 text-kolkata-yellow" />
-                  <span className="text-white/90 text-sm font-medium">City of Joy</span>
+                  <span className="text-white/90 text-sm font-medium">{t('brand.tagline')}</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-durga-500/20 backdrop-blur-sm border border-durga-500/40">
                   <span className="text-2xl animate-pulse">🪔</span>
@@ -142,19 +145,19 @@ const HeroSection: React.FC = () => {
             <BlurFade delay={0.2} inView>
               <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight font-heritage">
                 <SparklesText sparklesCount={8} colors={{ first: '#FFB800', second: '#E23D28' }}>
-                  Kolkata Heritage
+                  {t('hero.title')}
                 </SparklesText>
               </h1>
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
                 <AnimatedGradientText className="text-3xl md:text-5xl font-bold">
-                  City of Joy
+                  {t('hero.subtitle')}
                 </AnimatedGradientText>
               </h2>
             </BlurFade>
 
             <BlurFade delay={0.3} inView>
               <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-2xl">
-                From the legacy of <span className="text-kolkata-yellow font-semibold">trams</span>, <span className="text-heritage-400 font-semibold">tea</span>, and <span className="text-durga-400 font-semibold">Tagore</span> — Experience where tradition meets transformation.
+                {t('hero.description')}
               </p>
             </BlurFade>
 
@@ -171,7 +174,7 @@ const HeroSection: React.FC = () => {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search Victoria Memorial, Howrah Bridge, College Street..."
+                      placeholder={t('hero.searchPlaceholder')}
                       className="w-full pl-12 pr-4 py-4 rounded-xl border border-kolkata-sepia/30 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent text-gray-900 dark:text-white placeholder-kolkata-sepia/60 transition-all font-sans"
                     />
                   </div>
@@ -189,7 +192,7 @@ const HeroSection: React.FC = () => {
                     background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
                   >
                     <Search className="w-5 h-5" />
-                    <span>Explore</span>
+                    <span>{t('common.explore')}</span>
                   </ShimmerButton>
                 </div>
               </form>
@@ -200,7 +203,7 @@ const HeroSection: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                   { 
-                    title: 'Heritage Walks', 
+                    titleKey: 'features.heritageWalk.title', 
                     icon: '🏛️', 
                     color: 'from-kolkata-yellow to-kolkata-gold', 
                     hoverColor: 'hover:from-kolkata-gold hover:to-kolkata-yellow',
@@ -208,7 +211,7 @@ const HeroSection: React.FC = () => {
                     dashboardTab: 'heritage'
                   },
                   { 
-                    title: 'Pujo Experience', 
+                    titleKey: 'features.pujoRoute.title', 
                     icon: '🪔', 
                     color: 'from-durga-500 to-kolkata-vermillion', 
                     hoverColor: 'hover:from-kolkata-vermillion hover:to-durga-500',
@@ -216,7 +219,7 @@ const HeroSection: React.FC = () => {
                     dashboardTab: 'pandal-donations'
                   },
                   { 
-                    title: 'Artisan Crafts', 
+                    titleKey: 'features.artisanMarket.title', 
                     icon: '🎭', 
                     color: 'from-kolkata-terracotta to-kolkata-maroon', 
                     hoverColor: 'hover:from-kolkata-maroon hover:to-kolkata-terracotta',
@@ -241,7 +244,7 @@ const HeroSection: React.FC = () => {
                         <span className="text-3xl float-animation">{card.icon}</span>
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform opacity-70" />
                       </div>
-                      <span className="font-semibold text-lg">{card.title}</span>
+                      <span className="font-semibold text-lg">{t(card.titleKey)}</span>
                     </div>
                   </motion.button>
                 ))}
@@ -276,8 +279,8 @@ const HeroSection: React.FC = () => {
         className="absolute bottom-8 right-8 text-white text-right z-20 hidden md:block"
       >
         <div className="bg-black/30 backdrop-blur-sm rounded-lg px-4 py-3 border border-kolkata-yellow/30">
-          <h3 className="text-xl font-semibold mb-1 font-heritage">{heroImages[currentSlide].title}</h3>
-          <p className="text-gray-300 text-sm">{heroImages[currentSlide].subtitle}</p>
+          <h3 className="text-xl font-semibold mb-1 font-heritage">{t(heroImages[currentSlide].titleKey)}</h3>
+          <p className="text-gray-300 text-sm">{t(heroImages[currentSlide].subtitleKey)}</p>
         </div>
       </motion.div>
 
