@@ -186,3 +186,5 @@ const HeritageSection: React.FC = () => {
 
 export default HeritageSection;
 
+
+
