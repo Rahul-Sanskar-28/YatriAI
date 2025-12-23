@@ -192,3 +192,5 @@ const ArtisansSection: React.FC = () => {
 
 export default ArtisansSection;
 
+
+
