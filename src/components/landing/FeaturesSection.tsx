@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation, Trans } from 'react-i18next';
 import { MagicCard } from '../magicui/MagicCard';
 import { BorderBeam } from '../magicui/BorderBeam';
 import { BlurFade } from '../magicui/BlurFade';
-import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { ShimmerButton } from '../magicui/ShimmerButton';
 import { useAuth } from '../../contexts/AuthContext';
 import AuthModal from '../common/AuthModal';
@@ -22,7 +20,6 @@ import {
 const FeaturesSection: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const handleFeatureClick = (dashboardTab: string) => {
@@ -40,55 +37,63 @@ const FeaturesSection: React.FC = () => {
       setIsAuthModalOpen(true);
     }
   };
+
   const features = [
     {
       Icon: TramIcon,
-      titleKey: 'features.tramTracker.title',
-      descriptionKey: 'features.tramTracker.description',
+      title: 'Tram Heritage Tracker',
+      description: 'Track real-time tram locations and discover the history of Asia\'s oldest running tram network',
       color: 'from-kolkata-yellow to-kolkata-gold',
       gradient: '#FFB800',
       dashboardTab: 'transport'
     },
     {
       Icon: DurgaIcon,
-      titleKey: 'features.pujoPlanner.title',
-      descriptionKey: 'features.pujoPlanner.description',
+      title: 'Pujo Route Planner',
+      description: 'AI-optimized pandal hopping with crowd predictions and cultural insights for Durga Puja',
       color: 'from-durga-500 to-kolkata-vermillion',
       gradient: '#E23D28',
       dashboardTab: 'pandal-donations'
     },
     {
       Icon: VictoriaMemorialIcon,
-      titleKey: 'features.heritageAudio.title',
-      descriptionKey: 'features.heritageAudio.description',
+      title: 'Heritage Walk Audio',
+      description: 'AI-narrated walking tours of Victoria Memorial, Marble Palace, and historic Kolkata',
       color: 'from-kolkata-sepia to-heritage-700',
       gradient: '#8B7355',
       dashboardTab: 'heritage'
     },
     {
       Icon: TerracottaIcon,
-      titleKey: 'features.artisanMarket.title',
-      descriptionKey: 'features.artisanMarket.description',
+      title: 'Verified Artisan Market',
+      description: 'Buy authentic Kumartuli crafts and tribal art with blockchain-verified authenticity',
       color: 'from-kolkata-terracotta to-kolkata-maroon',
       gradient: '#C45C26',
       dashboardTab: 'verified-marketplace'
     },
     {
       Icon: BookIcon,
-      titleKey: 'features.literaryKolkata.title',
-      descriptionKey: 'features.literaryKolkata.description',
+      title: 'Literary Kolkata',
+      description: 'Explore College Street, Coffee House, and discover Tagore\'s Kolkata with curated tours',
       color: 'from-kolkata-blue to-kolkata-purple',
       gradient: '#1E3A5F',
       dashboardTab: 'patachitra'
     },
     {
       Icon: AddaTeaIcon,
-      titleKey: 'features.addaBot.title',
-      descriptionKey: 'features.addaBot.description',
+      title: 'Adda AI Companion',
+      description: 'Chat with an AI that knows Kolkata\'s soul - from mishti doi to metro shortcuts',
       color: 'from-kolkata-maidan to-heritage-600',
       gradient: '#2D5A27',
       dashboardTab: 'chat'
     }
+  ];
+
+  const stats = [
+    { value: '300+', label: 'Heritage Sites', icon: '🏛️' },
+    { value: '5000+', label: 'Pujo Pandals', icon: '🪔' },
+    { value: '1000+', label: 'Artisan Crafts', icon: '🎭' },
+    { value: '150+', label: 'Tram Stops', icon: '🚃' }
   ];
 
   return (
@@ -109,26 +114,19 @@ const FeaturesSection: React.FC = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-kolkata-yellow opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-kolkata-yellow"></span>
               </span>
-              <span className="text-kolkata-terracotta dark:text-kolkata-gold text-sm font-medium">{t('features.poweredBy')}</span>
+              <span className="text-kolkata-terracotta dark:text-kolkata-gold text-sm font-medium">Powered by AI & Blockchain</span>
             </div>
           </BlurFade>
 
           <BlurFade delay={0.2} inView>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4 font-heritage">
-              {t('features.sectionTitle')}
+              Experience Kolkata
             </h2>
           </BlurFade>
 
           <BlurFade delay={0.3} inView>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-              <Trans
-                i18nKey="features.sectionDescription"
-                components={{
-                  tramTracks: <span className="text-kolkata-yellow font-semibold" />,
-                  techStacks: <span className="text-durga-500 font-semibold" />
-                }}
-                defaults="From <tramTracks>tram tracks</tramTracks> to <techStacks>tech stacks</techStacks> — Discover the City of Joy with AI-powered heritage experiences and blockchain-verified authenticity."
-              />
+              From <span className="text-kolkata-yellow font-semibold">tram tracks</span> to <span className="text-durga-500 font-semibold">tech stacks</span> — Discover the City of Joy with AI-powered heritage experiences and blockchain-verified authenticity.
             </p>
           </BlurFade>
         </div>
@@ -161,11 +159,11 @@ const FeaturesSection: React.FC = () => {
                     </motion.div>
                     
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-kolkata-yellow dark:group-hover:text-kolkata-gold transition-colors font-heritage">
-                      {t(feature.titleKey)}
+                      {feature.title}
                     </h3>
                     
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                      {t(feature.descriptionKey)}
+                      {feature.description}
                     </p>
 
                     <motion.button
@@ -173,7 +171,7 @@ const FeaturesSection: React.FC = () => {
                       whileHover={{ x: 5 }}
                       className="inline-flex items-center gap-2 text-sm font-medium text-kolkata-yellow dark:text-kolkata-gold hover:text-kolkata-terracotta dark:hover:text-kolkata-yellow transition-colors"
                     >
-                      {t('common.learnMore')}
+                      Learn more
                       <ArrowRight className="w-4 h-4" />
                     </motion.button>
                   </div>
@@ -186,12 +184,7 @@ const FeaturesSection: React.FC = () => {
         {/* Stats Section - Kolkata themed */}
         <BlurFade delay={0.6} inView>
           <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { value: '300+', labelKey: 'stats.heritageSites', icon: '🏛️' },
-              { value: '5000+', labelKey: 'stats.pujoPandals', icon: '🪔' },
-              { value: '1000+', labelKey: 'stats.artisanCrafts', icon: '🎭' },
-              { value: '150+', labelKey: 'stats.tramStops', icon: '🚃' }
-            ].map((stat, index) => (
+            {stats.map((stat, index) => (
               <motion.div
                 key={index}
                 whileHover={{ y: -5 }}
@@ -199,7 +192,7 @@ const FeaturesSection: React.FC = () => {
               >
                 <div className="text-3xl mb-2">{stat.icon}</div>
                 <div className="text-3xl md:text-4xl font-bold text-gradient mb-1">{stat.value}</div>
-                <div className="text-gray-700 dark:text-gray-300 text-sm font-medium">{t(stat.labelKey)}</div>
+                <div className="text-gray-700 dark:text-gray-300 text-sm font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -214,12 +207,12 @@ const FeaturesSection: React.FC = () => {
               background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
               className="text-lg px-10 py-5"
             >
-              <span className="font-heritage">{t('features.cta')}</span>
+              <span className="font-heritage">Start Your Kolkata Journey</span>
               <ArrowRight className="w-5 h-5" />
             </ShimmerButton>
             
             <p className="mt-4 text-kolkata-sepia dark:text-gray-400 text-sm">
-              {t('features.ctaSubtext')}
+              Free heritage walk included • AI-powered itinerary • Blockchain verified
             </p>
           </div>
         </BlurFade>

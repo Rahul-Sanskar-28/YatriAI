@@ -1,47 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MapPin, Users, Sparkles } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { BlurFade } from '../magicui/BlurFade';
 import { MagicCard } from '../magicui/MagicCard';
 
 const pujoImages = [
   {
     url: 'https://images.unsplash.com/photo-1601001816339-74036c49426d?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'sections.pujo.pandals.ekdalia',
-    descKey: 'sections.pujo.pandals.ekdaliaDesc',
+    title: 'Ekdalia Evergreen',
+    desc: 'Award-winning pandal known for innovative artistic themes and installations',
     location: 'Ekdalia',
     crowd: 'High',
     highlight: 'Theme: Art Installation'
   },
   {
     url: 'https://images.unsplash.com/photo-1598431429388-ec5b1a006db6?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'sections.pujo.pandals.bagbazar',
-    descKey: 'sections.pujo.pandals.bagbazarDesc',
+    title: 'Bagbazar Sarbojanin',
+    desc: 'One of the oldest and most traditional Durga Puja celebrations in Kolkata',
     location: 'Bagbazar',
     crowd: 'Very High',
     highlight: 'Traditional Pandal'
   },
   {
     url: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'sections.pujo.pandals.kumartuli',
-    descKey: 'sections.pujo.pandals.kumartuliDesc',
+    title: 'Kumartuli Park',
+    desc: 'Located in the heart of the idol-making district with authentic Bengali traditions',
     location: 'Kumartuli',
     crowd: 'Medium',
     highlight: 'Artisan District'
   },
   {
     url: 'https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'sections.pujo.pandals.college',
-    descKey: 'sections.pujo.pandals.collegeDesc',
+    title: 'College Square',
+    desc: 'Historic pandal in the heart of academic Kolkata with cultural programs',
     location: 'College Square',
     crowd: 'High',
     highlight: 'Historic Location'
   },
   {
     url: 'https://images.unsplash.com/photo-1623841675698-8a9b9f1a3d6f?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'sections.pujo.pandals.saltlake',
-    descKey: 'sections.pujo.pandals.saltlakeDesc',
+    title: 'Salt Lake FD Block',
+    desc: 'Modern theme-based pandal showcasing contemporary art and architecture',
     location: 'Salt Lake',
     crowd: 'Medium',
     highlight: 'Modern Architecture'
@@ -49,7 +48,6 @@ const pujoImages = [
 ];
 
 const PujoSection: React.FC = () => {
-  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -90,13 +88,13 @@ const PujoSection: React.FC = () => {
         <BlurFade delay={0.1} inView>
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 rounded-full bg-durga-500/20 dark:bg-durga-500/30 text-durga-600 dark:text-durga-400 text-sm font-medium mb-4">
-              🪔 {t('sections.pujo.badge')}
+              🪔 Durga Puja Experience
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 font-heritage">
-              {t('sections.pujo.title')}
+              The Grand Celebration
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              {t('sections.pujo.description')}
+              Experience the world's largest open-air art festival celebrating Goddess Durga
             </p>
           </div>
         </BlurFade>
@@ -116,7 +114,7 @@ const PujoSection: React.FC = () => {
                 >
                   <img
                     src={pujoImages[currentSlide].url}
-                    alt={t(pujoImages[currentSlide].titleKey)}
+                    alt={pujoImages[currentSlide].title}
                     className="w-full h-full object-cover"
                   />
                   {/* Vermillion themed gradient */}
@@ -135,10 +133,10 @@ const PujoSection: React.FC = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 font-heritage">
-                      {t(pujoImages[currentSlide].titleKey)}
+                      {pujoImages[currentSlide].title}
                     </h3>
                     <p className="text-gray-200 text-lg mb-4 max-w-xl">
-                      {t(pujoImages[currentSlide].descKey)}
+                      {pujoImages[currentSlide].desc}
                     </p>
                     <div className="flex flex-wrap items-center gap-4 text-gray-300">
                       <span className="flex items-center gap-1">
@@ -147,7 +145,7 @@ const PujoSection: React.FC = () => {
                       </span>
                       <span className={`flex items-center gap-1 ${getCrowdColor(pujoImages[currentSlide].crowd)}`}>
                         <Users className="w-4 h-4" />
-                        {pujoImages[currentSlide].crowd} {t('sections.pujo.crowd')}
+                        {pujoImages[currentSlide].crowd} Crowd
                       </span>
                       <span className="flex items-center gap-1 text-kolkata-yellow">
                         <Sparkles className="w-4 h-4" />
@@ -198,6 +196,3 @@ const PujoSection: React.FC = () => {
 };
 
 export default PujoSection;
-
-
-

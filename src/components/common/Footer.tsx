@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ArrowRight, Heart, Sparkles, Check } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, ArrowRight, Check, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { ShimmerButton } from '../magicui/ShimmerButton';
-import LanguageSelector from './LanguageSelector';
 import { TramIcon } from '../kolkata/KolkataIcons';
 
 const Footer: React.FC = () => {
-  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -90,21 +87,21 @@ const Footer: React.FC = () => {
   ];
 
   const quickLinks = [
-    { name: 'Heritage Sites', key: 'footer.explore.heritageSites' },
-    { name: 'Durga Puja', key: 'footer.explore.durgaPuja' },
-    { name: 'Artisan Marketplace', key: 'footer.explore.artisanMarketplace' },
-    { name: 'Tram Routes', key: 'footer.explore.tramRoutes' },
-    { name: 'Food Guide', key: 'footer.explore.foodGuide' },
-    { name: 'Emergency', key: 'footer.explore.emergency' }
+    { name: 'Heritage Sites' },
+    { name: 'Durga Puja' },
+    { name: 'Artisan Marketplace' },
+    { name: 'Tram Routes' },
+    { name: 'Food Guide' },
+    { name: 'Emergency' }
   ];
 
   const services = [
-    { name: 'AI Itinerary Planner', key: 'footer.services.aiPlanner', icon: '🤖' },
-    { name: 'Blockchain Verification', key: 'footer.services.blockchain', icon: '⛓️' },
-    { name: 'Heritage Audio Tours', key: 'footer.services.audioTours', icon: '🎧' },
-    { name: 'Pujo Route Optimizer', key: 'footer.services.pujoOptimizer', icon: '🪔' },
-    { name: 'Artisan Connect', key: 'footer.services.artisanConnect', icon: '🎭' },
-    { name: 'Adda AI Companion', key: 'footer.services.addaAI', icon: '☕' }
+    { name: 'AI Itinerary Planner', icon: '🤖' },
+    { name: 'Blockchain Verification', icon: '⛓️' },
+    { name: 'Heritage Audio Tours', icon: '🎧' },
+    { name: 'Pujo Route Optimizer', icon: '🪔' },
+    { name: 'Artisan Connect', icon: '🎭' },
+    { name: 'Adda AI Companion', icon: '☕' }
   ];
 
   const techPartners = [
@@ -113,6 +110,12 @@ const Footer: React.FC = () => {
     { name: 'ElevenLabs', desc: 'Voice AI' },
     { name: 'Ethereum', desc: 'Blockchain' },
     { name: 'Dodo', desc: 'Payments' }
+  ];
+
+  const contactInfo = [
+    { icon: Mail, text: 'hello@kolkataheritage.in' },
+    { icon: Phone, text: '+91 33-HERITAGE' },
+    { icon: MapPin, text: 'Kolkata, West Bengal' }
   ];
 
   return (
@@ -132,10 +135,10 @@ const Footer: React.FC = () => {
             <div>
               <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2 font-heritage">
                 <Sparkles className="w-6 h-6 text-kolkata-yellow" />
-                {t('footer.newsletter.title')}
+                Stay Connected with Kolkata
               </h3>
               <p className="text-gray-400">
-                {t('footer.newsletter.description')}
+                Get AI-powered heritage tips, Pujo updates, and exclusive offers
               </p>
             </div>
             <div className="flex gap-3 w-full md:w-auto">
@@ -143,7 +146,7 @@ const Footer: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('footer.newsletter.placeholder')}
+                placeholder="Enter your email"
                 disabled={isSubscribed}
                 className="flex-1 md:w-72 px-4 py-3 rounded-xl bg-gray-800 border border-kolkata-gold/20 text-white placeholder-gray-500 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent disabled:opacity-50"
               />
@@ -155,11 +158,11 @@ const Footer: React.FC = () => {
                 {isSubscribed ? (
                   <>
                     <Check className="w-4 h-4" />
-                    <span>{t('common.subscribed')}</span>
+                    <span>Subscribed!</span>
                   </>
                 ) : (
                   <>
-                    <span>{t('common.subscribe')}</span>
+                    <span>Subscribe</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -176,7 +179,7 @@ const Footer: React.FC = () => {
                   className="fixed bottom-8 right-8 z-50 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2"
                 >
                   <Check className="w-5 h-5" />
-                  <span>{t('footer.newsletter.welcome')} 🪔</span>
+                  <span>Welcome to Kolkata Heritage! 🪔</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -201,13 +204,13 @@ const Footer: React.FC = () => {
               </motion.div>
               <div className="flex flex-col">
                 <AnimatedGradientText className="text-xl font-bold font-heritage">
-                  {t('brand.name')}
+                  Kolkata Heritage
                 </AnimatedGradientText>
-                <span className="text-xs text-kolkata-gold/60">{t('brand.tagline')}</span>
+                <span className="text-xs text-kolkata-gold/60">City of Joy</span>
               </div>
             </motion.div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              {t('footer.about')}
+              Your AI-powered companion for exploring the City of Joy. Discover heritage walks, connect with artisans, and experience the soul of Kolkata through technology.
             </p>
             <div className="flex space-x-3">
               {socialLinks.map((social, index) => {
@@ -232,7 +235,7 @@ const Footer: React.FC = () => {
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2 font-heritage">
               <span className="w-8 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 rounded-full" />
-              {t('footer.explore.title')}
+              Explore
             </h3>
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
@@ -242,7 +245,7 @@ const Footer: React.FC = () => {
                     className="text-gray-400 hover:text-kolkata-gold transition-colors text-sm flex items-center gap-2 group"
                   >
                     <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-kolkata-yellow" />
-                    <span>{t(link.key)}</span>
+                    <span>{link.name}</span>
                   </button>
                 </motion.li>
               ))}
@@ -253,7 +256,7 @@ const Footer: React.FC = () => {
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2 font-heritage">
               <span className="w-8 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 rounded-full" />
-              {t('footer.services.title')}
+              Features
             </h3>
             <ul className="space-y-3">
               {services.map((service, index) => (
@@ -263,7 +266,7 @@ const Footer: React.FC = () => {
                     className="text-gray-400 hover:text-kolkata-gold transition-colors text-sm flex items-center gap-2 group"
                   >
                     <span className="text-sm">{service.icon}</span>
-                    {t(service.key)}
+                    {service.name}
                   </button>
                 </motion.li>
               ))}
@@ -271,7 +274,7 @@ const Footer: React.FC = () => {
 
             {/* Powered By */}
             <div className="pt-4 border-t border-gray-800">
-              <p className="text-xs text-gray-500 mb-3">{t('features.poweredBy')}</p>
+              <p className="text-xs text-gray-500 mb-3">Powered by AI & Blockchain</p>
               <div className="flex flex-wrap gap-2">
                 {techPartners.map((sponsor, index) => (
                   <span 
@@ -285,18 +288,14 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Contact & Languages */}
+          {/* Contact */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2 font-heritage">
               <span className="w-8 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 rounded-full" />
-              {t('footer.contact.title')}
+              Contact
             </h3>
             <div className="space-y-4">
-              {[
-                { icon: Mail, key: 'footer.contact.email' },
-                { icon: Phone, key: 'footer.contact.phone' },
-                { icon: MapPin, key: 'footer.contact.location' }
-              ].map((item, index) => {
+              {contactInfo.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <motion.div 
@@ -307,14 +306,11 @@ const Footer: React.FC = () => {
                     <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-kolkata-yellow/20 transition-colors">
                       <Icon className="w-4 h-4 text-kolkata-gold" />
                     </div>
-                    <span className="text-gray-400 text-sm group-hover:text-white transition-colors">{t(item.key)}</span>
+                    <span className="text-gray-400 text-sm group-hover:text-white transition-colors">{item.text}</span>
                   </motion.div>
                 );
               })}
             </div>
-
-            {/* Language Selector */}
-            <LanguageSelector variant="footer" />
           </div>
         </div>
 
@@ -326,10 +322,10 @@ const Footer: React.FC = () => {
               animate={{ opacity: 1 }}
               className="text-gray-400 text-sm flex items-center gap-2"
             >
-              {t('footer.copyright')}
+              © 2025 Kolkata Heritage. Made with ❤️ for the City of Joy
             </motion.div>
             <div className="flex flex-wrap justify-center gap-6">
-              {[t('footer.legal.privacy'), t('footer.legal.terms'), t('footer.legal.cookies')].map((link, index) => (
+              {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((link, index) => (
                 <motion.button
                   key={index}
                   onClick={() => {

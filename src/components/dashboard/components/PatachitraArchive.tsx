@@ -13,7 +13,6 @@ import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { PatachitraIcon } from '../../kolkata/KolkataIcons';
 import { voiceService, isElevenLabsConfigured } from '../../../lib/services';
-import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Patachitra Artwork Collection
 const artworks = [
@@ -154,7 +153,6 @@ const artworks = [
 const categories = ['All', 'Mythological', 'Contemporary Social', 'Folk Tales'];
 
 const PatachitraArchive: React.FC = () => {
-  const { t } = useLanguage();
   const [selectedArtwork, setSelectedArtwork] = useState(artworks[0]);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);

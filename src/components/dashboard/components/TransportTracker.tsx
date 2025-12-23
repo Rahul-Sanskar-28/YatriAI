@@ -10,7 +10,6 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { TramIcon, HowrahBridgeIcon, VictoriaMemorialIcon } from '../../kolkata/KolkataIcons';
-import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Kolkata Transport Data
 const tramRoutes = [
@@ -189,7 +188,6 @@ const busRoutes = [
 ];
 
 const TransportTracker: React.FC = () => {
-  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'tram' | 'metro' | 'train' | 'bus'>('tram');
   const [selectedRoute, setSelectedRoute] = useState<any>(null);
   const [isLive, setIsLive] = useState(true);

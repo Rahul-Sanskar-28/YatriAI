@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Send, Bot, User, Globe, Sparkles, Mic, Volume2, StopCircle, Headphones, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '../../../contexts/LanguageContext';
 import { BorderBeam } from '../../magicui/BorderBeam';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { VoiceButton, SoundWave } from '../../voice';
@@ -41,7 +40,6 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [chatHistory, setChatHistory] = useState<ServiceChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { language } = useLanguage();
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },

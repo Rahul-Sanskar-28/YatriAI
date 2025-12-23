@@ -12,7 +12,6 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { DurgaIcon, DhunuchiIcon } from '../../kolkata/KolkataIcons';
-import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Verified Durga Puja Pandals for donations
 const pandals = [
@@ -141,7 +140,6 @@ const pandals = [
 const donationAmounts = [500, 1100, 2500, 5000, 11000, 25000, 51000];
 
 const PandalDonations: React.FC = () => {
-  const { t } = useLanguage();
   const [selectedPandal, setSelectedPandal] = useState(pandals[0]);
   const [selectedAmount, setSelectedAmount] = useState(1100);
   const [customAmount, setCustomAmount] = useState('');

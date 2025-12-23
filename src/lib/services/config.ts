@@ -34,7 +34,6 @@ export const ServiceFlags = {
   USE_MOCK_AI: import.meta.env.VITE_USE_MOCK_AI !== 'false',
   USE_MOCK_PAYMENT: import.meta.env.VITE_USE_MOCK_PAYMENT !== 'false',
   USE_MOCK_BLOCKCHAIN: import.meta.env.VITE_USE_MOCK_BLOCKCHAIN !== 'false',
-  USE_MOCK_TRANSLATE: import.meta.env.VITE_USE_MOCK_TRANSLATE !== 'false',
   USE_MOCK_VOICE: import.meta.env.VITE_USE_MOCK_VOICE !== 'false',
   USE_MOCK_NOTIFICATIONS: import.meta.env.VITE_USE_MOCK_NOTIFICATIONS !== 'false',
   // Axicov - Set to true to use Axicov agents instead of direct AI API
@@ -66,8 +65,6 @@ export const ServiceURLs = {
   // Will connect to Sepolia/Holesky testnet via custom API or direct web3
   BLOCKCHAIN_API: import.meta.env.VITE_BLOCKCHAIN_API_URL || `${BEECEPTOR_BASE}/api/blockchain`,
   
-  // Translation API (for multilingual support)
-  TRANSLATE_API: import.meta.env.VITE_TRANSLATE_API_URL || `${BEECEPTOR_BASE}/api/translate`,
   
   // Notification webhooks (for n8n integration)
   WEBHOOK_URL: import.meta.env.VITE_WEBHOOK_URL || `${BEECEPTOR_BASE}/webhooks`,
@@ -386,7 +383,6 @@ export const getServiceStatus = () => {
     ai: aiStatus,
     payment: paymentStatus,
     blockchain: blockchainStatus,
-    translate: ServiceFlags.USE_MOCK_TRANSLATE ? 'mock' : 'live',
     voice: voiceStatus,
     notifications: ServiceFlags.USE_MOCK_NOTIFICATIONS ? 'mock' : 'live',
     axicov: isAxicovConfigured() ? 'configured' : 'not-configured',

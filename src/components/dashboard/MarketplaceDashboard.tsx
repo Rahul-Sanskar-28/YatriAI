@@ -21,16 +21,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { vendorProducts } from '../../data/mockData';
-import LanguageSelector from '../common/LanguageSelector';
 
 const MarketplaceDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -40,10 +37,10 @@ const MarketplaceDashboard: React.FC = () => {
   };
 
   const menuItems = [
-    { id: 'dashboard', labelKey: 'dashboard.overview', icon: TrendingUp, color: 'from-kolkata-yellow to-kolkata-gold' },
-    { id: 'products', labelKey: 'dashboard.myArtisanProducts', icon: ShoppingBag, color: 'from-kolkata-terracotta to-durga-500' },
-    { id: 'orders', labelKey: 'dashboard.orders', icon: Package, color: 'from-heritage-500 to-kolkata-sepia' },
-    { id: 'analytics', labelKey: 'dashboard.analytics', icon: DollarSign, color: 'from-kolkata-hooghly to-kolkata-blue' }
+    { id: 'dashboard', label: 'Overview', icon: TrendingUp, color: 'from-kolkata-yellow to-kolkata-gold' },
+    { id: 'products', label: 'My Artisan Products', icon: ShoppingBag, color: 'from-kolkata-terracotta to-durga-500' },
+    { id: 'orders', label: 'Orders', icon: Package, color: 'from-heritage-500 to-kolkata-sepia' },
+    { id: 'analytics', label: 'Analytics', icon: DollarSign, color: 'from-kolkata-hooghly to-kolkata-blue' }
   ];
 
   const renderContent = () => {
@@ -71,20 +68,17 @@ const MarketplaceDashboard: React.FC = () => {
               <Palette className="w-5 h-5 text-white" />
             </div>
             <h1 className="text-lg font-bold text-gray-900 dark:text-white font-heritage">
-              {t('brand.name')} - Marketplace
+              YatriAI - Marketplace
             </h1>
           </div>
           <div className="flex items-center space-x-4">
-            {/* Language Selector */}
-            <LanguageSelector variant="header" />
-            
             {/* Theme Toggle */}
             <motion.button
               whileHover={{ scale: 1.1, rotate: 180 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleTheme}
               className="p-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
-              title={isDark ? t('common.lightMode') : t('common.darkMode')}
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </motion.button>
@@ -121,7 +115,7 @@ const MarketplaceDashboard: React.FC = () => {
                 <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name}</h3>
                 <div className="flex items-center gap-1 text-xs">
                   <Award className="w-3 h-3 text-heritage-500" />
-                  <span className="text-heritage-600 dark:text-kolkata-gold font-medium">{t('auth.roles.seller.title')}</span>
+                  <span className="text-heritage-600 dark:text-kolkata-gold font-medium">Artisan Seller</span>
                 </div>
               </div>
             </div>
@@ -149,7 +143,7 @@ const MarketplaceDashboard: React.FC = () => {
                     <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-r ${item.color} bg-opacity-10`}`}>
                       <IconComponent className={`w-5 h-5 ${isActive ? 'text-white' : 'text-heritage-600 dark:text-kolkata-gold'}`} />
                     </div>
-                    <span className="font-medium">{t(item.labelKey)}</span>
+                    <span className="font-medium">{item.label}</span>
                     {isActive && (
                       <motion.div 
                         layoutId="sellerActiveIndicator"
@@ -171,7 +165,7 @@ const MarketplaceDashboard: React.FC = () => {
               <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30">
                 <LogOut className="w-5 h-5" />
               </div>
-              <span className="font-medium">{t('auth.logout')}</span>
+              <span className="font-medium">Logout</span>
             </motion.button>
           </nav>
         </motion.div>

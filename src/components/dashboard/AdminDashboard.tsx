@@ -21,16 +21,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { adminUsers } from '../../data/mockData';
-import LanguageSelector from '../common/LanguageSelector';
 
 const AdminDashboard: React.FC = () => {
   const [activeView, setActiveView] = useState('analytics');
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -55,10 +52,10 @@ const AdminDashboard: React.FC = () => {
   };
 
   const navItems = [
-    { id: 'analytics', labelKey: 'dashboard.analytics', icon: LayoutDashboard, color: 'from-kolkata-yellow to-kolkata-gold' },
-    { id: 'users', labelKey: 'dashboard.manageUsers', icon: Users, color: 'from-kolkata-terracotta to-durga-500' },
-    { id: 'guides', labelKey: 'dashboard.manageGuides', icon: ShieldCheck, color: 'from-heritage-500 to-kolkata-sepia' },
-    { id: 'vendors', labelKey: 'dashboard.manageVendors', icon: Building, color: 'from-kolkata-hooghly to-kolkata-blue' },
+    { id: 'analytics', label: 'Analytics', icon: LayoutDashboard, color: 'from-kolkata-yellow to-kolkata-gold' },
+    { id: 'users', label: 'Manage Users', icon: Users, color: 'from-kolkata-terracotta to-durga-500' },
+    { id: 'guides', label: 'Manage Guides', icon: ShieldCheck, color: 'from-heritage-500 to-kolkata-sepia' },
+    { id: 'vendors', label: 'Manage Vendors', icon: Building, color: 'from-kolkata-hooghly to-kolkata-blue' },
   ];
 
   return (
@@ -71,20 +68,17 @@ const AdminDashboard: React.FC = () => {
               <ShieldCheck className="w-5 h-5 text-white" />
             </div>
             <h1 className="text-lg font-bold text-gray-900 dark:text-white font-heritage">
-              {t('brand.name')} - Admin
+              YatriAI - Admin
             </h1>
           </div>
           <div className="flex items-center space-x-4">
-            {/* Language Selector */}
-            <LanguageSelector variant="header" />
-            
             {/* Theme Toggle */}
             <motion.button
               whileHover={{ scale: 1.1, rotate: 180 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleTheme}
               className="p-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
-              title={isDark ? t('common.lightMode') : t('common.darkMode')}
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </motion.button>
@@ -119,7 +113,7 @@ const AdminDashboard: React.FC = () => {
               />
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">{user?.name}</p>
-                <p className="text-xs text-kolkata-terracotta dark:text-kolkata-gold font-medium">🛡️ {t('auth.roles.admin.title')}</p>
+                <p className="text-xs text-kolkata-terracotta dark:text-kolkata-gold font-medium">🛡️ Administrator</p>
               </div>
             </div>
           </div>
@@ -146,7 +140,7 @@ const AdminDashboard: React.FC = () => {
                     <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : `bg-gradient-to-r ${item.color} bg-opacity-10`}`}>
                       <IconComponent className={`w-5 h-5 ${isActive ? 'text-white' : 'text-kolkata-terracotta dark:text-kolkata-gold'}`} />
                     </div>
-                    <span className="font-medium">{t(item.labelKey)}</span>
+                    <span className="font-medium">{item.label}</span>
                     {isActive && (
                       <motion.div 
                         layoutId="activeIndicator"
@@ -168,7 +162,7 @@ const AdminDashboard: React.FC = () => {
               <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30">
                 <LogOut className="w-5 h-5" />
               </div>
-              <span className="font-medium">{t('auth.logout')}</span>
+              <span className="font-medium">Logout</span>
             </motion.button>
           </nav>
         </motion.aside>

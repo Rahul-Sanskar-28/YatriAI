@@ -1,47 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MapPin, Clock, Star } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { BlurFade } from '../magicui/BlurFade';
 import { MagicCard } from '../magicui/MagicCard';
 
 const heritageImages = [
   {
     url: 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'landmarks.victoriaMemorial',
-    descKey: 'landmarks.victoriaMemorialDesc',
+    title: 'Victoria Memorial',
+    desc: 'The crown jewel of Kolkata\'s heritage',
     location: 'Queen\'s Way',
     rating: 4.9,
     duration: '2-3 hrs'
   },
   {
     url: 'https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'landmarks.howrahBridge',
-    descKey: 'landmarks.howrahBridgeDesc',
+    title: 'Howrah Bridge',
+    desc: 'The iconic gateway to the City of Joy',
     location: 'Howrah',
     rating: 4.8,
     duration: '1 hr'
   },
   {
     url: 'https://images.unsplash.com/photo-1567157577867-05ccb1388e66?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'landmarks.marblePalace',
-    descKey: 'sections.heritage.marblePalaceDesc',
+    title: 'Marble Palace',
+    desc: 'A magnificent 19th-century mansion with European statues and rare paintings',
     location: 'Muktaram Babu Street',
     rating: 4.7,
     duration: '1.5 hrs'
   },
   {
     url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'landmarks.kalighatTemple',
-    descKey: 'sections.heritage.kalighatDesc',
+    title: 'Kalighat Temple',
+    desc: 'One of the 51 Shakti Peethas, the spiritual heart of Bengal',
     location: 'Kalighat',
     rating: 4.9,
     duration: '1 hr'
   },
   {
     url: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1200&h=600&q=80',
-    titleKey: 'landmarks.collegeStreet',
-    descKey: 'sections.heritage.collegeStreetDesc',
+    title: 'College Street',
+    desc: 'The world\'s largest second-hand book market and literary hub',
     location: 'College Street',
     rating: 4.6,
     duration: '2 hrs'
@@ -49,7 +48,6 @@ const heritageImages = [
 ];
 
 const HeritageSection: React.FC = () => {
-  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -77,13 +75,13 @@ const HeritageSection: React.FC = () => {
         <BlurFade delay={0.1} inView>
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 rounded-full bg-kolkata-sepia/20 dark:bg-kolkata-gold/20 text-kolkata-sepia dark:text-kolkata-gold text-sm font-medium mb-4">
-              🏛️ {t('sections.heritage.badge')}
+              🏛️ Explore Heritage
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 font-heritage">
-              {t('sections.heritage.title')}
+              Timeless Heritage
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              {t('sections.heritage.description')}
+              Discover architectural marvels and historical landmarks that tell the story of Kolkata's glorious past
             </p>
           </div>
         </BlurFade>
@@ -103,7 +101,7 @@ const HeritageSection: React.FC = () => {
                 >
                   <img
                     src={heritageImages[currentSlide].url}
-                    alt={t(heritageImages[currentSlide].titleKey)}
+                    alt={heritageImages[currentSlide].title}
                     className="w-full h-full object-cover"
                   />
                   {/* Gradient Overlay */}
@@ -122,10 +120,10 @@ const HeritageSection: React.FC = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 font-heritage">
-                      {t(heritageImages[currentSlide].titleKey)}
+                      {heritageImages[currentSlide].title}
                     </h3>
                     <p className="text-gray-200 text-lg mb-4 max-w-xl">
-                      {t(heritageImages[currentSlide].descKey)}
+                      {heritageImages[currentSlide].desc}
                     </p>
                     <div className="flex flex-wrap items-center gap-4 text-gray-300">
                       <span className="flex items-center gap-1">
@@ -185,6 +183,3 @@ const HeritageSection: React.FC = () => {
 };
 
 export default HeritageSection;
-
-
-

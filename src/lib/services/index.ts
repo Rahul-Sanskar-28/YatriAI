@@ -111,8 +111,6 @@ export type {
   AudioGuideSection 
 } from './voice.service';
 
-export { translateService, LANGUAGE_NAMES } from './translate.service';
-export type { SupportedLanguage, TranslationResult } from './translate.service';
 
 // Service status helper
 import { 

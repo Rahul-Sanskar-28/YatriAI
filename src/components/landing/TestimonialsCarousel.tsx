@@ -1,72 +1,68 @@
 import React from 'react';
 import { Star, Quote } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { Marquee } from '../magicui/Marquee';
 import { BlurFade } from '../magicui/BlurFade';
-import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { MagicCard } from '../magicui/MagicCard';
 
-// Kolkata-themed testimonials with translation keys
+// Kolkata-themed testimonials with direct English text
 const kolkataTestimonials = [
   {
     id: 1,
-    nameKey: "testimonials.reviews.anirban.name",
-    locationKey: "testimonials.reviews.anirban.location",
+    name: "Anirban Chatterjee",
+    location: "Mumbai, India",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-    commentKey: "testimonials.reviews.anirban.comment",
+    comment: "The heritage walk through Kumartuli was magical! Watching artisans create Durga idols with such devotion - this app helped me discover the soul of Kolkata.",
     rating: 5,
-    sentimentKey: "testimonials.reviews.anirban.sentiment"
+    sentiment: "Amazing 🎭"
   },
   {
     id: 2,
-    nameKey: "testimonials.reviews.sarah.name",
-    locationKey: "testimonials.reviews.sarah.location",
+    name: "Sarah Chen",
+    location: "Singapore",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
-    commentKey: "testimonials.reviews.sarah.comment",
+    comment: "The Durga Puja route planner was a lifesaver! Visited 15 pandals without getting lost. The AI knew exactly when to avoid crowds.",
     rating: 5,
-    sentimentKey: "testimonials.reviews.sarah.sentiment"
+    sentiment: "Incredible 🪔"
   },
   {
     id: 3,
-    nameKey: "testimonials.reviews.rahul.name",
-    locationKey: "testimonials.reviews.rahul.location",
+    name: "Rahul Ghosh",
+    location: "Bangalore, India",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
-    commentKey: "testimonials.reviews.rahul.comment",
+    comment: "Born in Kolkata but this app showed me places I never knew existed! The College Street book walk was pure nostalgia.",
     rating: 5,
-    sentimentKey: "testimonials.reviews.rahul.sentiment"
+    sentiment: "Nostalgic 📚"
   },
   {
     id: 4,
-    nameKey: "testimonials.reviews.emma.name",
-    locationKey: "testimonials.reviews.emma.location",
+    name: "Emma Williams",
+    location: "London, UK",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    commentKey: "testimonials.reviews.emma.comment",
+    comment: "The tram heritage tour was unforgettable! Riding through Esplanade at sunset while the audio guide narrated history - pure magic.",
     rating: 5,
-    sentimentKey: "testimonials.reviews.emma.sentiment"
+    sentiment: "Magical 🚃"
   },
   {
     id: 5,
-    nameKey: "testimonials.reviews.priya.name",
-    locationKey: "testimonials.reviews.priya.location",
+    name: "Priya Mukherjee",
+    location: "Delhi, India",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
-    commentKey: "testimonials.reviews.priya.comment",
+    comment: "Bought authentic Baluchari saree from verified artisans through this app. Blockchain certificate proves it's genuine handloom!",
     rating: 5,
-    sentimentKey: "testimonials.reviews.priya.sentiment"
+    sentiment: "Verified ✓"
   },
   {
     id: 6,
-    nameKey: "testimonials.reviews.james.name",
-    locationKey: "testimonials.reviews.james.location",
+    name: "James Thompson",
+    location: "New York, USA",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
-    commentKey: "testimonials.reviews.james.comment",
+    comment: "The Adda AI companion talked about Tagore like a true Kolkatan! Recommended the best mishti doi shop - exactly what locals prefer.",
     rating: 5,
-    sentimentKey: "testimonials.reviews.james.sentiment"
+    sentiment: "Authentic ☕"
   }
 ];
 
-const TestimonialCard = ({ testimonial, index }: { testimonial: typeof kolkataTestimonials[0]; index: number }) => {
-  const { t } = useTranslation();
-  
+const TestimonialCard = ({ testimonial }: { testimonial: typeof kolkataTestimonials[0] }) => {
   return (
     <MagicCard
       className="w-[350px] mx-4 flex-shrink-0"
@@ -86,14 +82,14 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof kolkataTe
         </div>
         
         <blockquote className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed text-sm">
-          "{t(testimonial.commentKey)}"
+          "{testimonial.comment}"
         </blockquote>
         
         <div className="flex items-center space-x-3">
           <div className="relative">
             <img
               src={testimonial.avatar}
-              alt={t(testimonial.nameKey)}
+              alt={testimonial.name}
               className="w-12 h-12 rounded-full object-cover border-2 border-kolkata-yellow/50 dark:border-kolkata-gold/50"
             />
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-kolkata-yellow rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
@@ -105,15 +101,15 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof kolkataTe
           
           <div className="flex-1">
             <div className="font-semibold text-gray-900 dark:text-white text-sm">
-              {t(testimonial.nameKey)}
+              {testimonial.name}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              {t(testimonial.locationKey)}
+              {testimonial.location}
             </div>
           </div>
           
           <div className="px-2 py-1 bg-kolkata-yellow/20 dark:bg-kolkata-gold/20 text-kolkata-terracotta dark:text-kolkata-gold rounded-full text-xs font-medium">
-            {t(testimonial.sentimentKey)}
+            {testimonial.sentiment}
           </div>
         </div>
       </div>
@@ -122,7 +118,6 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof kolkataTe
 };
 
 const TestimonialsCarousel: React.FC = () => {
-  const { t } = useTranslation();
   // Ensure we have enough testimonials for the marquee
   const allTestimonials = [...kolkataTestimonials, ...kolkataTestimonials];
   const firstRow = allTestimonials.slice(0, allTestimonials.length / 2);
@@ -143,19 +138,19 @@ const TestimonialsCarousel: React.FC = () => {
           <BlurFade delay={0.1} inView>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-kolkata-yellow/20 dark:bg-kolkata-gold/10 border border-kolkata-yellow/40 mb-6">
               <span className="text-2xl">💬</span>
-              <span className="text-kolkata-terracotta dark:text-kolkata-gold text-sm font-medium">{t('testimonials.badge')}</span>
+              <span className="text-kolkata-terracotta dark:text-kolkata-gold text-sm font-medium">Real Stories from Kolkata Explorers</span>
             </div>
           </BlurFade>
 
           <BlurFade delay={0.2} inView>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 font-heritage">
-              {t('testimonials.title')}
+              What Explorers Say
             </h2>
           </BlurFade>
 
           <BlurFade delay={0.3} inView>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-4">
-              {t('testimonials.description')}
+              Real experiences from travelers who discovered the soul of the City of Joy
             </p>
           </BlurFade>
         </div>
@@ -169,13 +164,13 @@ const TestimonialsCarousel: React.FC = () => {
         
         <Marquee pauseOnHover speed={20} className="py-4">
           {firstRow.map((testimonial, index) => (
-            <TestimonialCard key={index} testimonial={testimonial} index={index} />
+            <TestimonialCard key={index} testimonial={testimonial} />
           ))}
         </Marquee>
         
         <Marquee reverse pauseOnHover speed={20} className="py-4">
           {secondRow.map((testimonial, index) => (
-            <TestimonialCard key={index} testimonial={testimonial} index={index} />
+            <TestimonialCard key={index} testimonial={testimonial} />
           ))}
         </Marquee>
       </div>
@@ -196,7 +191,7 @@ const TestimonialsCarousel: React.FC = () => {
                 ))}
               </div>
               <span className="text-gray-600 dark:text-gray-400 text-sm">
-                <span className="font-semibold text-gray-900 dark:text-white">10,000+</span> {t('testimonials.happyExplorers')}
+                <span className="font-semibold text-gray-900 dark:text-white">10,000+</span> happy explorers
               </span>
             </div>
             
@@ -209,7 +204,7 @@ const TestimonialsCarousel: React.FC = () => {
                 ))}
               </div>
               <span className="text-gray-600 dark:text-gray-400 text-sm">
-                <span className="font-semibold text-gray-900 dark:text-white">4.9/5</span> {t('testimonials.rating')}
+                <span className="font-semibold text-gray-900 dark:text-white">4.9/5</span> rating
               </span>
             </div>
             
@@ -219,14 +214,14 @@ const TestimonialsCarousel: React.FC = () => {
               <svg className="w-5 h-5 text-kolkata-yellow" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span><span className="font-semibold text-gray-900 dark:text-white">{t('testimonials.blockchain')}</span> {t('testimonials.blockchainVerified')}</span>
+              <span><span className="font-semibold text-gray-900 dark:text-white">Blockchain</span> verified reviews</span>
             </div>
             
             <div className="h-8 w-px bg-kolkata-sepia/30 dark:bg-gray-700 hidden md:block" />
             
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
               <span className="text-xl">🚃</span>
-              <span><span className="font-semibold text-gray-900 dark:text-white">{t('testimonials.heritage')}</span> {t('testimonials.heritageCertified')}</span>
+              <span><span className="font-semibold text-gray-900 dark:text-white">Heritage</span> certified guides</span>
             </div>
           </div>
         </BlurFade>
