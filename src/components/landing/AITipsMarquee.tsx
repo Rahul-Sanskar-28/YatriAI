@@ -1,38 +1,43 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Marquee } from '../magicui/Marquee';
 
-// Kolkata-themed AI tips with direct English text
-const kolkataTips = [
-  { icon: "🚃", tip: "Tram Route 36 passes through the most heritage spots - perfect for a vintage tour!" },
-  { icon: "🪔", tip: "Best Durga Puja pandals are in South Kolkata - start at Ekdalia Evergreen" },
-  { icon: "☕", tip: "For authentic adda, visit Indian Coffee House on College Street since 1942" },
-  { icon: "🎭", tip: "Kumartuli artisans start work on idols 4 months before Pujo - visit in July!" },
-  { icon: "📚", tip: "College Street has the largest second-hand book market in the world" },
-  { icon: "🌅", tip: "Princep Ghat sunset views are magical - arrive 30 mins before sunset" },
-  { icon: "🍛", tip: "Try Arsalan's biryani or 6 Ballygunge Place for authentic Bengali cuisine" },
-  { icon: "🏛️", tip: "Victoria Memorial is best visited early morning to avoid crowds" },
-  { icon: "🚕", tip: "Yellow taxis follow meter + ₹10 rule for short distances in the city" },
-  { icon: "🎨", tip: "Jorasanko Thakur Bari has Tagore's original artworks - don't miss it!" },
-  { icon: "🛕", tip: "Kalighat Temple allows short visits - go during aarti for the experience" },
-  { icon: "🌉", tip: "Howrah Bridge carries 100,000 vehicles daily - walk across at dawn!" },
-  { icon: "🎪", tip: "Park Street transforms during Christmas - best visited after 7 PM" },
-  { icon: "🎵", tip: "Rabindra Sadan hosts classical concerts - check schedule for baul performances" },
-  { icon: "🍰", tip: "Don't leave without trying mishti doi and sandesh from Balaram Mullick" },
+// Kolkata-themed AI tips with translation keys
+const kolkataTipKeys = [
+  { icon: "🚃", tipKey: "aiTips.tips.tram36" },
+  { icon: "🪔", tipKey: "aiTips.tips.pujoPandals" },
+  { icon: "☕", tipKey: "aiTips.tips.coffeeHouse" },
+  { icon: "🎭", tipKey: "aiTips.tips.kumartuliArtisans" },
+  { icon: "📚", tipKey: "aiTips.tips.collegeStreetBooks" },
+  { icon: "🌅", tipKey: "aiTips.tips.princepGhatSunset" },
+  { icon: "🍛", tipKey: "aiTips.tips.biryani" },
+  { icon: "🏛️", tipKey: "aiTips.tips.victoriaMemorial" },
+  { icon: "🚕", tipKey: "aiTips.tips.yellowTaxis" },
+  { icon: "🎨", tipKey: "aiTips.tips.jorasanko" },
+  { icon: "🛕", tipKey: "aiTips.tips.kalighatTemple" },
+  { icon: "🌉", tipKey: "aiTips.tips.howrahBridge" },
+  { icon: "🎪", tipKey: "aiTips.tips.parkStreet" },
+  { icon: "🎵", tipKey: "aiTips.tips.rabindraSadan" },
+  { icon: "🍰", tipKey: "aiTips.tips.mishtiDoi" },
 ];
 
-const TipCard = ({ tip, icon }: { tip: string; icon: string }) => {
+const TipCard = ({ tipKey, icon }: { tipKey: string; icon: string }) => {
+  const { t } = useTranslation('translation');
+  
   return (
     <div className="flex items-center gap-3 px-5 py-3 mx-2 bg-white/10 backdrop-blur-sm rounded-full border border-kolkata-gold/30 hover:bg-kolkata-yellow/20 transition-all duration-300 group cursor-default">
       <span className="text-xl group-hover:scale-110 transition-transform">{icon}</span>
-      <span className="text-white text-sm font-medium whitespace-nowrap">{tip}</span>
+      <span className="text-white text-sm font-medium whitespace-nowrap">{t(tipKey)}</span>
     </div>
   );
 };
 
 const AITipsMarquee: React.FC = () => {
+  const { t } = useTranslation('translation');
+  
   // Create duplicate tips for seamless looping
-  const allTips = [...kolkataTips, ...kolkataTips];
+  const allTips = [...kolkataTipKeys, ...kolkataTipKeys];
 
   return (
     <div className="relative bg-gradient-to-r from-kolkata-yellow via-kolkata-terracotta to-durga-500 py-6 overflow-hidden">
@@ -51,15 +56,15 @@ const AITipsMarquee: React.FC = () => {
       <div className="flex items-center justify-center gap-3 mb-4 relative z-20">
         <div className="flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
           <Sparkles className="w-4 h-4 text-white animate-pulse" />
-          <span className="text-white font-semibold text-sm">AI Kolkata Tips</span>
-          <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full">Live</span>
+          <span className="text-white font-semibold text-sm">{t('aiTips.header')}</span>
+          <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full">{t('aiTips.live')}</span>
         </div>
       </div>
       
       {/* Marquee - Very slow speed for better readability */}
       <Marquee pauseOnHover speed={100} className="relative z-0">
         {allTips.map((item, index) => (
-          <TipCard key={index} tip={item.tip} icon={item.icon} />
+          <TipCard key={index} tipKey={item.tipKey} icon={item.icon} />
         ))}
       </Marquee>
 
