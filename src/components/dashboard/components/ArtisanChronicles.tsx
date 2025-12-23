@@ -12,7 +12,6 @@ import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { TerracottaIcon, PatachitraIcon } from '../../kolkata/KolkataIcons';
 import { voiceService, isElevenLabsConfigured } from '../../../lib/services';
-import { useLanguage } from '../../../contexts/LanguageContext';
 
 // Artisan data with rich stories
 const artisans = [
@@ -171,7 +170,6 @@ const artisans = [
 ];
 
 const ArtisanChronicles: React.FC = () => {
-  const { t } = useLanguage();
   const [selectedArtisan, setSelectedArtisan] = useState(artisans[0]);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [activeTab, setActiveTab] = useState<'story' | 'products' | 'gallery'>('story');

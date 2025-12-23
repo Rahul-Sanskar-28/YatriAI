@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { LanguageProvider } from './contexts/LanguageContext';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import HeroSection from './components/landing/HeroSection';
@@ -151,27 +150,25 @@ function App() {
 
   return (
     <ThemeProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <Router>
-            <div className="App">
-              <Routes>
-                {/* Role-based landing and redirects */}
-                <Route path="/" element={<AppContent />} />
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              {/* Role-based landing and redirects */}
+              <Route path="/" element={<AppContent />} />
 
-                {/* Explicit dashboard routes */}
-                <Route path="/tourist-dashboard" element={<TouristDashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/guide-dashboard" element={<GuideDashboard />} />
-                <Route path="/marketplace-dashboard" element={<MarketplaceDashboard />} />
-              </Routes>
-              
-              {/* Debug Panel - Only shown in development or when debug mode is enabled */}
-              {DEBUG_PANEL_ENABLED && <DebugPanel />}
-            </div>
-          </Router>
-        </AuthProvider>
-      </LanguageProvider>
+              {/* Explicit dashboard routes */}
+              <Route path="/tourist-dashboard" element={<TouristDashboard />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/guide-dashboard" element={<GuideDashboard />} />
+              <Route path="/marketplace-dashboard" element={<MarketplaceDashboard />} />
+            </Routes>
+            
+            {/* Debug Panel - Only shown in development or when debug mode is enabled */}
+            {DEBUG_PANEL_ENABLED && <DebugPanel />}
+          </div>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
