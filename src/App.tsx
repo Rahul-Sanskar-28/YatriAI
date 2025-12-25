@@ -20,7 +20,7 @@ import TranslateTest from './components/common/TranslateTest';
 import { initializeServices } from './lib/services';
 import { DEBUG_PANEL_ENABLED } from './lib/debug';
 import { DebugPanel } from './components/debug/DebugPanel';
-import AutoTranslate from './components/common/AutoTranslate';
+import BrowserOnlyTranslate from './components/common/BrowserOnlyTranslate';
 import './lib/utils/translateDebug'; // Load debug utilities
 
 const LandingPage: React.FC = () => {
@@ -176,8 +176,8 @@ function App() {
                 <Route path="/:lang/dashboard" element={<AppContent />} />
               </Routes>
               
-              {/* Auto Translation - Forces Google Translate automatically */}
-              <AutoTranslate variant="floating" />
+              {/* Browser Translation Instructions - Works on any domain */}
+              <BrowserOnlyTranslate variant="floating" />
               
               {/* Debug Panel - Only shown in development or when debug mode is enabled */}
               {DEBUG_PANEL_ENABLED && <DebugPanel />}
