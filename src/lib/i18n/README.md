@@ -286,3 +286,5 @@ Check that:
 2. RTL CSS is imported in `main.tsx`
 3. Flex containers use `space-x-reverse`
 
+
+

@@ -275,3 +275,5 @@ self.addEventListener('message', (event) => {
 
 console.log('🚀 YatriAI Service Worker loaded');
 
+
+
