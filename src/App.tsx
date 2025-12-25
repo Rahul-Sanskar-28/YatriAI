@@ -16,9 +16,12 @@ import TouristDashboard from './components/dashboard/TouristDashboard';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import GuideDashboard from './components/dashboard/GuideDashboard';
 import MarketplaceDashboard from './components/dashboard/MarketplaceDashboard';
+import TranslateTest from './components/common/TranslateTest';
 import { initializeServices } from './lib/services';
 import { DEBUG_PANEL_ENABLED } from './lib/debug';
 import { DebugPanel } from './components/debug/DebugPanel';
+import AutoTranslate from './components/common/AutoTranslate';
+import './lib/utils/translateDebug'; // Load debug utilities
 
 const LandingPage: React.FC = () => {
   return (
@@ -165,10 +168,16 @@ function App() {
                 <Route path="/guide-dashboard" element={<GuideDashboard />} />
                 <Route path="/marketplace-dashboard" element={<MarketplaceDashboard />} />
                 
+                {/* Test page for Google Translate */}
+                <Route path="/translate-test" element={<TranslateTest />} />
+                
                 {/* SEO-friendly language routes */}
                 <Route path="/:lang" element={<AppContent />} />
                 <Route path="/:lang/dashboard" element={<AppContent />} />
               </Routes>
+              
+              {/* Auto Translation - Forces Google Translate automatically */}
+              <AutoTranslate variant="floating" />
               
               {/* Debug Panel - Only shown in development or when debug mode is enabled */}
               {DEBUG_PANEL_ENABLED && <DebugPanel />}

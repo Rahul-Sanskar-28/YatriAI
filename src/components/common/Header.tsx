@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import AuthModal from './AuthModal';
-import LanguageSelector from './LanguageSelector';
+import AutoTranslate from './AutoTranslate';
 import { ShimmerButton } from '../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { TramIcon } from '../kolkata/KolkataIcons';
@@ -94,8 +94,8 @@ const Header: React.FC = () => {
 
             {/* Right Side Controls */}
             <div className="flex items-center space-x-3">
-              {/* Language Selector */}
-              <LanguageSelector variant="header" />
+              {/* Auto Translation - Forces Google Translate */}
+              <AutoTranslate variant="header" />
               
               {/* Theme Toggle */}
               <motion.button
