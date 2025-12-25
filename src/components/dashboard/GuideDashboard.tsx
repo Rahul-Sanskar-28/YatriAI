@@ -11,7 +11,7 @@ import {
   Star,
   Clock,
   DollarSign,
-  MapPin,
+
   Search,
   LogOut,
   MessageCircle,
@@ -393,7 +393,7 @@ const GuideDashboardHome: React.FC = () => {
 // My Tours Component with Kolkata Theme
 const MyTours: React.FC = () => {
   const [tours] = useState(guideTours);
-  const [showAddModal, setShowAddModal] = useState(false);
+
 
   return (
     <div className="space-y-6">
@@ -413,7 +413,6 @@ const MyTours: React.FC = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setShowAddModal(true)}
           className="bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white px-5 py-2.5 rounded-xl shadow-lg flex items-center space-x-2"
         >
           <Plus className="w-5 h-5" />

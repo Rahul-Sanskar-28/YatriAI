@@ -16,6 +16,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { translate } from '@vitalets/google-translate-api';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -273,6 +275,71 @@ app.get('/health', (_req: Request, res: Response) => {
     cache: getCacheStats(),
     api: 'Google Translate',
   });
+});
+
+/**
+ * POST /gemini - Proxy to Google Generative Language API
+ * Avoids browser CORS and hides API key. Expects body: { model?, prompt, context?, budget? }
+ */
+app.post('/gemini', async (req: Request, res: Response) => {
+  try {
+    const { model = 'gemini-1.5-pro', prompt, context = [], budget } = req.body;
+    if (!prompt || typeof prompt !== 'string') {
+      return res.status(400).json({ error: 'Missing required field: prompt' });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Gemini API key not configured on server' });
+    }
+
+    const contextText = Array.isArray(context)
+      ? context
+          .slice(0, 8)
+          .map((c: any) => `${c.type || 'context'}: ${c.title || ''} — ${c.snippet || ''}`)
+          .join('\n')
+      : '';
+
+    const budgetText = budget
+      ? `Budget window: ₹${new Intl.NumberFormat('en-IN').format(budget.low)} - ₹${new Intl.NumberFormat('en-IN').format(budget.high)} (${budget.basis}).`
+      : 'Budget not provided.';
+
+    const body = {
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              text: [
+                'You are a concise Indian travel planner for Kolkata.',
+                `User request: ${prompt}`,
+                budgetText,
+                contextText ? `Context:\n${contextText}` : 'No retrieved context.',
+                'Return 2-4 bullets: sights, suggested flow, food, and a one-line value tip.',
+              ].join('\n\n'),
+            },
+          ],
+        },
+      ],
+    };
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      const err = await resp.text();
+      return res.status(502).json({ error: 'Gemini API error', details: err });
+    }
+    const data = await resp.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    res.json({ text: typeof text === 'string' ? text : '' });
+  } catch (error) {
+    console.error('Gemini proxy error:', error);
+    res.status(500).json({ error: 'Gemini proxy failed' });
+  }
 });
 
 // ============================================

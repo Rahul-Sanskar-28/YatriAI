@@ -1,10 +1,21 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Bot, User, Globe, Sparkles, Mic, Volume2, StopCircle, Headphones, Settings } from 'lucide-react';
+import { X, Send, Bot, User, Globe, Sparkles, Mic, Volume2, StopCircle, Headphones, Settings, Coins, Search, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BorderBeam } from '../../magicui/BorderBeam';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { VoiceButton, SoundWave } from '../../voice';
-import { aiService, voiceService, type ChatMessage as ServiceChatMessage, type ChatResponse, AVAILABLE_VOICES } from '../../../lib/services';
+import { voiceService } from '../../../lib/services';
+import {
+  retrieveLocalContext,
+  fetchWebContext,
+  fetchWebBudgetSignals,
+  buildLocalBudgetSignals,
+  aggregateBudget,
+  callGemini,
+  craftAssistantReply,
+  type BudgetEstimate,
+  type RagSource
+} from '../../../lib/services/rag.service';
 
 interface AIChatProps {
   isOpen: boolean;
@@ -19,6 +30,8 @@ interface Message {
   language?: string;
   suggestions?: string[];
   isPlaying?: boolean;
+  sources?: RagSource[];
+  budget?: BudgetEstimate;
 }
 
 const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
@@ -38,7 +51,6 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
   const [autoSpeak, setAutoSpeak] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
-  const [chatHistory, setChatHistory] = useState<ServiceChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const languages = [
@@ -122,39 +134,32 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Update chat history for context
-    const updatedHistory: ServiceChatMessage[] = [
-      ...chatHistory,
-      { role: 'user', content: currentInput, timestamp: new Date() }
-    ];
-    setChatHistory(updatedHistory);
-
     try {
-      // Call AI service (uses Axicov, Beeceptor mock, or local fallback)
-      const response: ChatResponse = await aiService.chat(currentInput, updatedHistory);
-      
+      // RAG pipeline
+      const [localContext] = await Promise.all([
+        retrieveLocalContext(currentInput),
+      ]);
+      const localSignals = buildLocalBudgetSignals();
+      const budget = aggregateBudget([], localSignals);
+      const llm = await callGemini(currentInput, localContext, [], budget);
+      const composed = (llm?.text || '') || 'AI synthesis unavailable; showing local context above.';
+
       const botMessageId = (Date.now() + 1).toString();
       const botMessage: Message = {
         id: botMessageId,
         type: 'bot',
-        content: response.message,
+        content: composed,
         timestamp: new Date(),
         language: selectedLanguage,
-        suggestions: response.suggestions
+        sources: [...localContext],
+        budget: llm?.budget
       };
 
       setMessages(prev => [...prev, botMessage]);
-      
-      // Update history with bot response
-      setChatHistory(prev => [
-        ...prev,
-        { role: 'assistant', content: response.message, timestamp: new Date() }
-      ]);
 
-      // Auto-speak bot response if enabled
       if (autoSpeak) {
         setTimeout(() => {
-          handleSpeak(botMessageId, response.message);
+          handleSpeak(botMessageId, composed);
         }, 500);
       }
     } catch (error) {
@@ -346,7 +351,50 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
                       ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-br-md'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md'
                   }`}>
-                    <p className="text-sm leading-relaxed">{message.content}</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    {/* Budget window */}
+                    {message.type === 'bot' && message.budget && (
+                      <div className="mt-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-sm text-emerald-800 dark:text-emerald-100">
+                        <div className="flex items-center gap-2 font-semibold">
+                          <Coins className="w-4 h-4" />
+                          <span>Budget window</span>
+                        </div>
+                        <div className="mt-1 text-gray-900 dark:text-white">
+                          ₹{message.budget.low.toLocaleString('en-IN')} - ₹{message.budget.high.toLocaleString('en-IN')} / day
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{message.budget.basis}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {message.budget.sources.slice(0, 4).map((source) => (
+                            <span
+                              key={source.label}
+                              className="text-xs px-2 py-1 rounded-full bg-white/80 dark:bg-gray-800 border border-emerald-200 dark:border-emerald-700 text-gray-700 dark:text-gray-200"
+                            >
+                              {source.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* Sources */}
+                    {message.type === 'bot' && message.sources && message.sources.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                          <Search className="w-3.5 h-3.5" />
+                          <span>Context used</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {message.sources.map((source, idx) => (
+                            <span
+                              key={`${source.title}-${idx}`}
+                              className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200"
+                            >
+                              {source.type === 'web' ? <Globe className="w-3 h-3" /> : <Database className="w-3 h-3" />}
+                              <span className="line-clamp-1">{source.title}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div className={`flex items-center justify-between gap-2 mt-2 text-xs ${
                       message.type === 'user' ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'
                     }`}>

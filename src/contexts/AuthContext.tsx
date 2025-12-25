@@ -228,6 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string, role: string) => {
     // Try real API first, fall back to mock if unavailable
+    setIsLoading(true);
     try {
       const response = await api.login(email, password, role);
       
@@ -278,6 +279,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         analyticsService.error('login_failed', (apiError as Error).message);
         throw apiError;
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 

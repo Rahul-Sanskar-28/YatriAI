@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { LoadingProvider, useLoading } from './contexts/LoadingContext';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import HeroSection from './components/landing/HeroSection';
@@ -17,10 +18,12 @@ import AdminDashboard from './components/dashboard/AdminDashboard';
 import GuideDashboard from './components/dashboard/GuideDashboard';
 import MarketplaceDashboard from './components/dashboard/MarketplaceDashboard';
 import TranslateTest from './components/common/TranslateTest';
+import LoadingDemo from './components/common/LoadingDemo';
+import InteractiveLoader from './components/common/InteractiveLoader';
+import BrowserOnlyTranslate from './components/common/BrowserOnlyTranslate';
 import { initializeServices } from './lib/services';
 import { DEBUG_PANEL_ENABLED } from './lib/debug';
 import { DebugPanel } from './components/debug/DebugPanel';
-import BrowserOnlyTranslate from './components/common/BrowserOnlyTranslate';
 import './lib/utils/translateDebug'; // Load debug utilities
 
 const LandingPage: React.FC = () => {
@@ -40,6 +43,19 @@ const LandingPage: React.FC = () => {
 };
 
 const LoadingScreen: React.FC = () => {
+  const { setLoading } = useLoading();
+
+  useEffect(() => {
+    // Simulate initial loading
+    setLoading(true, "Initializing YatriAI...");
+    
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [setLoading]);
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
       <div className="text-center">
@@ -52,6 +68,16 @@ const LoadingScreen: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, user, isLoading } = useAuth();
+  const { setLoading } = useLoading();
+
+  // Show loading when authenticating
+  useEffect(() => {
+    if (isLoading) {
+      setLoading(true, "Authenticating user...");
+    } else {
+      setLoading(false);
+    }
+  }, [isLoading, setLoading]);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -139,7 +165,6 @@ function App() {
       // Ctrl+Shift+D to toggle debug mode
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
         e.preventDefault();
-        const { toggleDebugMode } = window as any;
         if (typeof (window as any).YatriAIDebug?.toggleDebugMode === 'function') {
           (window as any).YatriAIDebug.toggleDebugMode();
           // Force re-render (in a real app, you'd use state management)
@@ -155,38 +180,62 @@ function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <AuthProvider>
-          <Router>
-            <div className="App">
-              <Routes>
-                {/* Role-based landing and redirects */}
-                <Route path="/" element={<AppContent />} />
-
-                {/* Explicit dashboard routes */}
-                <Route path="/tourist-dashboard" element={<TouristDashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/guide-dashboard" element={<GuideDashboard />} />
-                <Route path="/marketplace-dashboard" element={<MarketplaceDashboard />} />
-                
-                {/* Test page for Google Translate */}
-                <Route path="/translate-test" element={<TranslateTest />} />
-                
-                {/* SEO-friendly language routes */}
-                <Route path="/:lang" element={<AppContent />} />
-                <Route path="/:lang/dashboard" element={<AppContent />} />
-              </Routes>
-              
-              {/* Browser Translation Instructions - Works on any domain */}
-              <BrowserOnlyTranslate variant="floating" />
-              
-              {/* Debug Panel - Only shown in development or when debug mode is enabled */}
-              {DEBUG_PANEL_ENABLED && <DebugPanel />}
-            </div>
-          </Router>
-        </AuthProvider>
+        <LoadingProvider>
+          <AuthProvider>
+            <Router>
+              <div className="App">
+                <AppWithLoader />
+              </div>
+            </Router>
+          </AuthProvider>
+        </LoadingProvider>
       </LanguageProvider>
     </ThemeProvider>
   );
 }
+
+const AppWithLoader: React.FC = () => {
+  const { isLoading, loadingText, progress, showProgress } = useLoading();
+
+  return (
+    <>
+      {/* Interactive Loading Screen */}
+      <InteractiveLoader 
+        isLoading={isLoading}
+        loadingText={loadingText}
+        progress={progress}
+        showProgress={showProgress}
+      />
+      
+      {/* Main App Content */}
+      <Routes>
+        {/* Role-based landing and redirects */}
+        <Route path="/" element={<AppContent />} />
+
+        {/* Explicit dashboard routes */}
+        <Route path="/tourist-dashboard" element={<TouristDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/guide-dashboard" element={<GuideDashboard />} />
+        <Route path="/marketplace-dashboard" element={<MarketplaceDashboard />} />
+        
+        {/* Test page for Google Translate */}
+        <Route path="/translate-test" element={<TranslateTest />} />
+        
+        {/* Loading Demo Page */}
+        <Route path="/loading-demo" element={<LoadingDemo />} />
+        
+        {/* SEO-friendly language routes */}
+        <Route path="/:lang" element={<AppContent />} />
+        <Route path="/:lang/dashboard" element={<AppContent />} />
+      </Routes>
+      
+      {/* Browser Translation Instructions - Works on any domain */}
+      <BrowserOnlyTranslate variant="floating" />
+      
+      {/* Debug Panel - Only shown in development or when debug mode is enabled */}
+      {DEBUG_PANEL_ENABLED && <DebugPanel />}
+    </>
+  );
+};
 
 export default App;
