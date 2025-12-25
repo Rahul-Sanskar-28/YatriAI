@@ -59,6 +59,89 @@ export const n8nService = {
   isConfigured: () => !!import.meta.env.VITE_USE_N8N,
 };
 
+// AI Service (mock)
+export const aiService = {
+  generateItinerary: async (preferences: any) => {
+    console.log('🤖 AI: Generating itinerary...', preferences);
+    return {
+      success: true,
+      data: {
+        title: "Kolkata Heritage Experience",
+        duration: 3,
+        activities: ["Victoria Memorial", "Howrah Bridge", "Dakshineswar Temple"],
+        estimatedCost: 2500
+      }
+    };
+  },
+  
+  chat: async (message: string) => {
+    console.log('💬 AI Chat:', message);
+    return {
+      success: true,
+      data: {
+        response: "I'm here to help you explore Kolkata's heritage! What would you like to know?"
+      }
+    };
+  },
+  
+  isConfigured: () => !!import.meta.env.VITE_USE_AXICOV,
+};
+
+// Weather Service (mock)
+export const weatherService = {
+  getCurrentWeather: async (city: string) => {
+    console.log('🌤️ Weather: Getting weather for', city);
+    return {
+      success: true,
+      data: {
+        temperature: 28,
+        condition: 'Partly Cloudy',
+        humidity: 75,
+        windSpeed: 12
+      }
+    };
+  },
+  
+  getForecast: async (city: string, days: number = 5) => {
+    console.log('📅 Weather: Getting forecast for', city, days, 'days');
+    return {
+      success: true,
+      data: Array.from({ length: days }, (_, i) => ({
+        date: new Date(Date.now() + i * 24 * 60 * 60 * 1000).toISOString(),
+        temperature: 25 + Math.random() * 10,
+        condition: ['Sunny', 'Cloudy', 'Rainy'][Math.floor(Math.random() * 3)]
+      }))
+    };
+  }
+};
+
+// Types for services
+export interface ItineraryPreferences {
+  interests: string[];
+  budget: 'budget' | 'mid-range' | 'luxury';
+  duration: number;
+  travelStyle: 'solo' | 'couple' | 'family' | 'group';
+}
+
+export interface GeneratedItinerary {
+  title: string;
+  duration: number;
+  activities: string[];
+  estimatedCost: number;
+  schedule?: {
+    day: number;
+    activities: string[];
+    meals: string[];
+  }[];
+}
+
+export interface WeatherData {
+  temperature: number;
+  condition: string;
+  humidity: number;
+  windSpeed: number;
+}
+
 // Initialize all services
 export const initializeServices = async () => {
   const usingMocks = !isElevenLabsConfigured() && !n8nService.isConfigured();
@@ -66,7 +149,7 @@ export const initializeServices = async () => {
   return {
     status: 'initialized',
     usingMocks,
-    usingAxicov: !!import.meta.env.VITE_USE_AXICOV,
+    usingAxicov: aiService.isConfigured(),
     usingN8n: n8nService.isConfigured(),
     usingElevenLabs: isElevenLabsConfigured(),
     usingDodoPayments: !!import.meta.env.VITE_DODO_PUBLIC_KEY,

@@ -8,8 +8,9 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { WalletConnect, BlockchainVerification } from '../../blockchain';
-import { blockchainService, paymentService, type VerificationResult, type PaymentResult, type PaymentIntent, type WalletState, type BlockchainRecord, isDodoPaymentsConfigured } from '../../../lib/services';
-import { DodoPaymentsConfig, isMetaMaskAvailable, ActiveNetwork } from '../../../lib/services/config';
+import { blockchainService, type VerificationResult, type WalletState, type BlockchainRecord } from '../../../lib/services/blockchain.service';
+import { paymentService, type PaymentResult, type PaymentIntent } from '../../../lib/services/payment.service';
+import { DodoPaymentsConfig, isMetaMaskAvailable, ActiveNetwork, isDodoPaymentsConfigured } from '../../../lib/services/config';
 
 const BookingSystem: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'new'>('current');
