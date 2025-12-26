@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Train, Bus, MapPin, Clock, Navigation, Info, Volume2, 
-  ChevronRight, Sparkles, AlertCircle, RefreshCw, Zap
+  Train, Bus, Clock, Navigation, Info, Volume2, 
+  Sparkles, RefreshCw, Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { MagicCard } from '../../magicui/MagicCard';
 import { BorderBeam } from '../../magicui/BorderBeam';
 import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
-import { TramIcon, HowrahBridgeIcon, VictoriaMemorialIcon } from '../../kolkata/KolkataIcons';
+import { TramIcon, HowrahBridgeIcon } from '../../kolkata/KolkataIcons';
 
 // Kolkata Transport Data
 const tramRoutes = [
@@ -188,6 +189,7 @@ const busRoutes = [
 ];
 
 const TransportTracker: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'tram' | 'metro' | 'train' | 'bus'>('tram');
   const [selectedRoute, setSelectedRoute] = useState<any>(null);
   const [isLive, setIsLive] = useState(true);
@@ -253,9 +255,8 @@ const TransportTracker: React.FC = () => {
               gradientColor={route.color || '#FFB800'}
               gradientOpacity={0.1}
               className="cursor-pointer"
-              onClick={() => setSelectedRoute(route)}
             >
-              <div className="p-5 relative">
+              <div className="p-5 relative" onClick={() => setSelectedRoute(route)} role="button" tabIndex={0}>
                 <BorderBeam size={200} duration={15} colorFrom={route.color} colorTo="#FFB800" />
                 
                 <div className="flex items-start justify-between">
@@ -391,12 +392,12 @@ const TransportTracker: React.FC = () => {
                 }}
                 className={`relative p-5 rounded-2xl transition-all ${
                   isActive 
-                    ? 'bg-white dark:bg-gray-800 shadow-lg ring-2' 
+                    ? 'bg-white dark:bg-gray-800 shadow-lg' 
                     : 'bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800'
                 }`}
                 style={{ 
                   borderColor: isActive ? tab.color : 'transparent',
-                  ringColor: tab.color
+                  boxShadow: isActive ? `0 0 0 3px ${tab.color}33` : undefined
                 }}
               >
                 {isActive && (

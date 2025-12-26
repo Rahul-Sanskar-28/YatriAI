@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Image, Info, ZoomIn, Download, Share2, Heart, 
-  Play, Volume2, VolumeX, Globe, Calendar, MapPin,
+  Volume2, VolumeX, Calendar, MapPin,
   User, Tag, ChevronLeft, ChevronRight, X, Sparkles,
   Shield, BookOpen, Eye, Filter
 } from 'lucide-react';
@@ -165,7 +165,7 @@ const PatachitraArchive: React.FC = () => {
 
   const handleSpeak = async (text: string) => {
     if (isSpeaking) {
-      voiceService.stopAudio();
+      voiceService.stopPlayback();
       setIsSpeaking(false);
       return;
     }
@@ -177,18 +177,17 @@ const PatachitraArchive: React.FC = () => {
           language: language === 'bn' ? 'hi' : 'en'
         });
         if (result.audioUrl) {
-          voiceService.playAudio(result.audioUrl, `pata-${selectedArtwork.id}`, () => setIsSpeaking(false));
+          await voiceService.playAudio(result.audioUrl);
         }
       } else {
-        voiceService.speakWithBrowserTTS(text, language === 'bn' ? 'hi' : 'en');
-        const words = text.split(' ').length;
-        const duration = (words / 150) * 60 * 1000;
-        setTimeout(() => setIsSpeaking(false), duration);
+        await voiceService.speakWithBrowserTTS(text, language === 'bn' ? 'hi' : 'en');
       }
     } catch (error) {
       console.error('Speech error:', error);
       setIsSpeaking(false);
+      return;
     }
+    setIsSpeaking(false);
   };
 
   const toggleFavorite = (artworkId: string) => {

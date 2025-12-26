@@ -2,12 +2,23 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   X, Send, Bot, User, Globe, Sparkles, Volume2, VolumeX, 
   Coffee, MapPin, Utensils, Camera, Bus, Star, Heart,
-  Loader2, MessageSquare, Settings
+  Loader2, MessageSquare, Settings, Coins, Search, Database
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BorderBeam } from '../../magicui/BorderBeam';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
-import { aiService, voiceService, isElevenLabsConfigured } from '../../../lib/services';
+import { voiceService, isElevenLabsConfigured } from '../../../lib/services';
+import { 
+  retrieveLocalContext, 
+  fetchWebContext, 
+  fetchWebBudgetSignals, 
+  buildLocalBudgetSignals, 
+  aggregateBudget, 
+  callGemini, 
+  craftAssistantReply,
+  type BudgetEstimate,
+  type RagSource
+} from '../../../lib/services/rag.service';
 import { AddaTeaIcon, TramIcon, DurgaIcon } from '../../kolkata/KolkataIcons';
 
 interface Message {
@@ -16,6 +27,8 @@ interface Message {
   content: string;
   timestamp: Date;
   language?: 'en' | 'bn';
+  sources?: RagSource[];
+  budget?: BudgetEstimate;
 }
 
 interface AddaBotProps {
@@ -23,92 +36,10 @@ interface AddaBotProps {
   onClose: () => void;
 }
 
-// Kolkata-style Adda responses with Bengali flavor
-const addaResponses = {
-  greetings: {
-    en: [
-      "Nomoshkar! 🙏 Welcome to Kolkata, the City of Joy! Ki khobor? Tell me what you want to explore today - I'm here for some adda!",
-      "Arey bhai/didi! 👋 Welcome to our beloved Kolkata! Whether it's phuchka at Victoria Memorial or a ferry ride on the Hooghly, I've got you covered!",
-      "Dada/Didi, apni bhalo achhen? 🪔 I'm your Kolkata guide with a heart full of rosogolla sweetness! Ask me anything!"
-    ],
-    bn: [
-      "নমস্কার! 🙏 আনন্দের শহর কলকাতায় স্বাগতম! কী খবর? বলুন আজ কী explore করতে চান - আমি আড্ডার জন্য রেডি!",
-      "আরে ভাই/দিদি! 👋 আমাদের প্রিয় কলকাতায় স্বাগতম! ভিক্টোরিয়া মেমোরিয়ালে ফুচকা হোক বা হুগলিতে ফেরি রাইড - সব arrange করব!",
-      "দাদা/দিদি, আপনি ভালো আছেন? 🪔 আমি আপনার কলকাতার গাইড - রসগোল্লার মতো মিষ্টি মন নিয়ে! যা জানতে চান জিজ্ঞেস করুন!"
-    ]
-  },
-  food: {
-    en: [
-      "Ahhh food talk! 🍛 In Kolkata, we don't just eat - we celebrate! From the legendary Kathi Rolls at Nizam's to the divine Mishti Doi at Balaram Mullick, every bite tells a story. Ki khaben bolun? What are you craving?",
-      "Khide peyechhe? 🥘 Let me tell you dada/didi - Kolkata's food is an emotion! Try the iconic Kosha Mangsho at Golbari, or the silky Chelo Kebab at Peter Cat. And for sweet ending? KC Das er rosogolla is mandatory!",
-      "Bhai, Kolkata r khabar er kotha bolte gele raat kaṭe jabe! 🍽️ Must try: Mughlai Paratha at Paramount, Biryani at Arsalan, and end with Sandesh from any sweet shop. Porer jonmo e abar asben ei khabar er jonno!"
-    ],
-    bn: [
-      "আহা খাবারের কথা! 🍛 কলকাতায় আমরা শুধু খাই না - উদযাপন করি! নিজাম'স-এর কাঠি রোল থেকে বলরাম মল্লিক-এর মিষ্টি দই - প্রতিটা কামড়ে গল্প আছে। কী খাবেন বলুন?",
-      "খিদে পেয়েছে? 🥘 দাদা/দিদি বলি - কলকাতার খাবার একটা ইমোশন! গোলবাড়ির কষা মাংস ট্রাই করুন, Peter Cat-এর চেলো কাবাব। মিষ্টিতে শেষ? KC দাসের রসগোল্লা mandatory!",
-      "ভাই, কলকাতার খাবারের কথা বলতে গেলে রাত কাটে যাবে! 🍽️ Must try: প্যারামাউন্টের মোগলাই পরোটা, আরসালানের বিরিয়ানি, শেষে যেকোনো মিষ্টির দোকান থেকে সন্দেশ। পরের জন্মে আবার আসবেন এই খাবারের জন্য!"
-    ]
-  },
-  places: {
-    en: [
-      "Kolkata sightseeing? 🏛️ Start with Victoria Memorial at sunrise - it's magical! Then walk to Howrah Bridge, feel the city's heartbeat. In the evening, take a stroll at Prinsep Ghat watching the sunset over Hooghly. Pure joy!",
-      "Dada/Didi, Kolkata is best explored slowly with chai in hand! ☕ Begin at College Street - the world's largest second-hand book market, then to Indian Museum (oldest in Asia!), end at Park Street for that vintage Calcutta vibe!",
-      "Want the authentic Kolkata experience? 🎭 Morning at Marble Palace (hidden gem!), afternoon in Kumartuli watching artists create gods from clay, evening at Dakshineswar Temple. This is the soul of Kolkata!"
-    ],
-    bn: [
-      "কলকাতা ঘোরাঘুরি? 🏛️ সূর্যোদয়ে ভিক্টোরিয়া মেমোরিয়াল দিয়ে শুরু করুন - জাদুকরী! তারপর হাওড়া ব্রিজে হাঁটুন, শহরের হার্টবিট অনুভব করুন। সন্ধ্যায় প্রিন্সেপ ঘাটে হুগলির সূর্যাস্ত দেখুন!",
-      "দাদা/দিদি, কলকাতা চায়ের কাপ হাতে আস্তে আস্তে explore করতে হয়! ☕ কলেজ স্ট্রীট দিয়ে শুরু করুন - বিশ্বের বৃহত্তম সেকেন্ড-হ্যান্ড বইয়ের বাজার, তারপর ইন্ডিয়ান মিউজিয়াম!",
-      "অথেন্টিক কলকাতার অভিজ্ঞতা চান? 🎭 সকালে মার্বেল প্যালেস (লুকানো রত্ন!), দুপুরে কুমারটুলিতে শিল্পীদের মাটি থেকে দেবতা তৈরি দেখুন, সন্ধ্যায় দক্ষিণেশ্বর মন্দির। এটাই কলকাতার আত্মা!"
-    ]
-  },
-  transport: {
-    en: [
-      "Transport in Kolkata? 🚃 You MUST ride the iconic yellow tram - it's heritage on wheels! Metro is fastest, but for the real experience, take a hand-pulled rickshaw in North Kolkata or ferry across the Ganges!",
-      "Getting around Kolkata is an adventure! 🚕 Yellow Ambassador taxis, blue Ola/Uber, Metro (India's first!), and of course - the legendary trams. Pro tip: Avoid rush hour on Howrah Bridge unless you want 2-hour traffic jam!",
-      "Dada, Kolkata te ghura mane adventure! 🛺 Try everything - Metro for speed, tram for romance, ferry for views, and yellow taxi for authentic experience. The city is best explored on foot though - every gully has a story!"
-    ],
-    bn: [
-      "কলকাতায় যাতায়াত? 🚃 আপনাকে iconic হলুদ ট্রামে চড়তেই হবে - চাকায় হেরিটেজ! মেট্রো সবচেয়ে দ্রুত, কিন্তু আসল অভিজ্ঞতার জন্য, উত্তর কলকাতায় হাতে টানা রিকশা নিন!",
-      "কলকাতায় ঘোরাঘুরি নিজেই একটা adventure! 🚕 হলুদ অ্যাম্বাসেডর ট্যাক্সি, নীল ওলা/উবার, মেট্রো (ভারতের প্রথম!), আর অবশ্যই - legendary ট্রাম। Pro tip: হাওড়া ব্রিজে rush hour এড়িয়ে চলুন!",
-      "দাদা, কলকাতায় ঘোরা মানে অ্যাডভেঞ্চার! 🛺 সব ট্রাই করুন - মেট্রো স্পিডের জন্য, ট্রাম রোমান্সের জন্য, ফেরি দৃশ্যের জন্য। শহর পায়ে হেঁটে explore করাই সেরা - প্রতিটা গলিতে গল্প আছে!"
-    ]
-  },
-  culture: {
-    en: [
-      "Kolkata's culture? 🎭 Where do I begin! We gave the world Rabindranath Tagore, Satyajit Ray, Mother Teresa! Our adda culture is UNESCO-worthy! We debate politics, poetry, and football with equal passion. Ami Bangali!",
-      "Culture in City of Joy? 🪔 Durga Puja is our heartbeat - the whole city transforms into an art gallery! Year-round: Rabindra Sangeet echoes everywhere, theater thrives at Academy of Fine Arts, and coffee houses host intellectual revolutions!",
-      "Dada/Didi, Kolkata IS culture! 📚 From Nandan film center to College Street bookstores, from Rabindra Sadan to Oxford Bookstore's Cha Bar - we live and breathe art, literature, music. Even our roadside chai wallah discusses Tagore!"
-    ],
-    bn: [
-      "কলকাতার সংস্কৃতি? 🎭 কোথা থেকে শুরু করি! আমরা বিশ্বকে রবীন্দ্রনাথ ঠাকুর, সত্যজিৎ রায়, মাদার তেরেসা দিয়েছি! আমাদের আড্ডার কালচার UNESCO-worthy! আমরা রাজনীতি, কবিতা, ফুটবল নিয়ে সমান উদ্দীপনায় বিতর্ক করি!",
-      "আনন্দের শহরে সংস্কৃতি? 🪔 দুর্গাপূজা আমাদের হার্টবিট - পুরো শহর আর্ট গ্যালারিতে পরিণত হয়! সারাবছর: রবীন্দ্রসংগীত সব জায়গায় প্রতিধ্বনিত হয়, থিয়েটার ফাইন আর্টস একাডেমিতে সমৃদ্ধ হয়!",
-      "দাদা/দিদি, কলকাতা মানেই সংস্কৃতি! 📚 নন্দন ফিল্ম সেন্টার থেকে কলেজ স্ট্রিট বইয়ের দোকান, রবীন্দ্র সদন থেকে অক্সফোর্ড বুকস্টোরের চা বার - আমরা শিল্প, সাহিত্য, সংগীতে বাঁচি। এমনকি আমাদের রাস্তার চা-ওয়ালাও রবীন্দ্রনাথ নিয়ে আলোচনা করে!"
-    ]
-  },
-  puja: {
-    en: [
-      "Durga Puja! 🪔 Ohho, this is not just a festival - it's Kolkata's soul! For 5 days, 3000+ pandals turn the city into the world's largest open-air art gallery. The dhak beats, the new clothes, the late-night pandal hopping - UNMATCHED!",
-      "Pujo in Kolkata? 🔔 It's like the whole city becomes family! We dress up, hop pandals till 3 AM, eat at every corner, and feel the spiritual energy everywhere. The craftsmanship at pandals - from replicas of temples to modern art - mind-blowing!",
-      "Bhai, Kolkata te Durga Puja manei - life stops, celebration starts! 🎉 Top pandals: Bagbazar, Kumartuli, College Square, Suruchi Sangha. Pro tip: Go late night, lesser crowd, same magic. And don't forget - Subho Bijoya on Dashami!"
-    ],
-    bn: [
-      "দুর্গাপূজা! 🪔 ওহো, এটা শুধু একটা উৎসব না - এটা কলকাতার আত্মা! ৫ দিন ধরে ৩০০০+ প্যান্ডেল শহরকে বিশ্বের বৃহত্তম ওপেন-এয়ার আর্ট গ্যালারিতে পরিণত করে। ঢাকের বাজনা, নতুন জামাকাপড়, রাত জেগে প্যান্ডেল হপিং - UNMATCHED!",
-      "কলকাতায় পুজো? 🔔 যেন পুরো শহর পরিবার হয়ে যায়! আমরা সেজেগুজে রাত ৩টা পর্যন্ত প্যান্ডেল ঘুরি, প্রতিটা কোণায় খাই, সব জায়গায় spiritual energy অনুভব করি। প্যান্ডেলের craftsmanship - মন্দিরের replica থেকে modern art!",
-      "ভাই, কলকাতায় দুর্গাপূজা মানেই - জীবন থেমে যায়, উদযাপন শুরু হয়! 🎉 Top প্যান্ডেল: বাগবাজার, কুমারটুলি, কলেজ স্কোয়ার, সুরুচি সংঘ। Pro tip: রাতে যান, কম ভিড়, একই ম্যাজিক। আর ভুলবেন না - দশমীতে শুভ বিজয়া!"
-    ]
-  },
-  fallback: {
-    en: [
-      "Ah interesting question, dada/didi! 🤔 Let me think about this over a cup of chai... Actually, why don't you ask me about Kolkata's food, places, transport, or Durga Puja? I have stories for days!",
-      "Hmm, that's a tough one! 🫖 While I brew my answer, tell me - have you tried the phuchka near Victoria Memorial? Or walked across Howrah Bridge at sunset? Kolkata has so much to offer!",
-      "Bhai/Didi, I'm more of a Kolkata specialist! 🏛️ Ask me about the best rosogolla, how to navigate the metro, or which pandal to visit during Puja. That's where my heart lies!"
-    ],
-    bn: [
-      "আহ interesting প্রশ্ন, দাদা/দিদি! 🤔 এক কাপ চায়ের সাথে এটা নিয়ে ভাবি... আসলে, কলকাতার খাবার, জায়গা, যাতায়াত, বা দুর্গাপূজা নিয়ে জিজ্ঞেস করুন না? আমার কাছে গল্প আছে দিনের পর দিন!",
-      "হুম, এটা কঠিন! 🫖 আমি উত্তর brew করছি, বলুন - ভিক্টোরিয়া মেমোরিয়ালের কাছে ফুচকা ট্রাই করেছেন? বা সূর্যাস্তে হাওড়া ব্রিজ পার হয়েছেন? কলকাতার অনেক কিছু offer করার আছে!",
-      "ভাই/দিদি, আমি কলকাতা স্পেশালিস্ট! 🏛️ সেরা রসগোল্লা, মেট্রোতে কীভাবে navigate করতে হয়, বা পুজোয় কোন প্যান্ডেল ভিজিট করতে হবে - এসব জিজ্ঞেস করুন। ওখানেই আমার হৃদয়!"
-    ]
-  }
+// RAG-based greetings
+const greetings = {
+  en: "Nomoshkar! 🙏 I’m your Kolkata RAG companion — I mix local curated knowledge, web insights, and budget signals to answer your queries. Ask me anything about Kolkata!",
+  bn: "নমস্কার! 🙏 আমি আপনার কলকাতা RAG সঙ্গী — কিউরেটেড লোকাল জ্ঞান, ওয়েব ইনসাইটস আর বাজেট সিগন্যাল মিলিয়ে উত্তর দিই। কলকাতা নিয়ে যা জানতে চান জিজ্ঞেস করুন!"
 };
 
 // Quick suggestions for Adda chat
@@ -144,7 +75,7 @@ const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
   // Initialize with greeting
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      const greeting = addaResponses.greetings[language][Math.floor(Math.random() * addaResponses.greetings[language].length)];
+      const greeting = greetings[language];
       setMessages([{
         id: 'initial',
         type: 'bot',
@@ -160,26 +91,18 @@ const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const getAddaResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Detect topic from user message
-    const foodKeywords = ['food', 'eat', 'restaurant', 'khana', 'khabar', 'biryani', 'rosogolla', 'sweet', 'roll', 'misti', 'খাবার', 'খাওয়া', 'মিষ্টি', 'বিরিয়ানি', 'রসগোল্লা'];
-    const placeKeywords = ['visit', 'see', 'place', 'tourist', 'attraction', 'victoria', 'howrah', 'temple', 'museum', 'ghat', 'দেখা', 'জায়গা', 'ঘোরা', 'মন্দির'];
-    const transportKeywords = ['transport', 'travel', 'metro', 'bus', 'tram', 'taxi', 'uber', 'train', 'ferry', 'যাতায়াত', 'ট্রাম', 'মেট্রো', 'ট্যাক্সি'];
-    const cultureKeywords = ['culture', 'art', 'music', 'theater', 'poetry', 'rabindranath', 'tagore', 'film', 'literature', 'সংস্কৃতি', 'শিল্প', 'সাহিত্য', 'রবীন্দ্রনাথ'];
-    const pujaKeywords = ['puja', 'pujo', 'durga', 'pandal', 'festival', 'dashami', 'পূজা', 'পুজো', 'দুর্গা', 'প্যান্ডেল', 'দশমী'];
+  const getAddaResponse = async (userMessage: string): Promise<{ text: string; sources: RagSource[]; budget?: BudgetEstimate }> => {
+    const query = userMessage.trim();
 
-    let topic = 'fallback';
-    
-    if (foodKeywords.some(kw => lowerMessage.includes(kw))) topic = 'food';
-    else if (placeKeywords.some(kw => lowerMessage.includes(kw))) topic = 'places';
-    else if (transportKeywords.some(kw => lowerMessage.includes(kw))) topic = 'transport';
-    else if (cultureKeywords.some(kw => lowerMessage.includes(kw))) topic = 'culture';
-    else if (pujaKeywords.some(kw => lowerMessage.includes(kw))) topic = 'puja';
+    const [localContext] = await Promise.all([
+      retrieveLocalContext(query),
+    ]);
 
-    const responses = addaResponses[topic as keyof typeof addaResponses][language];
-    return responses[Math.floor(Math.random() * responses.length)];
+    const localSignals = buildLocalBudgetSignals();
+    const budget = aggregateBudget([], localSignals);
+    const llm = await callGemini(query, localContext, [], budget);
+    const text = (llm?.text || '') || 'AI synthesis unavailable; showing local context above.';
+    return { text, sources: [...localContext], budget: llm?.budget };
   };
 
   const handleSendMessage = async () => {
@@ -197,17 +120,16 @@ const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate typing delay for natural feel
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1500));
-
-    const botResponse = getAddaResponse(inputMessage);
-    
+    // RAG pipeline
+    const result = await getAddaResponse(inputMessage);
     const botMessage: Message = {
       id: (Date.now() + 1).toString(),
       type: 'bot',
-      content: botResponse,
+      content: result.text,
       timestamp: new Date(),
-      language
+      language,
+      sources: result.sources,
+      budget: result.budget
     };
 
     setMessages(prev => [...prev, botMessage]);
@@ -215,7 +137,7 @@ const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
 
     // Auto-speak if enabled
     if (autoSpeak) {
-      handleSpeak(botResponse);
+      handleSpeak(result.text);
     }
   };
 
@@ -246,19 +168,21 @@ const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
       setIsTyping(true);
 
       setTimeout(async () => {
-        const botResponse = getAddaResponse(input);
+        const result = await getAddaResponse(input);
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           type: 'bot',
-          content: botResponse,
+          content: result.text,
           timestamp: new Date(),
-          language
+          language,
+          sources: result.sources,
+          budget: result.budget
         };
         setMessages(prev => [...prev, botMessage]);
         setIsTyping(false);
 
         if (autoSpeak) {
-          handleSpeak(botResponse);
+          handleSpeak(result.text);
         }
       }, 1500);
     }, 300);
@@ -266,7 +190,7 @@ const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
 
   const handleSpeak = async (text: string) => {
     if (isSpeaking) {
-      voiceService.stopAudio();
+      voiceService.stopPlayback();
       setIsSpeaking(false);
       return;
     }
@@ -278,18 +202,17 @@ const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
           language: language === 'bn' ? 'hi' : 'en'
         });
         if (result.audioUrl) {
-          voiceService.playAudio(result.audioUrl, `adda-${Date.now()}`, () => setIsSpeaking(false));
+          await voiceService.playAudio(result.audioUrl);
         }
       } else {
-        voiceService.speakWithBrowserTTS(text, language === 'bn' ? 'hi' : 'en');
-        const words = text.split(' ').length;
-        const duration = (words / 150) * 60 * 1000;
-        setTimeout(() => setIsSpeaking(false), duration);
+        await voiceService.speakWithBrowserTTS(text, language === 'bn' ? 'hi' : 'en');
       }
     } catch (error) {
       console.error('Speech error:', error);
       setIsSpeaking(false);
+      return;
     }
+    setIsSpeaking(false);
   };
 
   const handleLanguageSwitch = () => {
@@ -428,9 +351,52 @@ const AddaBot: React.FC<AddaBotProps> = ({ isOpen, onClose }) => {
                       ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-br-md'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-md'
                   }`}>
-                    <p className={`text-sm leading-relaxed ${message.language === 'bn' ? 'font-bengali' : ''}`}>
+                    <p className={`text-sm leading-relaxed whitespace-pre-wrap ${message.language === 'bn' ? 'font-bengali' : ''}`}>
                       {message.content}
                     </p>
+                    {/* Budget window */}
+                    {message.type === 'bot' && message.budget && (
+                      <div className="mt-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-sm text-emerald-800 dark:text-emerald-100">
+                        <div className="flex items-center gap-2 font-semibold">
+                          <Coins className="w-4 h-4" />
+                          <span>Budget window</span>
+                        </div>
+                        <div className="mt-1 text-gray-900 dark:text-white">
+                          ₹{message.budget.low.toLocaleString('en-IN')} - ₹{message.budget.high.toLocaleString('en-IN')} / day
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{message.budget.basis}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {message.budget.sources.slice(0, 4).map((source) => (
+                            <span
+                              key={source.label}
+                              className="text-xs px-2 py-1 rounded-full bg-white/80 dark:bg-gray-800 border border-emerald-200 dark:border-emerald-700 text-gray-700 dark:text-gray-200"
+                            >
+                              {source.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* Sources */}
+                    {message.type === 'bot' && message.sources && message.sources.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                          <Search className="w-3.5 h-3.5" />
+                          <span>Context used</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {message.sources.map((source, idx) => (
+                            <span
+                              key={`${source.title}-${idx}`}
+                              className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200"
+                            >
+                              {source.type === 'web' ? <Globe className="w-3 h-3" /> : <Database className="w-3 h-3" />}
+                              <span className="line-clamp-1">{source.title}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     
                     <div className={`flex items-center justify-between gap-3 mt-2 text-xs ${
                       message.type === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'

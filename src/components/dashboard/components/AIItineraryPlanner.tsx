@@ -1,5 +1,6 @@
+import TravelRAGAgent from './TravelRAGAgent';
 import React, { useState } from 'react';
-import { Calendar, MapPin, Clock, DollarSign, Users, Sparkles, Wand2, Route, CheckCircle, Cloud, Thermometer } from 'lucide-react';
+import { Calendar, MapPin, Clock, DollarSign, Sparkles, Wand2, Route, CheckCircle, Thermometer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { destinations, itineraries } from '../../../data/mockData';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -9,11 +10,14 @@ import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { aiService, weatherService, type ItineraryPreferences, type GeneratedItinerary, type WeatherData } from '../../../lib/services';
 
+type BudgetLevel = 'budget' | 'mid-range' | 'luxury';
+type TravelStyle = 'solo' | 'couple' | 'family' | 'group';
+
 const AIItineraryPlanner: React.FC = () => {
   const [preferences, setPreferences] = useState({
     interests: [] as string[],
-    budget: 'mid-range' as 'budget' | 'mid-range' | 'luxury',
-    travelStyle: 'solo' as 'solo' | 'couple' | 'family' | 'group',
+    budget: 'mid-range' as BudgetLevel,
+    travelStyle: 'solo' as TravelStyle,
     duration: 3,
     startDate: '',
     groupSize: 1
@@ -32,13 +36,13 @@ const AIItineraryPlanner: React.FC = () => {
     { id: 'food', label: 'Local Cuisine', icon: '🍽️' }
   ];
 
-  const budgetOptions = [
+  const budgetOptions: { id: BudgetLevel; label: string; range: string; icon: string }[] = [
     { id: 'budget', label: 'Budget', range: '₹1,000-3,000/day', icon: '💰' },
     { id: 'mid-range', label: 'Mid-Range', range: '₹3,000-7,000/day', icon: '💳' },
     { id: 'luxury', label: 'Luxury', range: '₹7,000+/day', icon: '💎' }
   ];
 
-  const travelStyles = [
+  const travelStyles: { id: TravelStyle; label: string; icon: string }[] = [
     { id: 'solo', label: 'Solo Travel', icon: '🚶' },
     { id: 'couple', label: 'Couple', icon: '💑' },
     { id: 'family', label: 'Family', icon: '👨‍👩‍👧‍👦' },
@@ -432,7 +436,7 @@ const AIItineraryPlanner: React.FC = () => {
                   Saved Itineraries
                 </h3>
                 <div className="space-y-3">
-                  {itineraries.slice(0, 2).map((itinerary, index) => (
+                  {itineraries.slice(0, 2).map((itinerary) => (
                     <motion.div 
                       key={itinerary.id}
                       whileHover={{ scale: 1.02 }}
@@ -450,6 +454,10 @@ const AIItineraryPlanner: React.FC = () => {
           </BlurFade>
         </div>
       </div>
+
+      <BlurFade delay={0.35} inView>
+        <TravelRAGAgent />
+      </BlurFade>
     </div>
   );
 };
