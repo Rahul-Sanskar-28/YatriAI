@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL || '*', // Allow all origins in development
   credentials: true
 }));
 app.use(express.json());
@@ -108,8 +108,9 @@ app.get('/api/health', (req, res) => {
 // Error handler
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 YatriAI Backend running on http://localhost:${PORT}`);
+  console.log(`🌐 Network access: http://10.79.157.114:${PORT}`);
 });
 
 export default app;
