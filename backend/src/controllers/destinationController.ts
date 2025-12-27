@@ -47,7 +47,12 @@ export const searchDestinations = async (req: Request, res: Response) => {
   try {
     const { query, category, city } = req.query;
 
-    if (!query && !category && !city) {
+    // Trim and validate query parameters to ensure they're not empty strings
+    const trimmedQuery = query ? (query as string).trim() : '';
+    const trimmedCategory = category ? (category as string).trim() : '';
+    const trimmedCity = city ? (city as string).trim() : '';
+
+    if (!trimmedQuery && !trimmedCategory && !trimmedCity) {
       return res.status(400).json({ 
         success: false, 
         message: 'Please provide search query, category, or city' 
@@ -58,24 +63,23 @@ export const searchDestinations = async (req: Request, res: Response) => {
       AND: []
     };
 
-    if (query) {
-      const searchQuery = query as string;
+    if (trimmedQuery) {
       searchConditions.AND.push({
         OR: [
-          { name: { contains: searchQuery, mode: 'insensitive' } },
-          { description: { contains: searchQuery, mode: 'insensitive' } },
-          { address: { contains: searchQuery, mode: 'insensitive' } }
+          { name: { contains: trimmedQuery, mode: 'insensitive' } },
+          { description: { contains: trimmedQuery, mode: 'insensitive' } },
+          { address: { contains: trimmedQuery, mode: 'insensitive' } }
         ]
       });
     }
 
-    if (category) {
-      searchConditions.AND.push({ category: category as any });
+    if (trimmedCategory) {
+      searchConditions.AND.push({ category: trimmedCategory as any });
     }
 
-    if (city) {
+    if (trimmedCity) {
       searchConditions.AND.push({ 
-        city: { contains: city as string, mode: 'insensitive' } 
+        city: { contains: trimmedCity, mode: 'insensitive' } 
       });
     }
 
