@@ -290,11 +290,25 @@ html[dir="rtl"] .progress-bar-fill {
 }
 
 /* ============================================
-   Scrollbar Position (for browsers that support it)
+   Hide Scrollbars for RTL
    ============================================ */
 
-html[dir="rtl"] .custom-scrollbar::-webkit-scrollbar {
-  direction: rtl;
+html[dir="rtl"] ::-webkit-scrollbar {
+  display: none;
+}
+
+html[dir="rtl"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html[dir="rtl"] * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html[dir="rtl"] *::-webkit-scrollbar {
+  display: none;
 }
 
 /* ============================================
@@ -362,6 +376,19 @@ html[dir="rtl"] td:last-child {
     inset-inline-end: 0;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

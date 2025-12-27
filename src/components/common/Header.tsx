@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import AuthModal from './AuthModal';
-import LanguageSelector from './LanguageSelector';
+import BrowserOnlyTranslate from './BrowserOnlyTranslate';
 import { ShimmerButton } from '../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { TramIcon } from '../kolkata/KolkataIcons';
@@ -50,7 +50,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-kolkata-cream/80 dark:bg-gray-900/80 backdrop-blur-md shadow-lg sticky top-0 z-50 transition-colors duration-300 border-b border-kolkata-gold/20 dark:border-kolkata-gold/10">
+      <header className="bg-kolkata-cream/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg sticky top-0 z-50 transition-colors duration-300 border-b-2 border-kolkata-gold/40 dark:border-kolkata-gold/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo - Kolkata Heritage */}
@@ -61,15 +61,15 @@ const Header: React.FC = () => {
               <motion.div 
                 whileHover={{ rotate: [0, -10, 10, 0] }}
                 transition={{ duration: 0.5 }}
-                className="w-10 h-10 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta rounded-xl flex items-center justify-center shadow-lg shadow-kolkata-yellow/30"
+                className="w-10 h-10 bg-kolkata-yellow rounded-xl flex items-center justify-center shadow-lg shadow-kolkata-yellow/40 border-2 border-kolkata-gold/30"
               >
                 <TramIcon className="w-6 h-6 text-white" />
               </motion.div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1">
-                  <AnimatedGradientText className="text-xl font-bold font-heritage">
+                  <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">
                     {t('brand.name').split(' ')[0] || 'Kolkata'}
-                  </AnimatedGradientText>
+                  </span>
                   <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">{t('brand.name').split(' ')[1] || 'Heritage'}</span>
                 </div>
                 <span className="text-xs text-kolkata-sepia dark:text-kolkata-gold/60 -mt-1">{t('brand.tagline')}</span>
@@ -87,15 +87,15 @@ const Header: React.FC = () => {
                   className="relative px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors font-medium text-sm group"
                 >
                   <span>{t(item.labelKey)}</span>
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 group-hover:w-3/4 transition-all duration-300 rounded-full" />
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-kolkata-yellow group-hover:w-3/4 transition-all duration-300 rounded-full" />
                 </motion.button>
               ))}
             </nav>
 
             {/* Right Side Controls */}
             <div className="flex items-center space-x-3">
-              {/* Language Selector */}
-              <LanguageSelector variant="header" />
+              {/* Browser Translation Instructions */}
+              <BrowserOnlyTranslate variant="header" />
               
               {/* Theme Toggle */}
               <motion.button
@@ -128,9 +128,9 @@ const Header: React.FC = () => {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-56 bg-kolkata-cream dark:bg-gray-800 rounded-xl shadow-xl border border-kolkata-gold/20 dark:border-gray-700 overflow-hidden"
+                        className="bg-kolkata-cream/95 dark:bg-gray-800 rounded-xl shadow-xl border border-kolkata-gold/30 dark:border-gray-700 overflow-hidden"
                       >
-                        <div className="px-4 py-3 border-b border-kolkata-gold/20 dark:border-gray-700 bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/20 dark:from-kolkata-gold/10 dark:to-durga-500/10">
+                        <div className="px-4 py-3 border-b border-kolkata-gold/30 dark:border-gray-700 bg-kolkata-yellow/20 dark:bg-kolkata-gold/20">
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                         </div>
@@ -153,7 +153,7 @@ const Header: React.FC = () => {
                 <ShimmerButton
                   onClick={() => setIsAuthModalOpen(true)}
                   className="px-5 py-2 text-sm"
-                  background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
+                  background="#FFB800"
                 >
                   <User className="w-4 h-4" />
                   <span>{t('auth.login')}</span>
@@ -181,7 +181,7 @@ const Header: React.FC = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="md:hidden overflow-hidden"
               >
-                <nav className="py-4 border-t border-kolkata-gold/20 dark:border-gray-700 space-y-2">
+                <nav className="py-4 border-t-2 border-kolkata-gold/30 dark:border-gray-700 space-y-2 bg-kolkata-yellow/5 dark:bg-kolkata-gold/5 rounded-b-xl">
                   {navItems.map((item, index) => (
                     <motion.button
                       key={item.key}
@@ -189,7 +189,7 @@ const Header: React.FC = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10 rounded-xl transition-all font-medium"
+                      className="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold hover:bg-kolkata-yellow/20 dark:hover:bg-kolkata-gold/20 rounded-xl transition-all font-medium border border-transparent hover:border-kolkata-gold/30"
                     >
                       <span>{t(item.labelKey)}</span>
                     </motion.button>

@@ -16,6 +16,7 @@ import {
   type BudgetEstimate,
   type RagSource
 } from '../../../lib/services/rag.service';
+import { hybridAIService } from '../../../lib/services/hybridAIService';
 
 interface AIChatProps {
   isOpen: boolean;
@@ -135,24 +136,72 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
     setIsTyping(true);
 
     try {
-      // RAG pipeline
-      const [localContext] = await Promise.all([
-        retrieveLocalContext(currentInput),
-      ]);
-      const localSignals = buildLocalBudgetSignals();
-      const budget = aggregateBudget([], localSignals);
-      const llm = await callGemini(currentInput, localContext, [], budget);
-      const composed = (llm?.text || '') || 'AI synthesis unavailable; showing local context above.';
+      // Use hybrid AI service (custom models + Gemini)
+      // Fallback to original RAG pipeline if hybrid service fails
+      let response: {
+        text: string;
+        context?: RagSource[];
+        budget?: BudgetEstimate;
+      };
+      
+      const startTime = performance.now();
+      
+      try {
+        const hybridResponse = await hybridAIService.processQuery(currentInput);
+        const duration = performance.now() - startTime;
+        
+        // Debug logging (enable with VITE_DEBUG_ML=true)
+        if (import.meta.env.VITE_DEBUG_ML === 'true') {
+          console.log('🔍 [ML DEBUG] Query:', currentInput);
+          console.log('🔍 [ML DEBUG] Intent:', hybridResponse.intent.intent, `(${(hybridResponse.intent.confidence * 100).toFixed(1)}%)`);
+          console.log('🔍 [ML DEBUG] Entities:', hybridResponse.entities);
+          console.log('🔍 [ML DEBUG] Context results:', hybridResponse.context.length);
+          console.log('🔍 [ML DEBUG] Used Gemini:', hybridResponse.shouldUseGemini);
+          console.log('🔍 [ML DEBUG] Response time:', `${duration.toFixed(0)}ms`);
+        }
+        
+        response = {
+          text: hybridResponse.text,
+          context: hybridResponse.context,
+          budget: hybridResponse.budget ? {
+            low: hybridResponse.budget.low,
+            high: hybridResponse.budget.high,
+            currency: hybridResponse.budget.currency,
+            basis: hybridResponse.budget.basis,
+            sources: []
+          } : undefined,
+        };
+      } catch (hybridError) {
+        console.warn('Hybrid service failed, using fallback:', hybridError);
+        // Fallback to original RAG pipeline
+        const [localContext] = await Promise.all([
+          retrieveLocalContext(currentInput, true), // Use embeddings
+        ]);
+        const localSignals = buildLocalBudgetSignals();
+        const budget = aggregateBudget([], localSignals);
+        const llm = await callGemini(currentInput, localContext, [], budget);
+        response = {
+          text: llm?.text || 'AI synthesis unavailable; showing local context above.',
+          context: localContext,
+          budget: llm?.budget,
+        };
+      }
 
       const botMessageId = (Date.now() + 1).toString();
       const botMessage: Message = {
         id: botMessageId,
         type: 'bot',
-        content: composed,
+        content: response.text,
         timestamp: new Date(),
         language: selectedLanguage,
-        sources: [...localContext],
-        budget: llm?.budget
+        sources: response.context || [],
+        budget: response.budget ? {
+          low: response.budget.low,
+          high: response.budget.high,
+          currency: response.budget.currency,
+          basis: response.budget.basis,
+          sources: []
+        } : undefined
       };
 
       setMessages(prev => [...prev, botMessage]);
