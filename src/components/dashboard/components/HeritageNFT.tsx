@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Award, MapPin, Clock, CheckCircle, Share2, Download,
   Wallet, ExternalLink, Sparkles, Star, Camera, Lock,
-  Loader2, QrCode, Globe, Shield, Trophy, Gift, X
+  Loader2, QrCode, Globe, Shield, Trophy, Gift, X, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -11,6 +11,10 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { VictoriaMemorialIcon, HowrahBridgeIcon, TerracottaIcon, DurgaIcon } from '../../kolkata/KolkataIcons';
+import { blockchainService } from '../../../lib/services/blockchain.service';
+import { contractsService } from '../../../lib/services/contracts.service';
+import { ipfsService } from '../../../lib/services/ipfs.service';
+import { ActiveNetwork } from '../../../lib/services/config';
 
 // Heritage locations that can mint NFT badges
 const heritageLocations = [
@@ -116,34 +120,117 @@ const HeritageNFT: React.FC = () => {
   const totalMinted = locations.filter(l => l.minted).length;
   const totalPoints = locations.filter(l => l.minted).reduce((sum, l) => sum + l.points, 0);
 
+  // Check wallet connection on mount
+  useEffect(() => {
+    const checkWallet = async () => {
+      const walletState = blockchainService.getWalletState();
+      if (walletState.isConnected && walletState.address) {
+        setWalletConnected(true);
+        setWalletAddress(walletState.address);
+      }
+    };
+    checkWallet();
+  }, []);
+
   const connectWallet = async () => {
-    // Simulate wallet connection
-    setIsMinting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setWalletConnected(true);
-    setWalletAddress('0x742d35Cc6634C0532925a3b844Bc454e4438f44e');
-    setIsMinting(false);
+    try {
+      setIsMinting(true);
+      const walletState = await blockchainService.connectWallet();
+      setWalletConnected(true);
+      setWalletAddress(walletState.address || null);
+      
+      // Initialize contracts service
+      await contractsService.initialize();
+    } catch (error: any) {
+      alert('Failed to connect wallet: ' + (error.message || error));
+    } finally {
+      setIsMinting(false);
+    }
   };
 
   const mintNFT = async (locationId: string) => {
+    const location = locations.find(l => l.id === locationId);
+    if (!location) return;
+
+    // Ensure wallet is connected
     if (!walletConnected) {
       await connectWallet();
+      if (!walletConnected) {
+        alert('Please connect your wallet to mint NFT');
+        return;
+      }
     }
 
     setIsMinting(true);
     setShowMintModal(true);
 
-    // Simulate minting process
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    try {
+      // Initialize contracts if not already done
+      await contractsService.initialize();
 
-    setLocations(prev => prev.map(loc => 
-      loc.id === locationId 
-        ? { ...loc, minted: true, mintDate: new Date().toISOString(), tokenId: `0x${Math.random().toString(16).slice(2, 8)}` }
-        : loc
-    ));
+      // Check if already minted
+      const alreadyMinted = await contractsService.hasMintedLocation(locationId);
+      if (alreadyMinted) {
+        alert('You have already minted an NFT for this location!');
+        setIsMinting(false);
+        return;
+      }
 
-    setIsMinting(false);
-    setMintSuccess(true);
+      // Prepare NFT metadata
+      const metadata = {
+        name: `${location.name} Heritage Badge`,
+        description: `Commemorative NFT badge for visiting ${location.name}. ${location.description}`,
+        image: location.nftImage,
+        external_url: `https://yatriai.com/heritage/${locationId}`,
+        attributes: [
+          { trait_type: 'Location', value: location.name },
+          { trait_type: 'Category', value: location.category },
+          { trait_type: 'Rarity', value: location.rarity },
+          { trait_type: 'Points', value: location.points },
+          { trait_type: 'Visit Date', value: new Date().toISOString() }
+        ]
+      };
+
+      // Upload metadata to IPFS
+      const tokenURI = await ipfsService.uploadMetadata(metadata);
+
+      // Mint NFT on blockchain
+      const result = await contractsService.mintHeritageNFT({
+        locationId: location.id,
+        locationName: location.name,
+        category: location.category,
+        rarity: location.rarity,
+        points: location.points,
+        tokenURI: tokenURI
+      });
+
+      // Update UI with real token ID and transaction hash
+      setLocations(prev => prev.map(loc => 
+        loc.id === locationId 
+          ? { 
+              ...loc, 
+              minted: true, 
+              mintDate: new Date().toISOString(), 
+              tokenId: result.tokenId.toString() 
+            }
+          : loc
+      ));
+
+      setMintSuccess(true);
+      
+      // Show success message with transaction link
+      console.log('NFT Minted!', {
+        tokenId: result.tokenId.toString(),
+        txHash: result.txHash,
+        explorerUrl: `${ActiveNetwork.explorerUrl}/tx/${result.txHash}`
+      });
+    } catch (error: any) {
+      console.error('Failed to mint NFT:', error);
+      alert('Failed to mint NFT: ' + (error.message || error));
+      setShowMintModal(false);
+    } finally {
+      setIsMinting(false);
+    }
   };
 
   const getRarityBadge = (rarity: string) => {

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heart, Gift, Users, TrendingUp, CheckCircle, Clock,
   Wallet, ExternalLink, Share2, Award, MapPin, Star,
   Loader2, Shield, Eye, ArrowRight, ChevronDown, QrCode,
-  FileText, Download, Globe
+  FileText, Download, Globe, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -12,6 +12,11 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { DurgaIcon, DhunuchiIcon } from '../../kolkata/KolkataIcons';
+import { blockchainService } from '../../../lib/services/blockchain.service';
+import { contractsService } from '../../../lib/services/contracts.service';
+import { unifiedPaymentService, type PaymentGateway } from '../../../lib/services/unified-payment.service';
+import { ActiveNetwork } from '../../../lib/services/config';
+import PaymentMethodSelector from '../../payment/PaymentMethodSelector';
 
 // Verified Durga Puja Pandals for donations
 const pandals = [
@@ -147,23 +152,96 @@ const PandalDonations: React.FC = () => {
   const [donationComplete, setDonationComplete] = useState(false);
   const [showTransparency, setShowTransparency] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
+  const [donationTxHash, setDonationTxHash] = useState<string | null>(null);
+  const [donationId, setDonationId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'gateway' | 'crypto'>('gateway');
+  const [selectedGateway, setSelectedGateway] = useState<PaymentGateway | null>(null);
+
+  // Check wallet connection on mount
+  useEffect(() => {
+    const checkWallet = async () => {
+      const walletState = blockchainService.getWalletState();
+      if (walletState.isConnected && walletState.address) {
+        setWalletConnected(true);
+      }
+    };
+    checkWallet();
+  }, []);
 
   const progress = (selectedPandal.raisedAmount / selectedPandal.goalAmount) * 100;
   const donationAmount = customAmount ? parseInt(customAmount) : selectedAmount;
 
   const handleDonate = async () => {
-    if (!walletConnected) {
-      // Simulate wallet connection
-      setIsDonating(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setWalletConnected(true);
+    if (donationAmount < 100) {
+      alert('Minimum donation amount is ₹100');
+      return;
     }
 
     setIsDonating(true);
-    // Simulate blockchain transaction
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    setIsDonating(false);
-    setDonationComplete(true);
+    setError(null);
+
+    try {
+      if (selectedPaymentMethod === 'crypto') {
+        // Crypto donation via blockchain
+        if (!walletConnected) {
+          const walletState = await blockchainService.connectWallet();
+          setWalletConnected(true);
+          await contractsService.initialize();
+        }
+
+        await contractsService.initialize();
+        const ethAmount = (donationAmount / 250000).toFixed(6);
+
+        const result = await contractsService.donate({
+          pandalId: selectedPandal.id,
+          amount: ethAmount,
+          message: `Donation of ₹${donationAmount.toLocaleString()} to ${selectedPandal.name}`
+        });
+
+        setDonationId(result.donationId.toString());
+        setDonationTxHash(result.txHash);
+        setDonationComplete(true);
+      } else {
+        // Traditional payment gateway
+        const gateway = selectedGateway || unifiedPaymentService.selectGateway({
+          amount: donationAmount,
+          currency: 'INR',
+          description: `Donation to ${selectedPandal.name}`,
+          metadata: {
+            pandalId: selectedPandal.id,
+            type: 'donation',
+          },
+        });
+
+        const result = await unifiedPaymentService.processPayment({
+          amount: donationAmount,
+          currency: 'INR',
+          description: `Donation to ${selectedPandal.name}`,
+          customerEmail: 'donor@example.com', // Get from user profile
+          customerName: 'Donor', // Get from user profile
+          metadata: {
+            pandalId: selectedPandal.id,
+            type: 'donation',
+            pandalName: selectedPandal.name,
+          },
+          gateway,
+        });
+
+        if (result.checkoutUrl || result.redirectUrl) {
+          window.location.href = result.checkoutUrl || result.redirectUrl || '';
+        } else {
+          setDonationComplete(true);
+          setDonationTxHash(result.paymentId);
+        }
+      }
+    } catch (error: any) {
+      console.error('Donation failed:', error);
+      setError(error.message || 'Failed to make donation');
+      alert('Donation failed: ' + (error.message || error));
+    } finally {
+      setIsDonating(false);
+    }
   };
 
   return (
@@ -418,6 +496,18 @@ const PandalDonations: React.FC = () => {
                       />
                     </div>
 
+                    {/* Payment Method Selection */}
+                    <div className="mb-6">
+                      <PaymentMethodSelector
+                        selectedMethod={selectedPaymentMethod}
+                        selectedGateway={selectedGateway}
+                        onMethodChange={setSelectedPaymentMethod}
+                        onGatewayChange={setSelectedGateway}
+                        amount={donationAmount}
+                        currency="INR"
+                      />
+                    </div>
+
                     {/* Donate Button */}
                     <ShimmerButton
                       className="w-full py-4"
@@ -428,12 +518,23 @@ const PandalDonations: React.FC = () => {
                       {isDonating ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>Processing...</span>
+                          <span>
+                            {selectedPaymentMethod === 'crypto' 
+                              ? 'Processing on Blockchain...' 
+                              : 'Processing Donation...'}
+                          </span>
                         </>
                       ) : (
                         <>
                           <Heart className="w-5 h-5" />
-                          <span>Donate ₹{donationAmount?.toLocaleString() || 0}</span>
+                          <span>
+                            Donate ₹{donationAmount?.toLocaleString() || 0}
+                            {selectedPaymentMethod === 'gateway' && selectedGateway && (
+                              <span className="text-xs ml-2 opacity-75">
+                                via {unifiedPaymentService.getGatewayName(selectedGateway)}
+                              </span>
+                            )}
+                          </span>
                         </>
                       )}
                     </ShimmerButton>

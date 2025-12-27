@@ -1,4 +1,5 @@
 import { destinations, itineraries, guides } from '../../data/mockData';
+import { getEmbedding, cosineSimilarity } from './embeddingService';
 
 export type RagSource = {
   title: string;
@@ -40,7 +41,85 @@ const scoreMatch = (text: string, query: string) => {
   return hits / tokens.length;
 };
 
-export const retrieveLocalContext = (query: string): RagSource[] => {
+// Cache for embeddings to avoid recomputing
+const embeddingCache = new Map<string, number[]>();
+
+/**
+ * Retrieve local context using semantic embeddings (with fallback to keyword matching)
+ */
+export const retrieveLocalContext = async (query: string, useEmbeddings: boolean = true): Promise<RagSource[]> => {
+  // Try embeddings first if enabled
+  if (useEmbeddings) {
+    try {
+      const queryEmbedding = await getEmbedding(query);
+      
+      // Get all items with their text
+      const allItems: Array<{ text: string; source: RagSource }> = [];
+      
+      destinations.forEach((d) => {
+        allItems.push({
+          text: `${d.name} ${d.description} ${d.category}`,
+          source: {
+            title: d.name,
+            snippet: d.description,
+            score: 0,
+            type: 'destination',
+          },
+        });
+      });
+
+      itineraries.forEach((itinerary) => {
+        allItems.push({
+          text: `${itinerary.title} ${itinerary.activities.join(' ')}`,
+          source: {
+            title: itinerary.title,
+            snippet: `${itinerary.duration} day(s) • ₹${formatINR(itinerary.estimatedCost)} • ${itinerary.activities.slice(0, 2).join(', ')}`,
+            score: 0,
+            type: 'itinerary',
+          },
+        });
+      });
+
+      guides.forEach((guide) => {
+        allItems.push({
+          text: `${guide.name} ${guide.specialties.join(' ')} ${guide.languages.join(' ')}`,
+          source: {
+            title: guide.name,
+            snippet: `${guide.specialties.slice(0, 2).join(', ')} • ₹${formatINR(guide.pricePerDay)}/day • ${guide.languages.join(', ')}`,
+            score: 0,
+            type: 'guide',
+          },
+        });
+      });
+
+      // Calculate similarities
+      const results = await Promise.all(
+        allItems.map(async (item) => {
+          const cacheKey = item.text.toLowerCase().trim();
+          let itemEmbedding = embeddingCache.get(cacheKey);
+          
+          if (!itemEmbedding) {
+            itemEmbedding = await getEmbedding(item.text);
+            embeddingCache.set(cacheKey, itemEmbedding);
+          }
+          
+          const similarity = cosineSimilarity(queryEmbedding, itemEmbedding);
+          return { ...item.source, score: similarity };
+        })
+      );
+
+      // Filter by threshold and return top results
+      return results
+        .filter((item) => item.score > 0.1) // Threshold for relevance
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8);
+    } catch (error) {
+      console.warn('Embedding retrieval failed, falling back to keyword matching:', error);
+      // Fall through to keyword matching
+    }
+  }
+
+  // Fallback to keyword matching
   const destinationHits: RagSource[] = destinations.map((d) => ({
     title: d.name,
     snippet: d.description,
@@ -187,46 +266,69 @@ export const callGemini = async (
   webContext: RagSource[],
   budget?: BudgetEstimate
 ): Promise<{ text: string; budget?: BudgetEstimate } | null> => {
-  const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5-pro';
+  const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash-exp';
   const proxyEndpoint = import.meta.env.VITE_GEMINI_PROXY;
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   // Prefer proxy endpoint if configured
   if (proxyEndpoint) {
     try {
+      console.log('🔍 Calling Gemini via proxy:', proxyEndpoint);
       const response = await fetch(proxyEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model, prompt, localContext, webContext, budget }),
       });
-      if (!response.ok) return null;
-      const data = await response.json();
-      const text: string = data?.text || data?.output || '';
-      let parsedBudget: BudgetEstimate | undefined;
-      const match = typeof text === 'string' ? text.match(/```json\s*([\s\S]*?)\s*```/) : null;
-      if (match) {
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Proxy returned status ${response.status}:`, errorText);
+        // Try to parse error JSON
         try {
-          const obj = JSON.parse(match[1]);
-          if (obj && typeof obj.low === 'number' && typeof obj.high === 'number') {
-            const categories = Array.isArray(obj.categories) ? obj.categories : [];
-            parsedBudget = {
-              low: obj.low,
-              high: obj.high,
-              currency: obj.currency || 'INR',
-              basis: obj.basis || 'Gemini synthesis',
-              sources: categories.map((c: any) => ({ label: String(c.label || 'Category'), amount: Number(c.amount) || 0, sourceType: 'web' })),
-            };
-          }
+          const errorData = JSON.parse(errorText);
+          console.error('Error details:', errorData);
         } catch {}
+        // Continue to direct API fallback
+      } else {
+        const data = await response.json();
+        const text: string = data?.text || data?.output || '';
+        if (text) {
+          console.log(`✅ Gemini proxy response received, length: ${text.length} chars`);
+        } else {
+          console.warn('⚠️ Proxy response empty or missing text field');
+        }
+        let parsedBudget: BudgetEstimate | undefined;
+        const match = typeof text === 'string' ? text.match(/```json\s*([\s\S]*?)\s*```/) : null;
+        if (match) {
+          try {
+            const obj = JSON.parse(match[1]);
+            if (obj && typeof obj.low === 'number' && typeof obj.high === 'number') {
+              const categories = Array.isArray(obj.categories) ? obj.categories : [];
+              parsedBudget = {
+                low: obj.low,
+                high: obj.high,
+                currency: obj.currency || 'INR',
+                basis: obj.basis || 'Gemini synthesis',
+                sources: categories.map((c: any) => ({ label: String(c.label || 'Category'), amount: Number(c.amount) || 0, sourceType: 'web' })),
+              };
+            }
+          } catch {}
+        }
+        return { text, budget: parsedBudget };
       }
-      return { text, budget: parsedBudget };
     } catch (error) {
-      console.warn('Gemini proxy unavailable:', error);
+      console.error('❌ Gemini proxy unavailable:', error);
+      console.error('Error details:', error instanceof Error ? error.message : String(error));
     }
   }
 
-  // Direct API
-  if (!apiKey) return null;
+  // Direct API fallback
+  if (!apiKey) {
+    console.error('❌ No Gemini API key configured (VITE_GEMINI_API_KEY)');
+    return null;
+  }
+  
+  console.log('🔄 Falling back to direct Gemini API call');
   try {
     const localContextText = localContext
       .map((c) => `LOCAL ${c.type}: ${c.title} — ${c.snippet}`)
@@ -265,14 +367,31 @@ export const callGemini = async (
     };
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    console.log(`📡 Calling Gemini API directly: ${url.split('?')[0]}`);
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    if (!response.ok) return null;
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Direct API returned status ${response.status}:`, errorText);
+      try {
+        const errorData = JSON.parse(errorText);
+        console.error('Error details:', errorData);
+      } catch {}
+      return null;
+    }
+    
     const data = await response.json();
     const text: string = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (text) {
+      console.log(`✅ Gemini direct response received, length: ${text.length} chars`);
+    } else {
+      console.warn('⚠️ Direct API response empty or missing text');
+      console.log('Full response:', JSON.stringify(data, null, 2));
+    }
     let parsedBudget: BudgetEstimate | undefined;
     const match = typeof text === 'string' ? text.match(/```json\s*([\s\S]*?)\s*```/) : null;
     if (match) {
@@ -346,3 +465,4 @@ export const craftAssistantReply = (
 
   return [...combinedAnalysis, ...llmSection, ...footer].join('\n');
 };
+
