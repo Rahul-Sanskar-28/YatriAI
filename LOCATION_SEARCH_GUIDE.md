@@ -292,7 +292,7 @@ The components use Tailwind CSS with custom Kolkata-themed colors:
 ## Troubleshooting
 
 ### Issue: Search returns no results
-- Check if backend is running on port 3000
+- Check if backend is running on port 3001
 - Verify database has been seeded with destinations
 - Check console for API errors
 
