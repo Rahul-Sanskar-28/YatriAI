@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import BeaconNodeHead from './BeaconNodeHead';
+import BeaconNode from './BeaconNode';
 import { 
   MapPin, 
   Navigation, 
@@ -13,7 +15,9 @@ import {
   RefreshCw,
   Camera,
   Eye,
-  MapIcon
+  MapIcon,
+  Radio,
+  Smartphone
 } from 'lucide-react';
 
 // Fix for default markers in React Leaflet
@@ -162,7 +166,7 @@ const GPSSuggestions: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<TouristPlace | null>(null);
   const [searchRadius, setSearchRadius] = useState(5000); // 5km default
-  const [activeTab, setActiveTab] = useState<'all' | 'restaurants' | 'shopping' | 'transit' | 'metro' | 'bus' | 'heritage' | 'ai'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'restaurants' | 'shopping' | 'transit' | 'metro' | 'bus' | 'heritage' | 'beacon-head' | 'beacon-node' | 'ai'>('all');
 
   // Mock tourist places data for Kolkata area
   const mockTouristPlaces: TouristPlace[] = [
@@ -536,7 +540,7 @@ const GPSSuggestions: React.FC = () => {
           </h1>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Discover amazing places within 5km of your current location with AI-powered suggestions
+          Discover amazing places within 5km of your current location with AI-powered suggestions and beacon node storytelling
         </p>
       </motion.div>
 
@@ -814,7 +818,9 @@ const GPSSuggestions: React.FC = () => {
               { key: 'shopping', label: 'Shopping', icon: Eye },
               { key: 'transit', label: 'All Transit', icon: Navigation },
               { key: 'metro', label: 'Metro Stations', icon: Navigation },
-              { key: 'bus', label: 'Bus Stops', icon: Navigation }
+              { key: 'bus', label: 'Bus Stops', icon: Navigation },
+              { key: 'beacon-head', label: 'Node Head', icon: Radio },
+              { key: 'beacon-node', label: 'Beacon Node', icon: Smartphone }
             ].map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
@@ -879,11 +885,21 @@ const GPSSuggestions: React.FC = () => {
               ))}
             </div>
           )}
+
+          {/* Beacon Node Head */}
+          {activeTab === 'beacon-head' && (
+            <BeaconNodeHead />
+          )}
+
+          {/* Beacon Node */}
+          {activeTab === 'beacon-node' && (
+            <BeaconNode />
+          )}
         </motion.div>
       )}
 
       {/* Places List */}
-      {userLocation && (
+      {userLocation && !['beacon-head', 'beacon-node'].includes(activeTab) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
