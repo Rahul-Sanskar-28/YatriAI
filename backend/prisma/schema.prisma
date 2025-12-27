@@ -108,6 +108,36 @@ model Destination {
   rating      Float               @default(0)
   latitude    Float
   longitude   Float
+  address     String?
+  city        String              @default("Kolkata")
+  state       String              @default("West Bengal")
+  country     String              @default("India")
+  zipCode     String?
+  
+  // Detailed information
+  openingHours String?
+  entryFee     String?
+  bestTimeToVisit String?
+  estimatedDuration String?
+  website      String?
+  phoneNumber  String?
+  
+  // How to reach information
+  nearestMetro    String?
+  nearestBusStop  String?
+  nearestRailway  String?
+  parkingAvailable Boolean         @default(false)
+  accessibleBy    String[]        // ['metro', 'bus', 'taxi', 'walking', 'ferry']
+  directions      String?          // Detailed directions text
+  distanceFromCity Float?          // in kilometers
+  
+  // Images
+  images       String[]
+  
+  // Tags and features
+  tags         String[]
+  amenities    String[]            // ['wheelchair-accessible', 'restrooms', 'cafeteria', 'wifi', etc]
+  
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getAllDestinations,
   getDestinationById,
+  searchDestinations,
   createDestination,
   updateDestination,
   deleteDestination
@@ -11,6 +12,7 @@ import { authenticate, authorize } from '../middleware/auth.js';
 const router = Router();
 
 // Public routes
+router.get('/search', searchDestinations); // Must be before /:id to avoid matching as id
 router.get('/', getAllDestinations);
 router.get('/:id', getDestinationById);
 

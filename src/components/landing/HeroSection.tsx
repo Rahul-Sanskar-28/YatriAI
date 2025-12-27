@@ -64,13 +64,9 @@ const HeroSection: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isAuthenticated) {
-      navigate(`/tourist-dashboard?tab=explore&search=${encodeURIComponent(searchQuery)}&date=${selectedDate}`);
-    } else {
-      const featuresSection = document.getElementById('features');
-      if (featuresSection) {
-        featuresSection.scrollIntoView({ behavior: 'smooth' });
-      }
+    if (searchQuery.trim()) {
+      // Navigate to search page with query parameters
+      navigate(`/search?query=${encodeURIComponent(searchQuery)}${selectedDate ? `&date=${selectedDate}` : ''}`);
     }
   };
 
@@ -78,10 +74,14 @@ const HeroSection: React.FC = () => {
     if (isAuthenticated) {
       navigate(`/tourist-dashboard?tab=${dashboardTab}`);
     } else {
-      const featuresSection = document.getElementById('features');
-      if (featuresSection) {
-        featuresSection.scrollIntoView({ behavior: 'smooth' });
-      }
+      // For non-authenticated users, navigate to search with a relevant query
+      const queries: Record<string, string> = {
+        heritage: 'heritage cultural landmarks',
+        'pandal-donations': 'durga puja pandal',
+        artisans: 'handicrafts artisan market'
+      };
+      const query = queries[dashboardTab] || dashboardTab;
+      navigate(`/search?query=${encodeURIComponent(query)}`);
     }
   };
 

@@ -16,6 +16,7 @@ import TouristDashboard from './components/dashboard/TouristDashboard';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import GuideDashboard from './components/dashboard/GuideDashboard';
 import MarketplaceDashboard from './components/dashboard/MarketplaceDashboard';
+import DestinationSearch from './components/common/DestinationSearch';
 import { initializeServices } from './lib/services';
 import { DEBUG_PANEL_ENABLED } from './lib/debug';
 import { DebugPanel } from './components/debug/DebugPanel';
@@ -158,6 +159,9 @@ function App() {
               <Routes>
                 {/* Role-based landing and redirects */}
                 <Route path="/" element={<AppContent />} />
+
+                {/* Search destinations route */}
+                <Route path="/search" element={<DestinationSearch />} />
 
                 {/* Explicit dashboard routes */}
                 <Route path="/tourist-dashboard" element={<TouristDashboard />} />
