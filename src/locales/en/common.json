@@ -314,8 +314,14 @@
     "welcome": "Welcome back",
     "menuItems": {
       "dashboard": "Dashboard",
+      "travelPlanning": "Travel Planning",
       "aiItinerary": "AI Itinerary",
+ 
+      "pictureDeck": "Picture Deck",
+
+     
       "nearbyPlaces": "Nearby Places",
+
       "transport": "Transport",
       "heritageWalk": "Heritage Walk",
       "artisanChronicles": "Artisan Chronicles",

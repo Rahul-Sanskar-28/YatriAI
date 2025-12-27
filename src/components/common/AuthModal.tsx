@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, User, Shield, Store, MapPin, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -7,12 +7,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  forceTouristRole?: boolean;
+  onSuccessRedirect?: () => void;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole = false, onSuccessRedirect }) => {
   const { t } = useTranslation('translation');
-  const [step, setStep] = useState<'role' | 'form' | 'mfa'>('role');
-  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [step, setStep] = useState<'role' | 'form' | 'mfa'>(forceTouristRole ? 'form' : 'role');
+  const [selectedRole, setSelectedRole] = useState<string>(forceTouristRole ? 'tourist' : '');
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -56,6 +58,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     }
   ];
 
+  // Set tourist role when forceTouristRole changes
+  useEffect(() => {
+    if (forceTouristRole && isOpen) {
+      setSelectedRole('tourist');
+      setStep('form');
+    }
+  }, [forceTouristRole, isOpen]);
+
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
     setStep('form');
@@ -86,6 +96,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       }
       onClose();
       resetForm();
+      // Call redirect callback if provided
+      if (onSuccessRedirect) {
+        onSuccessRedirect();
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t('auth.authFailed');
       setError(errorMessage);
@@ -95,8 +109,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   };
 
   const resetForm = () => {
-    setStep('role');
-    setSelectedRole('');
+    setStep(forceTouristRole ? 'form' : 'role');
+    setSelectedRole(forceTouristRole ? 'tourist' : '');
     setFormData({ email: '', password: '', confirmPassword: '', name: '' });
     setIsLogin(true);
     setError(null);
@@ -144,7 +158,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           )}
 
           <AnimatePresence mode="wait">
-            {step === 'role' && (
+            {step === 'role' && !forceTouristRole && (
               <motion.div
                 key="role"
                 initial={{ opacity: 0, x: 20 }}
@@ -321,14 +335,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   </button>
                 </form>
 
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => { setStep('role'); setError(null); }}
-                    className="text-sm text-green-600 hover:text-green-700 transition-colors"
-                  >
-                    {t('auth.backToRoles')}
-                  </button>
-                </div>
+                {!forceTouristRole && (
+                  <div className="mt-4 text-center">
+                    <button
+                      onClick={() => { setStep('role'); setError(null); }}
+                      className="text-sm text-green-600 hover:text-green-700 transition-colors"
+                    >
+                      {t('auth.backToRoles')}
+                    </button>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

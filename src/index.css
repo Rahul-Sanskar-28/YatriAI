@@ -37,6 +37,38 @@
     text-wrap: balance;
   }
 
+  /* Mobile Performance Optimizations */
+  @media (max-width: 768px) {
+    * {
+      /* Reduce animations on mobile for better performance */
+      animation-duration: 0.3s !important;
+      transition-duration: 0.2s !important;
+    }
+    
+    /* Optimize transforms for mobile */
+    .transform,
+    [class*="translate"],
+    [class*="scale"],
+    [class*="rotate"] {
+      will-change: transform;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+  }
+
+  /* Prevent jittery scrolling */
+  html {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   /* Animated gradient text - Kolkata Colors */
   .animate-gradient {
     background-size: 300% 100%;
@@ -246,7 +278,7 @@
 
   /* Floating elements */
   .float-animation {
-    animation: float 6s ease-in-out infinite;
+    animation: float 10s ease-in-out infinite;
   }
 
   .float-animation-delayed {
@@ -1537,4 +1569,122 @@ html, body {
 .overflow-x-auto {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+/* ===== SECTION TRANSITIONS ===== */
+
+/* Smooth scroll behavior for section navigation */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Section transition base styles */
+.section-transition {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Intersection observer optimization */
+.section-visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1);
+}
+
+.section-hidden {
+  opacity: 0;
+}
+
+/* Enhanced scroll animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Staggered animations for child elements */
+.stagger-children > * {
+  animation-delay: calc(var(--stagger-delay, 0.1s) * var(--stagger-index, 0));
+}
+
+/* Parallax effect for sections */
+.parallax-section {
+  transform-style: preserve-3d;
+}
+
+/* Smooth transitions for theme changes */
+.section-transition * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Performance optimizations */
+.section-transition {
+  contain: layout style paint;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .section-transition {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .section-transition {
+    transform: none !important; /* Disable complex transforms on mobile for performance */
+  }
 }

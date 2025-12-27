@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -16,6 +16,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import TouristDashboardScreen from '../screens/TouristDashboardScreen';
 import LoadingScreen from '../components/LoadingScreen';
+import FloatingTranslateButton from '../components/FloatingTranslateButton';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -110,15 +111,21 @@ const AppNavigator: React.FC = () => {
   }
 
   return (
-    <NavigationContainer>
-      {isAuthenticated ? (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Main" component={MainTabs} />
-        </Stack.Navigator>
-      ) : (
-        <AuthStack />
-      )}
-    </NavigationContainer>
+    <View style={{ flex: 1 }}>
+      <NavigationContainer>
+        {isAuthenticated ? (
+          <>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Main" component={MainTabs} />
+            </Stack.Navigator>
+            {/* Global Floating Translate Button - Only shown when authenticated */}
+            <FloatingTranslateButton />
+          </>
+        ) : (
+          <AuthStack />
+        )}
+      </NavigationContainer>
+    </View>
   );
 };
 

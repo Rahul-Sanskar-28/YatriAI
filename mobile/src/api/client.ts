@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // API Base URL Configuration:
 // - Android Emulator: use 10.0.2.2 (special IP that maps to host's localhost)
 // - iOS Simulator: use localhost
-// - Physical Device: use your computer's network IP (e.g., http://10.79.157.114:3001/api)
+// - Android Emulator: use http://10.0.2.2:3001/api (maps to host localhost)
 // Default: Android emulator (10.0.2.2)
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:3001/api';
 

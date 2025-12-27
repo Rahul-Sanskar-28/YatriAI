@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Menu, X, Moon, Sun, User, LogOut, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Menu, Moon, Sun, User, LogOut, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import AuthModal from './AuthModal';
-import BrowserOnlyTranslate from './BrowserOnlyTranslate';
+import MobileSidebar from './MobileSidebar';
 import { ShimmerButton } from '../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../magicui/AnimatedGradientText';
 import { TramIcon } from '../kolkata/KolkataIcons';
@@ -16,6 +16,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   // Use useTranslation directly for reliable translation updates
   const { t } = useTranslation('translation');
@@ -23,6 +24,16 @@ const Header: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
   const { currentLanguage } = useLanguage(); // Just for language state
   const navigate = useNavigate();
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const navItems = [
     { key: 'home', href: '#hero', labelKey: 'nav.home', sectionId: 'hero' },
@@ -51,30 +62,26 @@ const Header: React.FC = () => {
   return (
     <>
       <header className="bg-kolkata-cream/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg sticky top-0 z-50 transition-colors duration-300 border-b-2 border-kolkata-gold/40 dark:border-kolkata-gold/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center h-16 min-h-[64px]">
             {/* Logo - Kolkata Heritage */}
             <motion.div 
-              whileHover={{ scale: 1.02 }}
-              className="flex items-center space-x-2 cursor-pointer"
+              whileHover={!isMobile ? { scale: 1.02 } : {}}
+              className="flex items-center space-x-2 cursor-pointer flex-shrink-0"
             >
-              <motion.div 
-                whileHover={{ rotate: [0, -10, 10, 0] }}
-                transition={{ duration: 0.5 }}
-                className="w-10 h-10 bg-kolkata-yellow rounded-xl flex items-center justify-center shadow-lg shadow-kolkata-yellow/40 border-2 border-kolkata-gold/30"
-              >
-                <TramIcon className="w-6 h-6 text-white" />
-              </motion.div>
-              <div className="flex flex-col">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-kolkata-yellow rounded-xl flex items-center justify-center shadow-lg border-2 border-kolkata-gold/30">
+                <TramIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              <div className="flex flex-col hidden min-[375px]:flex">
                 <div className="flex items-center gap-1">
-                  <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">
+                  <span className="text-lg sm:text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">
                     {t('brand.name').split(' ')[0] || 'Kolkata'}
                   </span>
-                  <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">{t('brand.name').split(' ')[1] || 'Heritage'}</span>
+                  <span className="text-lg sm:text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">{t('brand.name').split(' ')[1] || 'Heritage'}</span>
                 </div>
-                <span className="text-xs text-kolkata-sepia dark:text-kolkata-gold/60 -mt-1">{t('brand.tagline')}</span>
+                <span className="text-xs text-kolkata-sepia dark:text-kolkata-gold/60 -mt-1 hidden sm:block">{t('brand.tagline')}</span>
               </div>
-              <Sparkles className="w-4 h-4 text-kolkata-yellow animate-pulse" />
+              <Sparkles className="w-4 h-4 text-kolkata-yellow hidden sm:block" />
             </motion.div>
 
             {/* Desktop Navigation */}
@@ -93,113 +100,106 @@ const Header: React.FC = () => {
             </nav>
 
             {/* Right Side Controls */}
-            <div className="flex items-center space-x-3">
-              {/* Browser Translation Instructions */}
-              <BrowserOnlyTranslate variant="header" />
-              
-              {/* Theme Toggle */}
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 180 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleTheme}
-                className="p-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
-              >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </motion.button>
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 min-w-0">
+              {/* Desktop: Theme, User Menu */}
+              <div className="hidden md:flex items-center space-x-2 lg:space-x-3">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={toggleTheme}
+                  className="p-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
+                >
+                  {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </motion.button>
 
-              {/* User Menu */}
-              {isAuthenticated ? (
-                <div className="relative">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                    className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors p-1.5 rounded-xl hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
-                  >
-                    <img
-                      src={user?.avatar}
-                      alt={user?.name}
-                      className="w-8 h-8 rounded-xl object-cover border-2 border-kolkata-yellow"
-                    />
-                    <span className="hidden md:block font-medium text-sm">{user?.name}</span>
-                  </motion.button>
-                  <AnimatePresence>
+                {isAuthenticated ? (
+                  <div className="relative">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                      className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors p-1.5 rounded-xl hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
+                    >
+                      <img
+                        src={user?.avatar}
+                        alt={user?.name}
+                        className="w-8 h-8 rounded-xl object-cover border-2 border-kolkata-yellow"
+                      />
+                      <span className="hidden lg:block font-medium text-sm">{user?.name}</span>
+                    </motion.button>
                     {isUserDropdownOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="bg-kolkata-cream/95 dark:bg-gray-800 rounded-xl shadow-xl border border-kolkata-gold/30 dark:border-gray-700 overflow-hidden"
-                      >
+                      <div className="absolute right-0 mt-2 w-56 bg-kolkata-cream/95 dark:bg-gray-800 rounded-xl shadow-xl border border-kolkata-gold/30 dark:border-gray-700 overflow-hidden z-50">
                         <div className="px-4 py-3 border-b border-kolkata-gold/30 dark:border-gray-700 bg-kolkata-yellow/20 dark:bg-kolkata-gold/20">
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                         </div>
-                        <motion.button
-                          whileHover={{ x: 5, backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+                        <button
                           onClick={() => {
                             logout();
                             setIsUserDropdownOpen(false);
                           }}
-                          className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-2"
+                          className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20"
                         >
                           <LogOut className="w-4 h-4" />
                           <span>{t('auth.logout')}</span>
-                        </motion.button>
-                      </motion.div>
+                        </button>
+                      </div>
                     )}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                <ShimmerButton
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="px-5 py-2 text-sm"
-                  background="#FFB800"
-                >
-                  <User className="w-4 h-4" />
-                  <span>{t('auth.login')}</span>
-                </ShimmerButton>
-              )}
+                  </div>
+                ) : (
+                  <ShimmerButton
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 text-xs sm:text-sm whitespace-nowrap flex-shrink-0 max-w-[120px] sm:max-w-none"
+                    background="#FFB800"
+                  >
+                    <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="hidden min-[375px]:inline truncate">{t('auth.login')}</span>
+                  </ShimmerButton>
+                )}
+              </div>
 
-              {/* Mobile Menu Button */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden p-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
-              >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </motion.button>
+              {/* Mobile: Login Button + Hamburger Menu */}
+              <div className="md:hidden flex items-center gap-1.5">
+                {!isAuthenticated && (
+                  <ShimmerButton
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="px-2.5 sm:px-3 py-1.5 text-xs whitespace-nowrap flex-shrink-0 max-w-[100px] sm:max-w-none"
+                    background="#FFB800"
+                  >
+                    <User className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="hidden min-[375px]:inline truncate">{t('auth.login')}</span>
+                  </ShimmerButton>
+                )}
+                {isAuthenticated && (
+                  <button
+                    onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                    className="p-1.5 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-kolkata-yellow/10 transition-colors flex-shrink-0"
+                  >
+                    <img
+                      src={user?.avatar}
+                      alt={user?.name}
+                      className="w-7 h-7 rounded-lg object-cover border-2 border-kolkata-yellow"
+                    />
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="p-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10 transition-colors flex-shrink-0"
+                  aria-label="Menu"
+                >
+                  <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              </div>
             </div>
           </div>
-
-          {/* Mobile Menu */}
-          <AnimatePresence>
-            {isMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="md:hidden overflow-hidden"
-              >
-                <nav className="py-4 border-t-2 border-kolkata-gold/30 dark:border-gray-700 space-y-2 bg-kolkata-yellow/5 dark:bg-kolkata-gold/5 rounded-b-xl">
-                  {navItems.map((item, index) => (
-                    <motion.button
-                      key={item.key}
-                      onClick={() => handleNavClick(item)}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold hover:bg-kolkata-yellow/20 dark:hover:bg-kolkata-gold/20 rounded-xl transition-all font-medium border border-transparent hover:border-kolkata-gold/30"
-                    >
-                      <span>{t(item.labelKey)}</span>
-                    </motion.button>
-                  ))}
-                </nav>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </header>
+
+      {/* Mobile Sidebar */}
+      <MobileSidebar 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)}
+        onAuthClick={() => setIsAuthModalOpen(true)}
+      />
 
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </>
