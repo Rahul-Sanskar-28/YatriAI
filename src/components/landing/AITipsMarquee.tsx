@@ -40,7 +40,7 @@ const AITipsMarquee: React.FC = () => {
   const allTips = [...kolkataTipKeys, ...kolkataTipKeys];
 
   return (
-    <div className="relative bg-gradient-to-r from-kolkata-yellow via-kolkata-terracotta to-durga-500 py-6 overflow-hidden">
+    <div className="relative bg-kolkata-yellow py-6 overflow-hidden">
       {/* Animated background pattern - Alpona style */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
@@ -48,9 +48,9 @@ const AITipsMarquee: React.FC = () => {
         }} />
       </div>
 
-      {/* Gradient overlays for smooth fade */}
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-kolkata-yellow to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-durga-500 to-transparent z-10 pointer-events-none" />
+      {/* Fade overlays for smooth edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-24 bg-kolkata-yellow z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-24 bg-kolkata-yellow z-10 pointer-events-none" />
 
       {/* Header */}
       <div className="flex items-center justify-center gap-3 mb-4 relative z-20">

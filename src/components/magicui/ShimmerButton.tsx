@@ -19,7 +19,7 @@ export function ShimmerButton({
   shimmerSize = "0.1em",
   shimmerDuration = "2s",
   borderRadius = "12px",
-  background = "linear-gradient(135deg, #16a34a 0%, #ea580c 100%)",
+  background = "#FFB800",
   className,
   children,
   onClick,
@@ -48,7 +48,7 @@ export function ShimmerButton({
         "before:absolute before:inset-0 before:-z-10 before:block",
         "before:[background:var(--bg)]",
         "after:absolute after:inset-0 after:-z-10 after:block",
-        "after:animate-shimmer after:[background:linear-gradient(90deg,transparent_0%,var(--shimmer-color)_50%,transparent_100%)]",
+        "after:animate-shimmer after:[background:rgba(255,255,255,0.3)]",
         "after:[background-size:200%_100%]",
         "after:opacity-0 hover:after:opacity-30",
         className

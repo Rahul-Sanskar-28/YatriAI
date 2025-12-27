@@ -9,7 +9,7 @@ interface InitialLoaderProps {
 
 const InitialLoader: React.FC<InitialLoaderProps> = ({ 
   onComplete, 
-  minLoadingTime = 5000 
+  minLoadingTime = 1500 
 }) => {
   const [loadingPhase, setLoadingPhase] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -44,19 +44,19 @@ const InitialLoader: React.FC<InitialLoaderProps> = ({
         const targetProgress = Math.min((timeElapsed / minLoadingTime) * 100, 100);
         
         if (prev < targetProgress) {
-          // Slower progress increment for more realistic feel
-          return Math.min(prev + 1, targetProgress);
+          // Balanced progress increment for 1.5-second loading
+          return Math.min(prev + 3, targetProgress);
         }
         
         if (prev >= 100 && timeElapsed >= minLoadingTime) {
           clearInterval(progressTimer);
           clearInterval(phaseTimer);
-          setTimeout(onComplete, 800); // Longer delay before completion
+          setTimeout(onComplete, 250); // Balanced delay for 1.5-second loading
         }
         
         return prev;
       });
-    }, 80); // Slower update interval
+    }, 30); // Very fast update interval for 1-second loading
 
     return () => {
       clearInterval(phaseTimer);
@@ -71,8 +71,7 @@ const InitialLoader: React.FC<InitialLoaderProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ 
-          duration: 0.5,
-          exit: { duration: 0.8, ease: "easeInOut" }
+          duration: 0.5
         }}
         className="fixed inset-0 z-[10000] bg-kolkata-cream dark:bg-gray-900 flex items-center justify-center overflow-hidden"
       >
