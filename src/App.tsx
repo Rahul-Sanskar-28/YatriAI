@@ -13,6 +13,7 @@ import FeaturesSection from './components/landing/FeaturesSection';
 import HeritageSection from './components/landing/HeritageSection';
 import PujoSection from './components/landing/PujoSection';
 import ArtisansSection from './components/landing/ArtisansSection';
+import SectionTransition from './components/common/SectionTransition';
 import TouristDashboard from './components/dashboard/TouristDashboard';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import GuideDashboard from './components/dashboard/GuideDashboard';
@@ -30,14 +31,44 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       <Header />
+      
+      {/* Hero Section - No transition needed as it's the first section */}
       <HeroSection />
-      <AITipsMarquee />
-      <HeritageSection />
-      <PujoSection />
-      <ArtisansSection />
-      <FeaturesSection />
-      <TestimonialsCarousel />
-      <Footer />
+      
+      {/* AI Tips Marquee - Slide from right with quick animation */}
+      <SectionTransition direction="right" delay={0.1} duration={0.6}>
+        <AITipsMarquee />
+      </SectionTransition>
+      
+      {/* Heritage Section - Fade in with scale effect */}
+      <SectionTransition direction="scale" delay={0.2} duration={1} threshold={0.15}>
+        <HeritageSection />
+      </SectionTransition>
+      
+      {/* Pujo Section - Slide from left with stagger children */}
+      <SectionTransition direction="left" delay={0.1} duration={0.8} staggerChildren={true} staggerDelay={0.15}>
+        <PujoSection />
+      </SectionTransition>
+      
+      {/* Artisans Section - Slide from up with longer delay */}
+      <SectionTransition direction="up" delay={0.3} duration={0.9} threshold={0.2}>
+        <ArtisansSection />
+      </SectionTransition>
+      
+      {/* Features Section - Fade in with staggered children */}
+      <SectionTransition direction="fade" delay={0.2} duration={1} staggerChildren={true} staggerDelay={0.2}>
+        <FeaturesSection />
+      </SectionTransition>
+      
+      {/* Testimonials Carousel - Scale in from center */}
+      <SectionTransition direction="scale" delay={0.2} duration={0.8}>
+        <TestimonialsCarousel />
+      </SectionTransition>
+      
+      {/* Footer - Slide from down with fade */}
+      <SectionTransition direction="down" delay={0.1} duration={0.7}>
+        <Footer />
+      </SectionTransition>
     </div>
   );
 };
