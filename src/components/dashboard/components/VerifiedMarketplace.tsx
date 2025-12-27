@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShoppingCart, Shield, Star, CheckCircle, Package, 
   CreditCard, Truck, Award, MapPin, User, Clock,
   Heart, Share2, Eye, Loader2, ExternalLink, Wallet,
-  BadgeCheck, FileText, QrCode, Download
+  BadgeCheck, FileText, QrCode, Download, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -12,6 +12,12 @@ import { ShimmerButton } from '../../magicui/ShimmerButton';
 import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { TerracottaIcon, PatachitraIcon } from '../../kolkata/KolkataIcons';
+import { blockchainService } from '../../../lib/services/blockchain.service';
+import { contractsService } from '../../../lib/services/contracts.service';
+import { unifiedPaymentService, type PaymentGateway } from '../../../lib/services/unified-payment.service';
+import { ActiveNetwork } from '../../../lib/services/config';
+import { ethers } from 'ethers';
+import PaymentMethodSelector from '../../payment/PaymentMethodSelector';
 
 // Verified Artisan Products with blockchain certificates
 const verifiedProducts = [
@@ -159,6 +165,24 @@ const VerifiedMarketplace: React.FC = () => {
   const [purchaseComplete, setPurchaseComplete] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [purchaseTxHash, setPurchaseTxHash] = useState<string | null>(null);
+  const [escrowId, setEscrowId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'crypto' | 'gateway'>('gateway');
+  const [selectedGateway, setSelectedGateway] = useState<PaymentGateway | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  // Check wallet connection on mount
+  useEffect(() => {
+    const checkWallet = async () => {
+      const walletState = blockchainService.getWalletState();
+      if (walletState.isConnected && walletState.address) {
+        setWalletConnected(true);
+      }
+    };
+    checkWallet();
+  }, []);
 
   const addToCart = (product: typeof verifiedProducts[0]) => {
     setCart(prev => {
@@ -177,16 +201,98 @@ const VerifiedMarketplace: React.FC = () => {
   const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
   const handlePurchase = async () => {
+    if (cart.length === 0) {
+      alert('Cart is empty');
+      return;
+    }
+
     setIsPurchasing(true);
-    
-    // Simulate blockchain transaction
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsPurchasing(false);
-    setPurchaseComplete(true);
+    setIsProcessingPayment(true);
+    setError(null);
+
+    try {
+      const cartItem = cart[0];
+      const product = cartItem.product;
+      const totalAmount = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+
+      if (selectedPaymentMethod === 'crypto') {
+        // Crypto payment via blockchain escrow
+        if (!walletConnected) {
+          const walletState = await blockchainService.connectWallet();
+          setWalletConnected(true);
+          await contractsService.initialize();
+        }
+
+        await contractsService.initialize();
+        const sellerAddress = (product.artist as any).walletAddress || '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+        const ethAmount = (totalAmount / 250000).toFixed(6);
+
+        const result = await contractsService.createEscrow({
+          sellerAddress: sellerAddress,
+          productId: product.id,
+          amount: ethAmount
+        });
+
+        setEscrowId(result.escrowId.toString());
+        setPurchaseTxHash(result.txHash);
+        setPurchaseComplete(true);
+      } else {
+        // Traditional payment gateway (Razorpay/Stripe/Dodo)
+        const gateway = selectedGateway || unifiedPaymentService.selectGateway({
+          amount: totalAmount,
+          currency: 'INR',
+          description: `Purchase: ${product.name}`,
+          customerEmail: 'customer@example.com', // Get from user profile
+          customerName: 'Customer', // Get from user profile
+          items: cart.map(item => ({
+            id: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+            image: item.product.images[0],
+          })),
+          metadata: {
+            productId: product.id,
+            type: 'marketplace_purchase',
+          },
+        });
+
+        const result = await unifiedPaymentService.processPayment({
+          amount: totalAmount,
+          currency: 'INR',
+          description: `Purchase: ${product.name}`,
+          customerEmail: 'customer@example.com',
+          customerName: 'Customer',
+          items: cart.map(item => ({
+            id: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+            image: item.product.images[0],
+          })),
+          metadata: {
+            productId: product.id,
+            type: 'marketplace_purchase',
+          },
+          gateway,
+        });
+
+        if (result.checkoutUrl || result.redirectUrl) {
+          // Redirect to payment gateway
+          window.location.href = result.checkoutUrl || result.redirectUrl || '';
+        } else {
+          setPurchaseComplete(true);
+          setPurchaseTxHash(result.paymentId);
+        }
+      }
+    } catch (error: any) {
+      console.error('Purchase failed:', error);
+      setError(error.message || 'Failed to complete purchase');
+      alert('Purchase failed: ' + (error.message || error));
+    } finally {
+      setIsPurchasing(false);
+      setIsProcessingPayment(false);
+    }
   };
 
   const toggleFavorite = (productId: string) => {
@@ -551,20 +657,16 @@ const VerifiedMarketplace: React.FC = () => {
                           </span>
                         </div>
 
-                        {/* Payment Methods */}
-                        <div className="space-y-3 mb-6">
-                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Payment Method</p>
-                          <div className="grid grid-cols-2 gap-3">
-                            <button className="p-3 border-2 border-kolkata-terracotta bg-kolkata-terracotta/10 rounded-xl flex items-center gap-2">
-                              <Wallet className="w-5 h-5 text-kolkata-terracotta" />
-                              <span className="text-sm font-medium">Crypto Wallet</span>
-                            </button>
-                            <button className="p-3 border border-gray-200 dark:border-gray-700 rounded-xl flex items-center gap-2">
-                              <CreditCard className="w-5 h-5 text-gray-400" />
-                              <span className="text-sm text-gray-500">UPI/Cards</span>
-                            </button>
-                          </div>
-                        </div>
+                        {/* Payment Method Selection */}
+                        <PaymentMethodSelector
+                          selectedMethod={selectedPaymentMethod}
+                          selectedGateway={selectedGateway}
+                          onMethodChange={setSelectedPaymentMethod}
+                          onGatewayChange={setSelectedGateway}
+                          amount={cartTotal}
+                          currency="INR"
+                          className="mb-6"
+                        />
 
                         {/* Purchase Button */}
                         <ShimmerButton
@@ -576,12 +678,25 @@ const VerifiedMarketplace: React.FC = () => {
                           {isPurchasing ? (
                             <>
                               <Loader2 className="w-5 h-5 animate-spin" />
-                              <span>Processing on Blockchain...</span>
+                              <span>
+                                {selectedPaymentMethod === 'crypto' 
+                                  ? 'Processing on Blockchain...' 
+                                  : 'Processing Payment...'}
+                              </span>
                             </>
                           ) : (
                             <>
-                              <Shield className="w-5 h-5" />
-                              <span>Complete Purchase</span>
+                              {selectedPaymentMethod === 'crypto' ? (
+                                <>
+                                  <Shield className="w-5 h-5" />
+                                  <span>Pay with Crypto</span>
+                                </>
+                              ) : (
+                                <>
+                                  <CreditCard className="w-5 h-5" />
+                                  <span>Pay with {selectedGateway ? unifiedPaymentService.getGatewayName(selectedGateway) : 'Gateway'}</span>
+                                </>
+                              )}
                             </>
                           )}
                         </ShimmerButton>

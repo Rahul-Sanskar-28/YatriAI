@@ -39,6 +39,8 @@ export function ShimmerButton({
           "--shimmer-duration": shimmerDuration,
           "--border-radius": borderRadius,
           "--bg": background,
+          borderRadius: borderRadius,
+          background: background,
         } as CSSProperties
       }
       className={cn(
@@ -53,10 +55,6 @@ export function ShimmerButton({
         "after:opacity-0 hover:after:opacity-30",
         className
       )}
-      style={{
-        borderRadius: borderRadius,
-        background: background,
-      }}
       {...props}
     >
       <span className="relative z-10 flex items-center gap-2">{children}</span>

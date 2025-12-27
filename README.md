@@ -158,10 +158,14 @@ git push origin main
 
 ## 📚 Documentation
 
-- [`AUTO_TRANSLATE_IMPLEMENTATION.md`](./AUTO_TRANSLATE_IMPLEMENTATION.md) - Technical translation details
-- [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) - Step-by-step deployment
-- [`DEPLOYMENT_READY.md`](./DEPLOYMENT_READY.md) - Production checklist
-- [`CONNECTION_STATUS.md`](./CONNECTION_STATUS.md) - Frontend-backend integration
+All documentation is organized in the `docs/` folder:
+
+- [`docs/GEMINI_SETUP.md`](./docs/GEMINI_SETUP.md) - Gemini API setup and configuration
+- [`docs/TESTING.md`](./docs/TESTING.md) - Testing guide for features and ML models
+- [`docs/ML_MODELS.md`](./docs/ML_MODELS.md) - ML models training and evaluation
+- [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) - Deployment guide
+- [`docs/TRANSLATION.md`](./docs/TRANSLATION.md) - Translation setup guide
+- [`docs/HYBRID_AI_ARCHITECTURE.md`](./docs/HYBRID_AI_ARCHITECTURE.md) - AI architecture overview
 
 ## 🤝 Contributing
 

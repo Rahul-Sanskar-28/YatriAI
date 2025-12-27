@@ -47,6 +47,7 @@ import PatachitraArchive from './components/PatachitraArchive';
 import VerifiedMarketplace from './components/VerifiedMarketplace';
 import HeritageNFT from './components/HeritageNFT';
 import PandalDonations from './components/PandalDonations';
+import PictureDeck from './components/PictureDeck';
 import LanguageSelector from '../common/LanguageSelector';
 
 const TouristDashboard: React.FC = () => {
@@ -66,6 +67,7 @@ const TouristDashboard: React.FC = () => {
   const menuItems = [
     { id: 'dashboard', labelKey: 'dashboard.menuItems.dashboard', icon: Home },
     { id: 'itinerary', labelKey: 'dashboard.menuItems.aiItinerary', icon: Map },
+    { id: 'picture-deck', labelKey: 'dashboard.menuItems.pictureDeck', icon: Image, isNew: true },
     { id: 'transport', labelKey: 'dashboard.menuItems.transport', icon: Train, isNew: true },
     { id: 'heritage', labelKey: 'dashboard.menuItems.heritageWalk', icon: Headphones, isNew: true },
     { id: 'artisans', labelKey: 'dashboard.menuItems.artisanChronicles', icon: Palette, isNew: true },
@@ -89,6 +91,8 @@ const TouristDashboard: React.FC = () => {
         return <DashboardHome />;
       case 'itinerary':
         return <AIItineraryPlanner />;
+      case 'picture-deck':
+        return <PictureDeck />;
       case 'transport':
         return <TransportTracker />;
       case 'heritage':

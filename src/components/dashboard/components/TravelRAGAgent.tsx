@@ -408,7 +408,7 @@ const retrieveLocalContext = (query: string): RagSource[] => {
 
 type LlmResult = { text: string; budget?: BudgetEstimate };
 const callGemini = async (prompt: string, localContext: RagSource[], webContext: RagSource[], budget?: BudgetEstimate): Promise<LlmResult | null> => {
-  const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5-pro';
+  const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash-exp';
   const proxyEndpoint = import.meta.env.VITE_GEMINI_PROXY;
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 

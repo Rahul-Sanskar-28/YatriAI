@@ -10,6 +10,7 @@ import { BlurFade } from '../../magicui/BlurFade';
 import { WalletConnect, BlockchainVerification } from '../../blockchain';
 import { blockchainService, type VerificationResult, type WalletState, type BlockchainRecord } from '../../../lib/services/blockchain.service';
 import { paymentService, type PaymentResult, type PaymentIntent } from '../../../lib/services/payment.service';
+import { unifiedPaymentService, type PaymentGateway } from '../../../lib/services/unified-payment.service';
 import { DodoPaymentsConfig, isMetaMaskAvailable, ActiveNetwork, isDodoPaymentsConfigured } from '../../../lib/services/config';
 
 const BookingSystem: React.FC = () => {
@@ -81,14 +82,17 @@ const BookingSystem: React.FC = () => {
     }
   };
 
-  // Process payment via Dodo Payments service
+  // Process payment via unified payment service
   const handleCompletePayment = async (booking: typeof bookings[0]) => {
     setProcessingPayment(booking.id);
     try {
-      const result: PaymentResult = await paymentService.createPayment({
+      // Use unified payment service (automatically selects best gateway)
+      const result = await unifiedPaymentService.processPayment({
         amount: booking.amount,
         currency: DodoPaymentsConfig.DEFAULT_CURRENCY,
         description: booking.title,
+        customerEmail: 'customer@example.com', // Get from user profile
+        customerName: 'Customer', // Get from user profile
         items: [{
           id: booking.id,
           name: booking.title,
@@ -98,26 +102,28 @@ const BookingSystem: React.FC = () => {
         metadata: {
           bookingId: booking.id,
           type: booking.type,
-        }
+        },
+        returnUrl: `${window.location.origin}/payment/success?booking=${booking.id}`,
+        cancelUrl: `${window.location.origin}/payment/cancelled?booking=${booking.id}`,
       });
 
       if (result.success) {
-        setPaymentResults(prev => ({ ...prev, [booking.id]: result }));
+        setPaymentResults(prev => ({ ...prev, [booking.id]: result as PaymentResult }));
         
-        // If Dodo Payments is configured and we have a checkout URL, redirect
-        if (isDodoPaymentsConfigured() && result.checkoutUrl) {
-          window.location.href = result.checkoutUrl;
-        } else if (result.redirectUrl) {
-          // Show modal or redirect for mock payments
-          console.log('💳 Payment initiated:', result);
-          alert(`Payment initiated!\n\nPayment ID: ${result.paymentId}\nOrder ID: ${result.orderId || 'N/A'}\n\n${result.message || 'Please complete payment to confirm booking.'}`);
+        // Redirect to payment gateway if URL provided
+        if (result.checkoutUrl || result.redirectUrl) {
+          window.location.href = result.checkoutUrl || result.redirectUrl || '';
+        } else {
+          // Payment completed (for crypto or instant payments)
+          console.log('💳 Payment completed:', result);
+          alert(`Payment completed!\n\nPayment ID: ${result.paymentId}\nOrder ID: ${result.orderId || 'N/A'}\n\nGateway: ${result.gateway}`);
         }
       } else {
         alert('Payment creation failed. Please try again.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment processing failed:', error);
-      alert('An error occurred while processing payment.');
+      alert('An error occurred while processing payment: ' + (error.message || error));
     } finally {
       setProcessingPayment(null);
     }

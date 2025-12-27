@@ -94,6 +94,9 @@ export const ServiceKeys = {
   DODO_PUBLIC_KEY: import.meta.env.VITE_DODO_PUBLIC_KEY || '',
   DODO_SECRET_KEY: import.meta.env.VITE_DODO_SECRET_KEY || '',
   
+  // Note: Razorpay and Stripe services are available but not used by default
+  // Dodo Payments is the primary payment gateway for YatriAI
+  
   // Weather API key (if using a real weather service)
   WEATHER_API_KEY: import.meta.env.VITE_WEATHER_API_KEY || '',
   
@@ -146,6 +149,17 @@ export const DodoPaymentsConfig = {
 // Helper to check if Dodo Payments is configured
 export const isDodoPaymentsConfigured = () => {
   return ServiceKeys.DODO_PUBLIC_KEY !== '' && !ServiceFlags.USE_MOCK_PAYMENT;
+};
+
+// Note: Razorpay and Stripe helpers removed - using Dodo Payments as primary gateway
+
+// Payment Gateway Configuration
+export const PaymentGatewayConfig = {
+  // Default gateway (Dodo Payments)
+  DEFAULT_GATEWAY: import.meta.env.VITE_DEFAULT_PAYMENT_GATEWAY || 'dodo', // 'dodo' | 'crypto'
+  
+  // Gateway priority order (Dodo Payments first, then Crypto)
+  GATEWAY_PRIORITY: ['dodo', 'crypto'] as const,
 };
 
 // ElevenLabs Configuration
@@ -240,11 +254,20 @@ export const ContractAddresses = {
   // Guide Certification NFT Contract
   GUIDE_CERTIFICATE_NFT: import.meta.env.VITE_CONTRACT_GUIDE_NFT || '',
   
+  // Heritage NFT Contract (for heritage location badges)
+  HERITAGE_NFT: import.meta.env.VITE_CONTRACT_HERITAGE_NFT || '',
+  
   // Product Authenticity NFT Contract
   PRODUCT_AUTHENTICITY: import.meta.env.VITE_CONTRACT_PRODUCT_NFT || '',
   
-  // Escrow Contract for Payments
+  // Escrow Contract for Payments (Marketplace)
   PAYMENT_ESCROW: import.meta.env.VITE_CONTRACT_ESCROW || '',
+  
+  // Donation Contract (Pandal Donations)
+  DONATION: import.meta.env.VITE_CONTRACT_DONATION || '',
+  
+  // Booking Escrow Contract (uses BOOKING_VERIFICATION address)
+  // Note: BOOKING_VERIFICATION can be used for both verification and escrow
 };
 
 // Blockchain Configuration
