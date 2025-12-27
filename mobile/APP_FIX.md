@@ -51,3 +51,4 @@ If you still see "Hello Android!":
 2. Check emulator can reach `10.0.2.2:8081` (Metro default port)
 3. Rebuild: `cd android && ./gradlew clean && cd .. && npx expo run:android`
 
+

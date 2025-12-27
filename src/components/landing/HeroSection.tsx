@@ -86,16 +86,16 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section id="hero" className="relative h-screen overflow-hidden">
+    <section id="hero" className="relative min-h-screen h-screen overflow-hidden">
       {/* Background Slideshow */}
       <div className="absolute inset-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url(${heroImages[currentSlide].url})` }}
           />
@@ -105,19 +105,19 @@ const HeroSection: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-kolkata-maroon/40 via-transparent to-black/30" />
         
-        {/* Animated Particles - Kolkata Yellow */}
+        {/* Animated Particles - Kolkata Yellow (reduced on mobile) */}
         <Particles 
-          className="absolute inset-0" 
-          quantity={80} 
+          className="absolute inset-0 hidden sm:block" 
+          quantity={40} 
           color="#FFB800" 
           staticity={30}
         />
 
-        {/* Tram Animation - Bottom */}
+        {/* Tram Animation - Bottom (hidden on mobile for performance) */}
         <motion.div
           animate={{ x: ['100vw', '-100px'] }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-20 z-10 opacity-60"
+          className="absolute bottom-20 z-10 opacity-60 hidden md:block"
         >
           <div className="flex items-center gap-1 text-kolkata-yellow">
             <TramIcon />
@@ -131,32 +131,32 @@ const HeroSection: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="max-w-3xl">
             <BlurFade delay={0.1} inView>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-kolkata-yellow/20 backdrop-blur-sm border border-kolkata-yellow/40">
-                  <Sparkles className="w-4 h-4 text-kolkata-yellow" />
-                  <span className="text-white/90 text-sm font-medium">{t('brand.tagline')}</span>
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-kolkata-yellow/20 backdrop-blur-sm border border-kolkata-yellow/40">
+                  <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-kolkata-yellow" />
+                  <span className="text-white/90 text-xs sm:text-sm font-medium">{t('brand.tagline')}</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-durga-500/20 backdrop-blur-sm border border-durga-500/40">
-                  <span className="text-2xl animate-pulse">🪔</span>
+                <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full bg-durga-500/20 backdrop-blur-sm border border-durga-500/40">
+                  <span className="text-2xl">🪔</span>
                 </div>
               </div>
             </BlurFade>
 
             <BlurFade delay={0.2} inView>
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight font-heritage">
-                <SparklesText sparklesCount={8} colors={{ first: '#FFB800', second: '#E23D28' }}>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-3 sm:mb-4 leading-tight font-heritage">
+                <SparklesText sparklesCount={4} colors={{ first: '#FFB800', second: '#E23D28' }}>
                   {t('hero.title')}
                 </SparklesText>
               </h1>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                <AnimatedGradientText className="text-3xl md:text-5xl font-bold">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold mb-4 sm:mb-6">
+                <AnimatedGradientText className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold">
                   {t('hero.subtitle')}
                 </AnimatedGradientText>
               </h2>
             </BlurFade>
 
             <BlurFade delay={0.3} inView>
-              <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-2xl">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-6 sm:mb-8 leading-relaxed max-w-2xl">
                 {t('hero.description')}
               </p>
             </BlurFade>
@@ -165,33 +165,34 @@ const HeroSection: React.FC = () => {
             <BlurFade delay={0.4} inView>
               <form
                 onSubmit={handleSearch}
-                className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 border-2 border-kolkata-gold/50 dark:border-kolkata-gold/30"
+                className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl mb-6 sm:mb-8 border-2 border-kolkata-gold/50 dark:border-kolkata-gold/30"
               >
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <div className="flex-1 relative group">
-                    <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-kolkata-sepia w-5 h-5 group-focus-within:text-kolkata-yellow transition-colors" />
+                    <MapPin className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-kolkata-sepia w-4 h-4 sm:w-5 sm:h-5 group-focus-within:text-kolkata-yellow transition-colors" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder={t('hero.searchPlaceholder')}
-                      className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-kolkata-gold/40 dark:border-gray-700 bg-kolkata-cream/50 dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-kolkata-yellow text-gray-900 dark:text-white placeholder-kolkata-sepia/70 transition-all font-sans"
+                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl border-2 border-kolkata-gold/40 dark:border-gray-700 bg-kolkata-cream/50 dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-kolkata-yellow text-gray-900 dark:text-white placeholder-kolkata-sepia/70 transition-all font-sans text-sm sm:text-base"
                     />
                   </div>
                   <div className="relative group">
-                    <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-kolkata-sepia w-5 h-5 group-focus-within:text-kolkata-yellow transition-colors" />
+                    <Calendar className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-kolkata-sepia w-4 h-4 sm:w-5 sm:h-5 group-focus-within:text-kolkata-yellow transition-colors" />
                     <input
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full md:w-48 pl-12 pr-4 py-4 rounded-xl border-2 border-kolkata-gold/40 dark:border-gray-700 bg-kolkata-cream/50 dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-kolkata-yellow text-gray-900 dark:text-white transition-all"
+                      className="w-full sm:w-48 pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl border-2 border-kolkata-gold/40 dark:border-gray-700 bg-kolkata-cream/50 dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-kolkata-yellow text-gray-900 dark:text-white transition-all text-sm sm:text-base"
                     />
                   </div>
                   <ShimmerButton 
                     type="submit"
                     background="#FFB800"
+                    className="px-4 sm:px-5 py-3 sm:py-4 text-sm sm:text-base whitespace-nowrap"
                   >
-                    <Search className="w-5 h-5" />
+                    <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>{t('common.explore')}</span>
                   </ShimmerButton>
                 </div>
@@ -200,7 +201,7 @@ const HeroSection: React.FC = () => {
 
             {/* Quick Access Cards - Kolkata Themed */}
             <BlurFade delay={0.5} inView>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 {[
                   { 
                     titleKey: 'features.heritageWalk.title', 
