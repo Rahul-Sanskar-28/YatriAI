@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Star, X, Search, Loader, ArrowLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -57,7 +57,7 @@ const DestinationSearch: React.FC = () => {
   const categoryParam = searchParams.get('category') || '';
   const cityParam = searchParams.get('city') || '';
 
-  const fetchDestinations = async (query: string) => {
+  const fetchDestinations = useCallback(async (query: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -82,14 +82,14 @@ const DestinationSearch: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [categoryParam, cityParam]);
 
   useEffect(() => {
     if (queryParam) {
       setLocalSearch(queryParam);
       fetchDestinations(queryParam);
     }
-  }, [queryParam, categoryParam, cityParam]);
+  }, [queryParam, categoryParam, cityParam, fetchDestinations]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
