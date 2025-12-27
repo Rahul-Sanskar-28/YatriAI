@@ -56,7 +56,7 @@ const InitialLoader: React.FC<InitialLoaderProps> = ({
         
         return prev;
       });
-    }, 30); // Very fast update interval for 1-second loading
+    }, 40); // Balanced update interval for 1.5-second loading
 
     return () => {
       clearInterval(phaseTimer);
