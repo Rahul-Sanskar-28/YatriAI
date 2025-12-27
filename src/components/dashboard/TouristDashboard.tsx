@@ -52,7 +52,7 @@ import HeritageNFT from './components/HeritageNFT';
 import PandalDonations from './components/PandalDonations';
 
 import PictureDeck from './components/PictureDeck';
-
+import TravelPlanningDashboard from './components/TravelPlanningDashboard';
 import GPSSuggestions from './components/GPSSuggestions';
 
 import LanguageSelector from '../common/LanguageSelector';
@@ -90,6 +90,7 @@ const TouristDashboard: React.FC = () => {
 
   const menuItems = [
     { id: 'dashboard', labelKey: 'dashboard.menuItems.dashboard', icon: Home },
+    { id: 'travel-planning', labelKey: 'dashboard.menuItems.travelPlanning', icon: Calendar, isNew: true },
     { id: 'itinerary', labelKey: 'dashboard.menuItems.aiItinerary', icon: Map },
 
     { id: 'picture-deck', labelKey: 'dashboard.menuItems.pictureDeck', icon: Image, isNew: true },
@@ -117,6 +118,8 @@ const TouristDashboard: React.FC = () => {
     switch (activeTab) {
       case 'dashboard':
         return <DashboardHome />;
+      case 'travel-planning':
+        return <TravelPlanningDashboard />;
       case 'itinerary':
         return <AIItineraryPlanner />;
 
