@@ -13,6 +13,7 @@ import itineraryRoutes from './routes/itineraryRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
 import trainRoutes from './routes/trainRoutes.js';
 import mlRoutes from './routes/mlRoutes.js';
+import pictureDeckRoutes from './routes/pictureDeckRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load env from backend/.env and fallback to root .env
@@ -31,6 +32,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Serve static files for audio
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/destinations', destinationRoutes);
@@ -41,6 +45,7 @@ app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/trains', trainRoutes);
 app.use('/api/ml', mlRoutes);
+app.use('/api/picture-deck', pictureDeckRoutes);
 
 // Initialize Gemini AI client
 const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
