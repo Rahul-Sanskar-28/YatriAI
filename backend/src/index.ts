@@ -3,6 +3,7 @@ import axios from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import authRoutes from './routes/authRoutes.js';
 import destinationRoutes from './routes/destinationRoutes.js';
 import guideRoutes from './routes/guideRoutes.js';
@@ -11,6 +12,8 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import itineraryRoutes from './routes/itineraryRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
 import trainRoutes from './routes/trainRoutes.js';
+import mlRoutes from './routes/mlRoutes.js';
+import pictureDeckRoutes from './routes/pictureDeckRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load env from backend/.env and fallback to root .env
@@ -29,6 +32,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Serve static files for audio
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/destinations', destinationRoutes);
@@ -38,22 +44,39 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/trains', trainRoutes);
+app.use('/api/ml', mlRoutes);
+app.use('/api/picture-deck', pictureDeckRoutes);
+
+// Initialize Gemini AI client
+const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+let genAI: GoogleGenerativeAI | null = null;
+
+if (apiKey) {
+  genAI = new GoogleGenerativeAI(apiKey);
+  console.log('✅ Gemini AI SDK initialized');
+} else {
+  console.warn('⚠️ Gemini API key not found - Gemini features will be disabled');
+}
 
 // Gemini proxy to avoid CORS and hide API key
 app.post('/gemini', async (req, res) => {
   try {
-    const { model = 'gemini-1.5-pro', prompt, localContext = [], webContext = [], budget } = req.body;
+    // Default to latest free Flash model: gemini-2.0-flash-exp or fallback to gemini-1.5-flash
+    const { model = 'gemini-2.0-flash-exp', prompt, localContext = [], webContext = [], budget } = req.body;
     if (!prompt || typeof prompt !== 'string') {
       return res.status(400).json({ error: 'Missing required field: prompt' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error('❌ Gemini API key not found in environment variables');
-      return res.status(500).json({ error: 'Gemini API key not configured on server' });
+    if (!genAI) {
+      const apiKeyCheck = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+      if (!apiKeyCheck) {
+        console.error('❌ Gemini API key not found in environment variables');
+        return res.status(500).json({ error: 'Gemini API key not configured on server' });
+      }
+      genAI = new GoogleGenerativeAI(apiKeyCheck);
     }
 
-    console.log(`🔍 Gemini proxy called with model: ${model}`);
+    console.log(`🔍 Gemini proxy called with model: ${model} (using SDK)`);
 
     const contextText = [...(Array.isArray(localContext) ? localContext : []), ...(Array.isArray(webContext) ? webContext : [])]
       .slice(0, 8)
@@ -64,38 +87,60 @@ app.post('/gemini', async (req, res) => {
       ? `Budget window: ₹${new Intl.NumberFormat('en-IN').format(budget.low)} - ₹${new Intl.NumberFormat('en-IN').format(budget.high)} (${budget.basis}).`
       : 'Budget not provided.';
 
-    const body = {
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            {
-              text: [
-                'You are a concise Indian travel planner for Kolkata.',
-                `User request: ${prompt}`,
-                budgetText,
-                contextText ? `Context:\n${contextText}` : 'No retrieved context.',
-                'Return 2-4 bullets: sights, suggested flow, food, and a one-line value tip.',
-              ].join('\n\n'),
-            },
-          ],
-        },
-      ],
-    };
+    const fullPrompt = [
+      'You are a concise Indian travel planner for Kolkata.',
+      `User request: ${prompt}`,
+      budgetText,
+      contextText ? `Context:\n${contextText}` : 'No retrieved context.',
+      'Return 2-4 bullets: sights, suggested flow, food, and a one-line value tip.',
+    ].join('\n\n');
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    console.log(`📡 Calling Gemini API at ${url.split('?')[0]}`);
+    // Use SDK instead of REST API
+    const generativeModel = genAI.getGenerativeModel({ model });
+    const result = await generativeModel.generateContent(fullPrompt);
+    const response = await result.response;
+    const text = response.text();
     
-    const resp = await axios.post(url, body, { headers: { 'Content-Type': 'application/json' } });
-    const data = resp.data;
-    const text = (data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log(`✅ Gemini response received, length: ${text?.length || 0} chars`);
+    console.log(`✅ Gemini SDK response received, length: ${text?.length || 0} chars`);
     return res.json({ text: typeof text === 'string' ? text : '' });
   } catch (error: any) {
-    console.error('❌ Gemini proxy error:', error?.response?.status, error?.response?.data || error?.message || error);
-    return res.status(error?.response?.status || 500).json({ 
+    console.error('❌ Gemini proxy error:', error?.message || error);
+    
+    // If model not found, try fallback to gemini-1.5-flash
+    if (error?.message?.includes('not found') || error?.message?.includes('404')) {
+      const fallbackModel = 'gemini-1.5-flash';
+      console.log(`🔄 Trying fallback model: ${fallbackModel}`);
+      try {
+        const { prompt, localContext = [], webContext = [], budget } = req.body;
+        const contextText = [...(Array.isArray(localContext) ? localContext : []), ...(Array.isArray(webContext) ? webContext : [])]
+          .slice(0, 8)
+          .map((c: any) => `${c.type || 'context'}: ${c.title || ''} — ${c.snippet || ''}`)
+          .join('\n');
+        const budgetText = budget
+          ? `Budget window: ₹${new Intl.NumberFormat('en-IN').format(budget.low)} - ₹${new Intl.NumberFormat('en-IN').format(budget.high)} (${budget.basis}).`
+          : 'Budget not provided.';
+        const fullPrompt = [
+          'You are a concise Indian travel planner for Kolkata.',
+          `User request: ${prompt}`,
+          budgetText,
+          contextText ? `Context:\n${contextText}` : 'No retrieved context.',
+          'Return 2-4 bullets: sights, suggested flow, food, and a one-line value tip.',
+        ].join('\n\n');
+        
+        const generativeModel = genAI!.getGenerativeModel({ model: fallbackModel });
+        const result = await generativeModel.generateContent(fullPrompt);
+        const response = await result.response;
+        const text = response.text();
+        console.log(`✅ Gemini fallback response received, length: ${text?.length || 0} chars`);
+        return res.json({ text: typeof text === 'string' ? text : '' });
+      } catch (fallbackError: any) {
+        console.error('❌ Fallback also failed:', fallbackError?.message || fallbackError);
+      }
+    }
+    
+    return res.status(500).json({ 
       error: 'Gemini proxy failed',
-      details: error?.response?.data?.error || error?.message
+      details: error?.message || 'Unknown error'
     });
   }
 });
