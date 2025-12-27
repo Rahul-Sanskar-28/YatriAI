@@ -19,10 +19,9 @@ cd mobile
 npm start
 ```
 
-3. **Choose your platform:**
-   - Press `a` for Android emulator
-   - Press `i` for iOS simulator  
-   - Scan QR code with Expo Go app on your phone
+3. **Open in Android Emulator:**
+   - Press `a` to open in Android emulator
+   - Make sure emulator is running in Android Studio first
 
 ## If you still see errors:
 
@@ -33,11 +32,11 @@ npx expo start --clear
 
 2. **Check API URL:**
    - Create `.env` file in `mobile/` directory
-   - Add: `EXPO_PUBLIC_API_URL=http://10.79.157.114:3001/api`
+   - Add: `EXPO_PUBLIC_API_URL=http://10.0.2.2:3001/api` (for Android emulator)
    - Restart Expo
 
 3. **Verify backend is accessible:**
-   - From phone browser: `http://10.79.157.114:3001/api/health`
+   - From browser: `http://localhost:3001/api/health`
    - Should return: `{"status":"ok",...}`
 
 ## Troubleshooting
@@ -46,9 +45,9 @@ npx expo start --clear
 - ✅ Fixed by removing expo-router and setting correct main entry
 
 **"Network request failed"**
-- Check phone and computer are on same WiFi
-- Verify backend is running
-- Check `.env` has correct IP address
+- Verify backend is running on localhost:3001
+- Check `.env` has correct API URL (use `http://10.0.2.2:3001/api` for emulator)
+- Android emulator uses `10.0.2.2` to access host's localhost
 
 **"Connection refused"**
 - Backend must listen on `0.0.0.0` (already configured)

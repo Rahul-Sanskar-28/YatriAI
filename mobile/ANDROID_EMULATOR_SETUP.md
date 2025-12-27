@@ -125,7 +125,7 @@ npx expo run:android
 
 - **Android Emulator IP**: `10.0.2.2` maps to host's `localhost`
 - **Backend URL**: Must be `http://localhost:3001` (not network IP)
-- **Performance**: Emulator may be slow - consider using a physical device for better performance
+- **Performance**: Emulator performance depends on your computer's specs
 - **Hot Reload**: Works automatically with Expo
 
 

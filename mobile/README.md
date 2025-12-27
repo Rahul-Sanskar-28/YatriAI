@@ -1,89 +1,75 @@
 # YatriAI Mobile App
 
-React Native mobile application for YatriAI tourism platform, built with Expo and TypeScript.
+React Native mobile app built with Expo for Android and iOS.
 
-## Features
+## Quick Start
 
-- ✅ Offline-first support with SQLite caching
-- ✅ Push notifications
-- ✅ JWT authentication
-- ✅ Network detection and sync
-- ✅ Reuses existing Node.js backend APIs
+### Prerequisites
 
-## Setup
+1. **Node.js** (v18 or higher)
+2. **Android Studio** with Android SDK
+3. **Android Emulator** (created via Android Studio Device Manager)
 
-1. Install dependencies:
-```bash
-npm install
+### Setup
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Start Android Emulator:**
+   - Open Android Studio
+   - Go to **Tools > Device Manager**
+   - Start your emulator (or create one if needed)
+
+3. **Start Backend Server:**
+   ```bash
+   cd ../backend
+   npm run dev
+   ```
+
+4. **Run the App:**
+   ```bash
+   # Option 1: Using Expo Go (easier)
+   npm start
+   # Then press 'a' to open in Android emulator
+
+   # Option 2: Development build (recommended)
+   npx expo run:android
+   ```
+
+## Configuration
+
+### API URL
+
+The app is configured to use `http://10.0.2.2:3001/api` for Android emulator (this IP maps to your host machine's localhost).
+
+To change it, create `.env` file:
+```
+EXPO_PUBLIC_API_URL=http://10.0.2.2:3001/api
 ```
 
-2. Configure environment variables:
-Create a `.env` file:
-```
-EXPO_PUBLIC_API_URL=http://localhost:3001/api
-EXPO_PUBLIC_PROJECT_ID=your-expo-project-id
-```
+## Documentation
 
-3. Start the development server:
-```bash
-npm start
-```
+- **Android Emulator Setup**: See `ANDROID_EMULATOR_SETUP.md`
+- **General Setup**: See `SETUP.md`
 
-4. Run on Android:
-```bash
-npm run android
-```
+## Troubleshooting
 
-## Project Structure
+### "ANDROID_HOME not set"
+- Set `ANDROID_HOME` environment variable to your Android SDK path
+- Or create `android/local.properties` with: `sdk.dir=C:\\Users\\YourUsername\\AppData\\Local\\Android\\Sdk`
 
-```
-mobile/
-├── src/
-│   ├── api/
-│   │   └── client.ts          # Axios API client
-│   ├── screens/
-│   │   ├── LoginScreen.tsx
-│   │   ├── RegisterScreen.tsx
-│   │   └── TouristDashboardScreen.tsx
-│   ├── store/
-│   │   └── authStore.ts       # Zustand auth store
-│   ├── services/
-│   │   ├── offline.ts         # Network detection
-│   │   ├── sync.ts            # Offline queue & sync
-│   │   └── notifications.ts   # Push notifications
-│   ├── navigation/
-│   │   └── AppNavigator.tsx   # Navigation setup
-│   └── utils/
-│       └── index.ts           # Utility functions
-├── App.tsx                     # Main app entry
-└── package.json
-```
+### "No emulator found"
+- Make sure emulator is running in Android Studio
+- Run `adb devices` to verify connection
 
-## Backend Integration
+### "Connection refused"
+- Backend must be running on `localhost:3001`
+- Android emulator uses `10.0.2.2` to access host's localhost
 
-The app connects to the existing Node.js backend at `http://localhost:3001/api`. No backend changes are required.
+## Scripts
 
-## Offline Support
-
-- Actions are queued when offline
-- Automatically syncs when network is restored
-- Uses SQLite for local storage
-
-## Push Notifications
-
-- Expo push notifications configured
-- Token registration on app launch
-- Foreground and background handlers
-
-
-
-
-
-
-
-
-
-
-
-
-
+- `npm start` - Start Expo development server
+- `npm run android` - Build and run on Android emulator
+- `npx expo prebuild` - Generate native Android/iOS folders

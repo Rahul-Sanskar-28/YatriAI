@@ -153,15 +153,15 @@ cd android && ./gradlew clean && cd ..
 ```
 
 ### Network connection issues
-- Ensure backend is running on the configured port
-- Check `EXPO_PUBLIC_API_URL` is correct
-- For Android emulator, use `10.0.2.2` instead of `localhost`
+- Ensure backend is running on `localhost:3001`
+- Check `EXPO_PUBLIC_API_URL` is set to `http://10.0.2.2:3001/api` for Android emulator
+- Android emulator uses `10.0.2.2` to access host machine's localhost
 
 ## Production Checklist
 
 - [ ] Set production API URL in environment
 - [ ] Configure Expo project ID for push notifications
-- [ ] Test on physical devices
+- [ ] Test on Android emulator
 - [ ] Verify offline functionality
 - [ ] Test push notifications
 - [ ] Build production APK/AAB
