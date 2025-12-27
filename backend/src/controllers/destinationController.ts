@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { caseInsensitiveContains } from '../utils/dbHelpers';
+import { caseInsensitiveContains } from '../utils/dbHelpers.js';
 
 const prisma = new PrismaClient();
 

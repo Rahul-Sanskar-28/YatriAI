@@ -26,7 +26,7 @@ export const caseInsensitiveContains = (value: string) => {
  * Validates that the database provider supports case-insensitive queries.
  * This is a runtime check to provide better error messages.
  * 
- * @throws Error if DATABASE_URL doesn't indicate PostgreSQL
+ * @remarks Logs a warning if DATABASE_URL doesn't indicate PostgreSQL
  */
 export const validateDatabaseProvider = () => {
   const databaseUrl = process.env.DATABASE_URL || '';
