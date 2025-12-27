@@ -62,7 +62,7 @@ const AITipsMarquee: React.FC = () => {
       </div>
       
       {/* Marquee - Very slow speed for better readability */}
-      <Marquee pauseOnHover speed={100} className="relative z-0">
+      <Marquee pauseOnHover speed={200} className="relative z-0">
         {allTips.map((item, index) => (
           <TipCard key={index} tipKey={item.tipKey} icon={item.icon} />
         ))}
