@@ -156,35 +156,43 @@
     }
   }
 
-  /* Text gradient - Kolkata Heritage */
+  /* Text gradient - Kolkata Heritage - More subtle */
   .text-gradient {
-    background: linear-gradient(135deg, #FFB800 0%, #C45C26 50%, #E23D28 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #C45C26;
+    text-shadow: 0 1px 2px rgba(196, 92, 38, 0.2);
   }
 
-  /* Durga text gradient */
+  .dark .text-gradient {
+    color: #FFB800;
+    text-shadow: 0 1px 2px rgba(255, 184, 0, 0.2);
+  }
+
+  /* Durga text - solid color */
   .text-gradient-durga {
-    background: linear-gradient(135deg, #E23D28 0%, #FF4136 50%, #FFB800 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #E23D28;
+    text-shadow: 0 1px 2px rgba(226, 61, 40, 0.2);
   }
 
-  /* Border gradient - Kolkata colors */
+  .dark .text-gradient-durga {
+    color: #FF4136;
+    text-shadow: 0 1px 2px rgba(255, 65, 54, 0.2);
+  }
+
+  /* Border styling - solid with subtle inner shadow */
   .border-gradient {
     position: relative;
-    background: linear-gradient(var(--bg-color, white), var(--bg-color, white)) padding-box,
-                linear-gradient(135deg, #FFB800, #C45C26) border-box;
-    border: 2px solid transparent;
+    background: var(--bg-color, white);
+    border: 2px solid #FFB800;
+    box-shadow: inset 0 1px 3px rgba(255, 184, 0, 0.1);
   }
 
   .dark .border-gradient {
     --bg-color: rgb(31, 41, 55);
+    border-color: #D4A015;
+    box-shadow: inset 0 1px 3px rgba(212, 160, 21, 0.1);
   }
 
-  /* Scrollbar styling - Kolkata theme */
+  /* Scrollbar styling - Kolkata theme with solid colors */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -196,15 +204,16 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #FFB800, #C45C26);
+    background: #FFB800;
     border-radius: 3px;
+    border: 1px solid rgba(212, 160, 21, 0.3);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #D4A015, #9a3412);
+    background: #D4A015;
   }
 
-  /* Animated underline - Kolkata */
+  /* Animated underline - solid Kolkata colors */
   .animated-underline {
     position: relative;
     display: inline-block;
@@ -217,13 +226,16 @@
     height: 2px;
     bottom: -2px;
     left: 50%;
-    background: linear-gradient(90deg, #FFB800, #E23D28);
+    background: #FFB800;
     transition: all 0.3s ease;
     transform: translateX(-50%);
+    box-shadow: 0 1px 2px rgba(255, 184, 0, 0.3);
   }
 
   .animated-underline:hover::after {
     width: 100%;
+    background: #E23D28;
+    box-shadow: 0 1px 2px rgba(226, 61, 40, 0.3);
   }
 
   /* Pulse ring animation - Tram Yellow */
@@ -423,43 +435,61 @@ h1, h2, h3 {
   animation: tramMove 20s linear infinite;
 }
 
-/* Kolkata Button Styles */
+  /* Kolkata Button Styles - Solid Colors */
 .btn-kolkata {
-  background: linear-gradient(135deg, #FFB800 0%, #D4A015 100%);
+  background: #FFB800;
   color: #1a1a1a;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.25);
+  border: 1px solid rgba(212, 160, 21, 0.3);
 }
 
 .btn-kolkata:hover {
-  background: linear-gradient(135deg, #D4A015 0%, #FFB800 100%);
-  box-shadow: 0 6px 20px rgba(255, 184, 0, 0.4);
+  background: #D4A015;
+  box-shadow: 0 6px 20px rgba(255, 184, 0, 0.35);
   transform: translateY(-2px);
+  border-color: rgba(212, 160, 21, 0.5);
 }
 
 .btn-durga {
-  background: linear-gradient(135deg, #E23D28 0%, #FF4136 100%);
+  background: #E23D28;
   color: white;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(226, 61, 40, 0.3);
+  box-shadow: 0 4px 15px rgba(226, 61, 40, 0.25);
+  border: 1px solid rgba(255, 65, 54, 0.3);
 }
 
 .btn-durga:hover {
-  box-shadow: 0 6px 20px rgba(226, 61, 40, 0.4);
+  background: #FF4136;
+  box-shadow: 0 6px 20px rgba(226, 61, 40, 0.35);
   transform: translateY(-2px);
+  border-color: rgba(255, 65, 54, 0.5);
 }
 
-/* Card hover effect - Heritage style */
+  /* Card hover effect - Heritage style with solid colors */
 .card-heritage {
   transition: all 0.3s ease;
   border: 1px solid rgba(139, 115, 85, 0.2);
+  background: rgba(255, 254, 247, 0.8);
 }
 
 .card-heritage:hover {
-  border-color: rgba(255, 184, 0, 0.5);
+  border-color: rgba(255, 184, 0, 0.6);
   box-shadow: 0 20px 40px rgba(139, 115, 85, 0.15);
+  background: rgba(255, 254, 247, 1);
+  transform: translateY(-2px);
+}
+
+.dark .card-heritage {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(139, 115, 85, 0.3);
+}
+
+.dark .card-heritage:hover {
+  background: rgba(31, 41, 55, 1);
+  border-color: rgba(212, 160, 21, 0.6);
 }
 
 /* ===== GOOGLE TRANSLATE INTEGRATION ===== */
@@ -1355,6 +1385,73 @@ body {
   border-right: 2px solid #FFB800;
   white-space: nowrap;
   animation: typewriter 2s steps(40, end), blink 1s step-end infinite;
+}
+
+/* Initial Loading Animations */
+@keyframes initial-fade-in {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px) scale(0.9); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+@keyframes logo-entrance {
+  0% { 
+    opacity: 0; 
+    transform: scale(0) rotate(-180deg); 
+  }
+  50% { 
+    opacity: 0.5; 
+    transform: scale(1.2) rotate(-90deg); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) rotate(0deg); 
+  }
+}
+
+@keyframes text-glow {
+  0%, 100% { 
+    text-shadow: 0 0 5px rgba(196, 92, 38, 0.3); 
+  }
+  50% { 
+    text-shadow: 0 0 20px rgba(196, 92, 38, 0.6), 0 0 30px rgba(255, 184, 0, 0.4); 
+  }
+}
+
+@keyframes ring-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+}
+
+.initial-fade-in {
+  animation: initial-fade-in 0.8s ease-out;
+}
+
+.logo-entrance {
+  animation: logo-entrance 1.2s ease-out;
+}
+
+.text-glow {
+  animation: text-glow 2s ease-in-out infinite;
+}
+
+.ring-pulse {
+  animation: ring-pulse 2s ease-in-out infinite;
 }
 
 /* Particle effects */
