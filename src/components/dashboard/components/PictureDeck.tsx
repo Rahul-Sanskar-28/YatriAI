@@ -18,6 +18,7 @@ import {
 import axios from 'axios';
 import { useAuth } from '../../../contexts/AuthContext';
 import api from '../../../lib/api';
+import ReactMarkdown from 'react-markdown'
 
 interface MonumentStory {
   story: string;
@@ -440,7 +441,7 @@ const PictureDeck: React.FC = () => {
               <div className="prose prose-lg max-w-none">
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-inner border border-kolkata-gold/10">
                   <p className="text-gray-800 dark:text-gray-200 leading-relaxed text-lg font-medium whitespace-pre-wrap">
-                    {monumentStory.story}
+                    <ReactMarkdown>{monumentStory.story}</ReactMarkdown>
                   </p>
                 </div>
               </div>

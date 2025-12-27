@@ -172,20 +172,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                     <button
                       key={role.id}
                       onClick={() => handleRoleSelect(role.id)}
-                      className="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-transparent hover:shadow-lg transition-all duration-300 text-left group"
-                      style={{
-                        background: `linear-gradient(135deg, transparent, transparent), linear-gradient(135deg, ${role.color.split(' ')[1]}, ${role.color.split(' ')[3]})`
-                      }}
+                      className="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-300 text-left group"
                     >
                       <div className="flex items-start space-x-4">
                         <div className={`p-3 rounded-lg bg-gradient-to-r ${role.color} text-white`}>
                           <IconComponent className="w-6 h-6" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-white transition-colors">
+                          <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                             {t(role.titleKey)}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-white/80 transition-colors">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
                             {t(role.descriptionKey)}
                           </p>
                         </div>
