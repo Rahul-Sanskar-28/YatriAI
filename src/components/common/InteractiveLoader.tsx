@@ -73,13 +73,21 @@ const InteractiveLoader: React.FC<InteractiveLoaderProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[9999] bg-gradient-to-br from-kolkata-cream via-white to-kolkata-yellow/20 dark:from-gray-900 dark:via-gray-800 dark:to-kolkata-gold/10 flex items-center justify-center overflow-hidden"
+        className="fixed inset-0 z-[9999] bg-kolkata-cream dark:bg-gray-900 flex items-center justify-center overflow-hidden"
       >
         {/* Animated Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 animate-pulse">
-            <div className="w-full h-full opacity-20 bg-gradient-to-br from-kolkata-yellow/10 to-kolkata-terracotta/10"></div>
+            <div className="w-full h-full opacity-30 bg-kolkata-yellow"></div>
           </div>
+        </div>
+
+        {/* Subtle Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="w-full h-full" style={{
+            backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255, 184, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(196, 92, 38, 0.1) 0%, transparent 50%)`,
+            backgroundSize: '100px 100px'
+          }}></div>
         </div>
 
         {/* Floating Heritage Icons */}
@@ -128,10 +136,10 @@ const InteractiveLoader: React.FC<InteractiveLoaderProps> = ({
             <div className="relative">
               {/* Pulsing Ring */}
               <motion.div
-                className="absolute inset-0 rounded-full border-4 border-kolkata-yellow/30"
+                className="absolute inset-0 rounded-full border-4 border-kolkata-yellow/40"
                 animate={{
                   scale: [1, 1.5, 1],
-                  opacity: [0.3, 0, 0.3],
+                  opacity: [0.4, 0, 0.4],
                 }}
                 transition={{
                   duration: 2,
@@ -142,7 +150,7 @@ const InteractiveLoader: React.FC<InteractiveLoaderProps> = ({
               />
               
               {/* Main Icon */}
-              <div className="w-24 h-24 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta rounded-full flex items-center justify-center shadow-2xl shadow-kolkata-yellow/30">
+              <div className="w-24 h-24 bg-kolkata-yellow rounded-full flex items-center justify-center shadow-2xl shadow-kolkata-yellow/40 border-4 border-kolkata-gold/20">
                 <TramIcon className="w-12 h-12 text-white" />
               </div>
               
@@ -171,10 +179,10 @@ const InteractiveLoader: React.FC<InteractiveLoaderProps> = ({
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <h1 className="text-3xl font-bold font-heritage bg-gradient-to-r from-kolkata-terracotta to-kolkata-gold bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold font-heritage text-kolkata-terracotta dark:text-kolkata-gold">
               YatriAI
             </h1>
-            <p className="text-sm text-kolkata-sepia dark:text-kolkata-gold/60 mt-1">
+            <p className="text-sm text-kolkata-sepia dark:text-kolkata-gold/70 mt-1">
               Smart Tourism Platform
             </p>
           </motion.div>
@@ -203,7 +211,7 @@ const InteractiveLoader: React.FC<InteractiveLoaderProps> = ({
             >
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta rounded-full"
+                  className="h-full bg-kolkata-terracotta rounded-full shadow-inner"
                   initial={{ width: "0%" }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.5, ease: "easeOut" }}

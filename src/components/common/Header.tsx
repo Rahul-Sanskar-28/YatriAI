@@ -61,15 +61,15 @@ const Header: React.FC = () => {
               <motion.div 
                 whileHover={{ rotate: [0, -10, 10, 0] }}
                 transition={{ duration: 0.5 }}
-                className="w-10 h-10 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta rounded-xl flex items-center justify-center shadow-lg shadow-kolkata-yellow/30"
+                className="w-10 h-10 bg-kolkata-yellow rounded-xl flex items-center justify-center shadow-lg shadow-kolkata-yellow/40 border-2 border-kolkata-gold/30"
               >
                 <TramIcon className="w-6 h-6 text-white" />
               </motion.div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1">
-                  <AnimatedGradientText className="text-xl font-bold font-heritage">
+                  <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">
                     {t('brand.name').split(' ')[0] || 'Kolkata'}
-                  </AnimatedGradientText>
+                  </span>
                   <span className="text-xl font-bold text-kolkata-terracotta dark:text-kolkata-gold font-heritage">{t('brand.name').split(' ')[1] || 'Heritage'}</span>
                 </div>
                 <span className="text-xs text-kolkata-sepia dark:text-kolkata-gold/60 -mt-1">{t('brand.tagline')}</span>
@@ -87,7 +87,7 @@ const Header: React.FC = () => {
                   className="relative px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors font-medium text-sm group"
                 >
                   <span>{t(item.labelKey)}</span>
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 group-hover:w-3/4 transition-all duration-300 rounded-full" />
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-kolkata-yellow group-hover:w-3/4 transition-all duration-300 rounded-full" />
                 </motion.button>
               ))}
             </nav>
@@ -130,7 +130,7 @@ const Header: React.FC = () => {
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         className="absolute right-0 mt-2 w-56 bg-kolkata-cream dark:bg-gray-800 rounded-xl shadow-xl border border-kolkata-gold/20 dark:border-gray-700 overflow-hidden"
                       >
-                        <div className="px-4 py-3 border-b border-kolkata-gold/20 dark:border-gray-700 bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/20 dark:from-kolkata-gold/10 dark:to-durga-500/10">
+                        <div className="px-4 py-3 border-b border-kolkata-gold/20 dark:border-gray-700 bg-kolkata-yellow/10 dark:bg-kolkata-gold/10">
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                         </div>
