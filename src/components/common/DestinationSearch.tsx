@@ -43,6 +43,8 @@ interface Destination {
   amenities?: string[];
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 const DestinationSearch: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -68,7 +70,7 @@ const DestinationSearch: React.FC = () => {
       if (cityParam) params.append('city', cityParam);
 
       const response = await axios.get(
-        `http://localhost:3001/api/destinations/search?${params.toString()}`
+        `${API_BASE_URL}/destinations/search?${params.toString()}`
       );
 
       if (response.data.success) {
