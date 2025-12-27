@@ -259,13 +259,13 @@ navigate('/search?query=heritage&category=cultural');
 ### API Testing with curl:
 ```bash
 # Search destinations
-curl "http://localhost:3000/api/destinations/search?query=memorial"
+curl "http://localhost:3001/api/destinations/search?query=memorial"
 
 # Get all destinations
-curl "http://localhost:3000/api/destinations"
+curl "http://localhost:3001/api/destinations"
 
 # Get specific destination
-curl "http://localhost:3000/api/destinations/[DESTINATION_ID]"
+curl "http://localhost:3001/api/destinations/[DESTINATION_ID]"
 ```
 
 ## Styling
