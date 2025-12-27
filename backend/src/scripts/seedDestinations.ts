@@ -1,8 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const sampleDestinations = [
+const sampleDestinations: Prisma.DestinationCreateInput[] = [
   {
     name: 'Victoria Memorial',
     description: 'A magnificent white marble building dedicated to Queen Victoria, now serving as a museum showcasing the history of Kolkata and the British Raj. The memorial is surrounded by lush gardens and is one of the most iconic landmarks of the city.',
@@ -105,7 +105,7 @@ async function seedDestinations() {
     // Create new destinations
     for (const dest of sampleDestinations) {
       const created = await prisma.destination.create({
-        data: dest as any
+        data: dest
       });
       console.log(`✅ Created: ${created.name}`);
     }
