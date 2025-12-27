@@ -4,12 +4,13 @@
  */
 
 import React from 'react';
+import { AppRegistry } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
 
-export default function App() {
+function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
@@ -19,6 +20,16 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
+
+// Register the app component with React Native
+AppRegistry.registerComponent('main', () => App);
+
+export default App;
+
+
+
+
+
 
 
 

@@ -13,7 +13,10 @@ import itineraryRoutes from './routes/itineraryRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
 import trainRoutes from './routes/trainRoutes.js';
 import mlRoutes from './routes/mlRoutes.js';
+<<<<<<< HEAD
 import pictureDeckRoutes from './routes/pictureDeckRoutes.js';
+=======
+>>>>>>> origin/main
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load env from backend/.env and fallback to root .env
@@ -45,7 +48,10 @@ app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/trains', trainRoutes);
 app.use('/api/ml', mlRoutes);
+<<<<<<< HEAD
 app.use('/api/picture-deck', pictureDeckRoutes);
+=======
+>>>>>>> origin/main
 
 // Initialize Gemini AI client
 const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
