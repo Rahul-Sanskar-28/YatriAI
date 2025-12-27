@@ -46,10 +46,9 @@ interface Destination {
 
 interface DestinationDetailProps {
   destination: Destination;
-  onClose?: () => void;
 }
 
-export const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, onClose }) => {
+export const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination }) => {
   const { location, details, howToReach, tags, amenities } = destination;
 
   const getTransportIcon = (transport: string) => {
