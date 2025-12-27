@@ -137,3 +137,4 @@ npx cap open android
 
 **Ready to run!** Follow the 5 steps above to get your app running on a physical device.
 
+

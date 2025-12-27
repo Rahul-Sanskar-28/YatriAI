@@ -76,3 +76,4 @@ grep -n "FloatingTranslateButton" mobile/src/screens/TouristDashboardScreen.tsx
 # Should return nothing
 ```
 
+

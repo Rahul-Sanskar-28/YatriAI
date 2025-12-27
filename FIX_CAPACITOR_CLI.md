@@ -138,3 +138,4 @@ foreach ($path in $studioPaths) {
 5. Sync: `npx cap sync android`
 6. Open: `npx cap open android`
 
+

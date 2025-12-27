@@ -84,3 +84,4 @@
 3. Further optimize images if needed
 4. Consider service worker for offline support
 
+

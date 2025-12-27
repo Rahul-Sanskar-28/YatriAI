@@ -247,3 +247,4 @@ APK location: `android/app/build/outputs/apk/release/app-release.apk`
 - **Environment variables**: Use `VITE_*` prefix, accessible via `import.meta.env.VITE_*`
 - **Backend URL**: Use your computer's IP address, not `localhost` (e.g., `http://192.168.1.100:3001`)
 
+

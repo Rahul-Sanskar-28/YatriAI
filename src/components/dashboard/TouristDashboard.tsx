@@ -224,20 +224,6 @@ const TouristDashboard: React.FC = () => {
               transition={{ type: 'tween', duration: 0.3 }}
               className={`fixed lg:sticky top-[60px] left-0 h-[calc(100vh-60px)] w-64 bg-white dark:bg-gray-800 shadow-lg overflow-y-auto z-50 lg:z-auto`}
             >
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-3">
-              <img
-                src={user?.avatar}
-                alt={user?.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
-              </div>
-            </div>
-          </div>
-
               <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-3">
                   <img

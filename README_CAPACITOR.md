@@ -150,3 +150,4 @@ See `docs/CAPACITOR_ANDROID_SETUP.md` for production build instructions.
 - Web app codebase remains unchanged
 - Only Capacitor wrapper added
 
+
