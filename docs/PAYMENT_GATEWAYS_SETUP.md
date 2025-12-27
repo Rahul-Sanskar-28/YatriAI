@@ -242,3 +242,4 @@ POST /api/payments/stripe/create-intent
 **Your platform now supports real payment gateways!** 🎉
 
 
+

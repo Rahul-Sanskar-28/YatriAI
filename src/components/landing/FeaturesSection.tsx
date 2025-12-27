@@ -40,6 +40,11 @@ const FeaturesSection: React.FC = () => {
     }
   };
 
+  const handleAuthSuccess = () => {
+    // After successful login, always redirect to tourist dashboard
+    navigate('/tourist-dashboard');
+  };
+
   const features = [
     {
       Icon: TramIcon,
@@ -220,8 +225,13 @@ const FeaturesSection: React.FC = () => {
         </BlurFade>
       </div>
 
-      {/* Auth Modal */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      {/* Auth Modal - Force tourist role and redirect to tourist dashboard */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        forceTouristRole={true}
+        onSuccessRedirect={handleAuthSuccess}
+      />
     </section>
   );
 };

@@ -83,9 +83,11 @@ const TouristDashboardScreen: React.FC = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View>
+        <View style={styles.headerLeft}>
           <Text style={styles.greeting}>Welcome back,</Text>
-          <Text style={styles.userName}>{user?.name || 'User'}</Text>
+          <Text style={styles.userName} numberOfLines={1}>
+            {user?.name || 'User'}
+          </Text>
         </View>
         <Pressable onPress={handleLogout} style={styles.logoutButton}>
           <Text style={styles.logoutText}>Logout</Text>
@@ -174,26 +176,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 24,
+    padding: 16,
+    paddingHorizontal: 20,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
+  },
+  headerLeft: {
+    flex: 1,
+    marginRight: 12,
+    minWidth: 0, // Allows text to shrink
   },
   greeting: {
     fontSize: 14,
     color: '#6B7280',
   },
   userName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#111827',
     marginTop: 4,
   },
   logoutButton: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     borderRadius: 8,
     backgroundColor: '#EF4444',
+    flexShrink: 0, // Prevents button from shrinking
   },
   logoutText: {
     color: '#FFFFFF',

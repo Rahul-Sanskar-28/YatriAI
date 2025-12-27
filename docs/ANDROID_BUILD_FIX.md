@@ -67,3 +67,4 @@ cd mobile/android
 - Expo SDK 51 compatibility with Gradle 8.8+
 - React Native 0.74.5 with Expo modules
 
+

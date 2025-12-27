@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -25,9 +25,11 @@ import {
   Heart,
   Sun,
   Moon,
+  Menu,
+  X,
   Navigation
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { bookings } from '../../data/mockData';
@@ -60,9 +62,26 @@ const TouristDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAddaBotOpen, setIsAddaBotOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true); // Auto-open sidebar on desktop
+      } else {
+        setIsSidebarOpen(false); // Auto-close sidebar on mobile
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -146,22 +165,33 @@ const TouristDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Top Header Bar */}
       <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between px-6 py-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta rounded-lg flex items-center justify-center">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* Burger Menu Button - Mobile */}
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="lg:hidden p-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            
+            <div className="w-8 h-8 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-white text-lg">🪔</span>
             </div>
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white font-heritage">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white font-heritage">
               {t('brand.name')}
             </h1>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Language Selector */}
-            <LanguageSelector />
+            <div className="hidden sm:block">
+              <LanguageSelector />
+            </div>
             
             {/* Theme Toggle */}
             <motion.button
-              whileHover={{ scale: 1.1, rotate: 180 }}
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleTheme}
               className="p-2 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10"
@@ -183,69 +213,98 @@ const TouristDashboard: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 bg-white dark:bg-gray-800 shadow-lg h-[calc(100vh-60px)] sticky top-[60px] overflow-y-auto">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-3">
-              <img
-                src={user?.avatar}
-                alt={user?.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
-              </div>
-            </div>
-          </div>
+      <div className="flex relative">
+        {/* Sidebar Backdrop - Mobile */}
+        <AnimatePresence>
+          {isSidebarOpen && isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+            />
+          )}
+        </AnimatePresence>
 
-          <nav className="p-4 flex flex-col h-[calc(100%-5rem)]">
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-              {menuItems.map((item) => {
-                const IconComponent = item.icon;
-                const isNewFeature = 'isNew' in item && item.isNew;
-                const isBlockchain = 'isBlockchain' in item && item.isBlockchain;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors mb-2 ${
-                      activeTab === item.id
-                        ? 'bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/20 text-kolkata-terracotta dark:text-kolkata-gold border border-kolkata-yellow/30'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    <IconComponent className={`w-5 h-5 ${isNewFeature ? 'text-kolkata-terracotta' : ''} ${isBlockchain ? 'text-purple-500' : ''}`} />
-                    <span className="font-medium flex-1 text-sm">{t(item.labelKey)}</span>
-                    {isBlockchain ? (
-                      <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold rounded-full">
-                        ⛓️
-                      </span>
-                    ) : isNewFeature && (
-                      <span className="px-2 py-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 text-white text-xs font-bold rounded-full animate-pulse">
-                        {t('common.new')}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-            
-            {/* Logout Button */}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 mt-4 border-t border-gray-200 dark:border-gray-700 pt-4"
+        {/* Sidebar */}
+        <AnimatePresence>
+          {(isSidebarOpen || !isMobile) && (
+            <motion.aside
+              initial={isMobile ? { x: '-100%' } : false}
+              animate={isMobile ? { x: 0 } : false}
+              exit={isMobile ? { x: '-100%' } : false}
+              transition={{ type: 'tween', duration: 0.3 }}
+              className={`fixed lg:sticky top-[60px] left-0 h-[calc(100vh-60px)] w-64 bg-white dark:bg-gray-800 shadow-lg overflow-y-auto z-50 lg:z-auto`}
             >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">{t('auth.logout')}</span>
-            </button>
-          </nav>
-        </div>
+              <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={user?.avatar}
+                    alt={user?.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
+                  </div>
+                </div>
+              </div>
+
+              <nav className="p-4 flex flex-col h-[calc(100%-5rem)]">
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                  {menuItems.map((item) => {
+                    const IconComponent = item.icon;
+                    const isNewFeature = 'isNew' in item && item.isNew;
+                    const isBlockchain = 'isBlockchain' in item && item.isBlockchain;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setActiveTab(item.id);
+                          if (isMobile) setIsSidebarOpen(false); // Close sidebar on mobile after selection
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors mb-2 ${
+                          activeTab === item.id
+                            ? 'bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/20 text-kolkata-terracotta dark:text-kolkata-gold border border-kolkata-yellow/30'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        <IconComponent className={`w-5 h-5 flex-shrink-0 ${isNewFeature ? 'text-kolkata-terracotta' : ''} ${isBlockchain ? 'text-purple-500' : ''}`} />
+                        <span className="font-medium flex-1 text-sm">{t(item.labelKey)}</span>
+                        {isBlockchain ? (
+                          <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold rounded-full flex-shrink-0">
+                            ⛓️
+                          </span>
+                        ) : isNewFeature && (
+                          <span className="px-2 py-0.5 bg-gradient-to-r from-kolkata-yellow to-durga-500 text-white text-xs font-bold rounded-full animate-pulse flex-shrink-0">
+                            {t('common.new')}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                {/* Logout Button */}
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    if (isMobile) setIsSidebarOpen(false);
+                  }}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 mt-4 border-t border-gray-200 dark:border-gray-700 pt-4"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">{t('auth.logout')}</span>
+                </button>
+              </nav>
+            </motion.aside>
+          )}
+        </AnimatePresence>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-x-hidden">
-          <div className="p-8">
+        <div className="flex-1 w-full lg:w-auto overflow-x-hidden">
+          <div className="p-4 sm:p-6 lg:p-8">
             {renderContent()}
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -14,10 +14,11 @@ import HeritageSection from './components/landing/HeritageSection';
 import PujoSection from './components/landing/PujoSection';
 import ArtisansSection from './components/landing/ArtisansSection';
 import SectionTransition from './components/common/SectionTransition';
-import TouristDashboard from './components/dashboard/TouristDashboard';
-import AdminDashboard from './components/dashboard/AdminDashboard';
-import GuideDashboard from './components/dashboard/GuideDashboard';
-import MarketplaceDashboard from './components/dashboard/MarketplaceDashboard';
+// Lazy load dashboards for better performance
+const TouristDashboard = lazy(() => import('./components/dashboard/TouristDashboard'));
+const AdminDashboard = lazy(() => import('./components/dashboard/AdminDashboard'));
+const GuideDashboard = lazy(() => import('./components/dashboard/GuideDashboard'));
+const MarketplaceDashboard = lazy(() => import('./components/dashboard/MarketplaceDashboard'));
 import TranslateTest from './components/common/TranslateTest';
 import LoadingDemo from './components/common/LoadingDemo';
 import InteractiveLoader from './components/common/InteractiveLoader';
@@ -25,6 +26,7 @@ import InitialLoader from './components/common/InitialLoader';
 import { initializeServices } from './lib/services';
 import { DEBUG_PANEL_ENABLED } from './lib/debug';
 import { DebugPanel } from './components/debug/DebugPanel';
+import BrowserOnlyTranslate from './components/common/BrowserOnlyTranslate';
 import './lib/utils/translateDebug'; // Load debug utilities
 
 const LandingPage: React.FC = () => {
@@ -92,6 +94,18 @@ const LoadingScreen: React.FC = () => {
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent mx-auto mb-4"></div>
         <p className="text-gray-600 dark:text-gray-400">Loading YatriAI...</p>
+      </div>
+    </div>
+  );
+};
+
+// Simple loading component for Suspense fallbacks (doesn't use hooks)
+const DashboardLoadingFallback: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Loading Dashboard...</p>
       </div>
     </div>
   );
@@ -255,11 +269,39 @@ const AppWithLoader: React.FC = () => {
         {/* Role-based landing and redirects */}
         <Route path="/" element={<AppContent />} />
 
-        {/* Explicit dashboard routes */}
-        <Route path="/tourist-dashboard" element={<TouristDashboard />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/guide-dashboard" element={<GuideDashboard />} />
-        <Route path="/marketplace-dashboard" element={<MarketplaceDashboard />} />
+        {/* Explicit dashboard routes - Lazy loaded */}
+        <Route 
+          path="/tourist-dashboard" 
+          element={
+            <Suspense fallback={<DashboardLoadingFallback />}>
+              <TouristDashboard />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/admin-dashboard" 
+          element={
+            <Suspense fallback={<DashboardLoadingFallback />}>
+              <AdminDashboard />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/guide-dashboard" 
+          element={
+            <Suspense fallback={<DashboardLoadingFallback />}>
+              <GuideDashboard />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/marketplace-dashboard" 
+          element={
+            <Suspense fallback={<DashboardLoadingFallback />}>
+              <MarketplaceDashboard />
+            </Suspense>
+          } 
+        />
         
         {/* Test page for Google Translate */}
         <Route path="/translate-test" element={<TranslateTest />} />
@@ -271,6 +313,11 @@ const AppWithLoader: React.FC = () => {
         <Route path="/:lang" element={<AppContent />} />
         <Route path="/:lang/dashboard" element={<AppContent />} />
       </Routes>
+      
+      {/* Floating Translate Icon - Global */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <BrowserOnlyTranslate variant="floating" />
+      </div>
       
       {/* Debug Panel - Only shown in development or when debug mode is enabled */}
       {DEBUG_PANEL_ENABLED && <DebugPanel />}
