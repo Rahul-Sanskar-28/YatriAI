@@ -50,7 +50,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-kolkata-cream/80 dark:bg-gray-900/80 backdrop-blur-md shadow-lg sticky top-0 z-50 transition-colors duration-300 border-b border-kolkata-gold/20 dark:border-kolkata-gold/10">
+      <header className="bg-kolkata-cream/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg sticky top-0 z-50 transition-colors duration-300 border-b-2 border-kolkata-gold/40 dark:border-kolkata-gold/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo - Kolkata Heritage */}
@@ -128,9 +128,9 @@ const Header: React.FC = () => {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-56 bg-kolkata-cream dark:bg-gray-800 rounded-xl shadow-xl border border-kolkata-gold/20 dark:border-gray-700 overflow-hidden"
+                        className="bg-kolkata-cream/95 dark:bg-gray-800 rounded-xl shadow-xl border border-kolkata-gold/30 dark:border-gray-700 overflow-hidden"
                       >
-                        <div className="px-4 py-3 border-b border-kolkata-gold/20 dark:border-gray-700 bg-kolkata-yellow/10 dark:bg-kolkata-gold/10">
+                        <div className="px-4 py-3 border-b border-kolkata-gold/30 dark:border-gray-700 bg-kolkata-yellow/20 dark:bg-kolkata-gold/20">
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                         </div>
@@ -153,7 +153,7 @@ const Header: React.FC = () => {
                 <ShimmerButton
                   onClick={() => setIsAuthModalOpen(true)}
                   className="px-5 py-2 text-sm"
-                  background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
+                  background="#FFB800"
                 >
                   <User className="w-4 h-4" />
                   <span>{t('auth.login')}</span>
@@ -181,7 +181,7 @@ const Header: React.FC = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="md:hidden overflow-hidden"
               >
-                <nav className="py-4 border-t border-kolkata-gold/20 dark:border-gray-700 space-y-2">
+                <nav className="py-4 border-t-2 border-kolkata-gold/30 dark:border-gray-700 space-y-2 bg-kolkata-yellow/5 dark:bg-kolkata-gold/5 rounded-b-xl">
                   {navItems.map((item, index) => (
                     <motion.button
                       key={item.key}
@@ -189,7 +189,7 @@ const Header: React.FC = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10 rounded-xl transition-all font-medium"
+                      className="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold hover:bg-kolkata-yellow/20 dark:hover:bg-kolkata-gold/20 rounded-xl transition-all font-medium border border-transparent hover:border-kolkata-gold/30"
                     >
                       <span>{t(item.labelKey)}</span>
                     </motion.button>

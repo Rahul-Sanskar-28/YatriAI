@@ -121,7 +121,7 @@ const HeroSection: React.FC = () => {
         >
           <div className="flex items-center gap-1 text-kolkata-yellow">
             <TramIcon />
-            <div className="w-32 h-1 bg-gradient-to-r from-kolkata-yellow to-transparent rounded" />
+            <div className="w-32 h-1 bg-kolkata-yellow rounded" />
           </div>
         </motion.div>
       </div>
@@ -165,7 +165,7 @@ const HeroSection: React.FC = () => {
             <BlurFade delay={0.4} inView>
               <form
                 onSubmit={handleSearch}
-                className="bg-kolkata-cream/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 border border-kolkata-gold/30"
+                className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 border-2 border-kolkata-gold/50 dark:border-kolkata-gold/30"
               >
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex-1 relative group">
@@ -175,7 +175,7 @@ const HeroSection: React.FC = () => {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder={t('hero.searchPlaceholder')}
-                      className="w-full pl-12 pr-4 py-4 rounded-xl border border-kolkata-sepia/30 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent text-gray-900 dark:text-white placeholder-kolkata-sepia/60 transition-all font-sans"
+                      className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-kolkata-gold/40 dark:border-gray-700 bg-kolkata-cream/50 dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-kolkata-yellow text-gray-900 dark:text-white placeholder-kolkata-sepia/70 transition-all font-sans"
                     />
                   </div>
                   <div className="relative group">
@@ -184,12 +184,12 @@ const HeroSection: React.FC = () => {
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full md:w-48 pl-12 pr-4 py-4 rounded-xl border border-kolkata-sepia/30 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-transparent text-gray-900 dark:text-white transition-all"
+                      className="w-full md:w-48 pl-12 pr-4 py-4 rounded-xl border-2 border-kolkata-gold/40 dark:border-gray-700 bg-kolkata-cream/50 dark:bg-gray-800 focus:ring-2 focus:ring-kolkata-yellow focus:border-kolkata-yellow text-gray-900 dark:text-white transition-all"
                     />
                   </div>
                   <ShimmerButton 
                     type="submit"
-                    background="linear-gradient(135deg, #FFB800 0%, #C45C26 100%)"
+                    background="#FFB800"
                   >
                     <Search className="w-5 h-5" />
                     <span>{t('common.explore')}</span>
@@ -205,24 +205,24 @@ const HeroSection: React.FC = () => {
                   { 
                     titleKey: 'features.heritageWalk.title', 
                     icon: '🏛️', 
-                    color: 'from-kolkata-yellow to-kolkata-gold', 
-                    hoverColor: 'hover:from-kolkata-gold hover:to-kolkata-yellow',
+                    color: 'bg-kolkata-yellow', 
+                    hoverColor: 'hover:bg-kolkata-gold',
                     shadow: 'shadow-tram',
                     dashboardTab: 'heritage'
                   },
                   { 
                     titleKey: 'features.pujoRoute.title', 
                     icon: '🪔', 
-                    color: 'from-durga-500 to-kolkata-vermillion', 
-                    hoverColor: 'hover:from-kolkata-vermillion hover:to-durga-500',
+                    color: 'bg-durga-500', 
+                    hoverColor: 'hover:bg-kolkata-vermillion',
                     shadow: 'shadow-terracotta',
                     dashboardTab: 'pandal-donations'
                   },
                   { 
                     titleKey: 'features.artisanMarket.title', 
                     icon: '🎭', 
-                    color: 'from-kolkata-terracotta to-kolkata-maroon', 
-                    hoverColor: 'hover:from-kolkata-maroon hover:to-kolkata-terracotta',
+                    color: 'bg-kolkata-terracotta', 
+                    hoverColor: 'hover:bg-kolkata-maroon',
                     shadow: 'shadow-heritage',
                     dashboardTab: 'artisans'
                   }
@@ -232,7 +232,7 @@ const HeroSection: React.FC = () => {
                     onClick={() => handleQuickAccess(card.dashboardTab)}
                     whileHover={{ scale: 1.05, y: -5 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`relative bg-gradient-to-r ${card.color} ${card.hoverColor} text-white p-6 rounded-xl transition-all duration-300 group overflow-hidden ${card.shadow}`}
+                    className={`relative ${card.color} ${card.hoverColor} text-white p-6 rounded-xl transition-all duration-300 group overflow-hidden ${card.shadow}`}
                   >
                     {/* Shimmer overlay */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -262,7 +262,7 @@ const HeroSection: React.FC = () => {
             onClick={() => setCurrentSlide(index)}
             className={`transition-all duration-300 rounded-full ${
               index === currentSlide 
-                ? 'w-8 h-3 bg-gradient-to-r from-kolkata-yellow to-durga-500' 
+                ? 'w-8 h-3 bg-kolkata-yellow' 
                 : 'w-3 h-3 bg-white/50 hover:bg-white/75'
             }`}
           />

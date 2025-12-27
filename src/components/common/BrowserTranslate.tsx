@@ -179,8 +179,9 @@ const BrowserTranslate: React.FC<BrowserTranslateProps> = ({ variant = 'header' 
   };
 
   if (variant === 'floating') {
-    return (
-      <div className="fixed bottom-6 right-6 z-50">
+    // Floating variant is disabled - return null
+    return null;
+  }
         <AnimatePresence>
           {isOpen && (
             <motion.div

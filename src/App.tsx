@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -20,7 +20,7 @@ import MarketplaceDashboard from './components/dashboard/MarketplaceDashboard';
 import TranslateTest from './components/common/TranslateTest';
 import LoadingDemo from './components/common/LoadingDemo';
 import InteractiveLoader from './components/common/InteractiveLoader';
-import BrowserOnlyTranslate from './components/common/BrowserOnlyTranslate';
+import InitialLoader from './components/common/InitialLoader';
 import { initializeServices } from './lib/services';
 import { DEBUG_PANEL_ENABLED } from './lib/debug';
 import { DebugPanel } from './components/debug/DebugPanel';
@@ -104,7 +104,14 @@ const AppContent: React.FC = () => {
 
 
 function App() {
-  // Initialize external services on app startup
+  const [showInitialLoader, setShowInitialLoader] = useState(true);
+
+  // Handle initial loader completion
+  const handleInitialLoadComplete = () => {
+    setShowInitialLoader(false);
+  };
+
+  // Initialize external services on app startup - MUST be before any early returns
   useEffect(() => {
     initializeServices().then(({ status, usingMocks, usingAxicov, usingN8n, usingElevenLabs, usingDodoPayments, usingBlockchain, analyticsEnabled }) => {
       console.log('📋 External Service Status:', status);
@@ -177,6 +184,11 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeydown);
   }, []);
 
+  // Show initial loader first - AFTER all hooks
+  if (showInitialLoader) {
+    return <InitialLoader onComplete={handleInitialLoadComplete} minLoadingTime={1500} />;
+  }
+
   return (
     <ThemeProvider>
       <LanguageProvider>
@@ -228,9 +240,6 @@ const AppWithLoader: React.FC = () => {
         <Route path="/:lang" element={<AppContent />} />
         <Route path="/:lang/dashboard" element={<AppContent />} />
       </Routes>
-      
-      {/* Browser Translation Instructions - Works on any domain */}
-      <BrowserOnlyTranslate variant="floating" />
       
       {/* Debug Panel - Only shown in development or when debug mode is enabled */}
       {DEBUG_PANEL_ENABLED && <DebugPanel />}
