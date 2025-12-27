@@ -7,6 +7,8 @@ Express + TypeScript + Prisma backend for the YatriAI tourism platform.
 - **Node.js** v18+ 
 - **PostgreSQL** database (local or cloud like Neon, Supabase, Railway)
 
+> ⚠️ **Important**: This application **requires PostgreSQL** as the database provider. It uses PostgreSQL-specific features like case-insensitive string matching (`mode: 'insensitive'` in Prisma queries) which are not supported by MySQL or SQLite. Using a different database will result in runtime errors.
+
 ## Quick Setup
 
 ### 1. Install Dependencies
