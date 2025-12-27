@@ -32,15 +32,6 @@ export function ShimmerButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      style={
-        {
-          "--shimmer-color": shimmerColor,
-          "--shimmer-size": shimmerSize,
-          "--shimmer-duration": shimmerDuration,
-          "--border-radius": borderRadius,
-          "--bg": background,
-        } as CSSProperties
-      }
       className={cn(
         "group relative z-0 flex cursor-pointer items-center justify-center overflow-hidden whitespace-nowrap px-8 py-4 text-white font-medium",
         "transform-gpu transition-all duration-300 ease-in-out hover:scale-105 active:scale-95",
@@ -54,9 +45,14 @@ export function ShimmerButton({
         className
       )}
       style={{
+        "--shimmer-color": shimmerColor,
+        "--shimmer-size": shimmerSize,
+        "--shimmer-duration": shimmerDuration,
+        "--border-radius": borderRadius,
+        "--bg": background,
         borderRadius: borderRadius,
         background: background,
-      }}
+      } as CSSProperties}
       {...props}
     >
       <span className="relative z-10 flex items-center gap-2">{children}</span>

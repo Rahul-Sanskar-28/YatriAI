@@ -286,10 +286,6 @@ const GPSSuggestions: React.FC = () => {
         return <Navigation className="w-4 h-4" />;
       case 'bus stop':
         return <Navigation className="w-4 h-4" />;
-      case 'historical monument':
-      case 'religious site':
-      case 'museum':
-        return <Star className="w-4 h-4" />;
       default:
         return <MapPin className="w-4 h-4" />;
     }
@@ -320,12 +316,6 @@ const GPSSuggestions: React.FC = () => {
         return 'from-cyan-500 to-cyan-600';
       case 'bus stop':
         return 'from-lime-500 to-lime-600';
-      case 'historical monument':
-        return 'from-amber-600 to-amber-700';
-      case 'religious site':
-        return 'from-purple-600 to-purple-700';
-      case 'museum':
-        return 'from-blue-600 to-blue-700';
       default:
         return 'from-kolkata-yellow to-kolkata-terracotta';
     }
