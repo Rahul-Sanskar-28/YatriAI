@@ -24,7 +24,8 @@ import {
   Award,
   Heart,
   Sun,
-  Moon
+  Moon,
+  Navigation
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -47,7 +48,11 @@ import PatachitraArchive from './components/PatachitraArchive';
 import VerifiedMarketplace from './components/VerifiedMarketplace';
 import HeritageNFT from './components/HeritageNFT';
 import PandalDonations from './components/PandalDonations';
+
 import PictureDeck from './components/PictureDeck';
+
+import GPSSuggestions from './components/GPSSuggestions';
+
 import LanguageSelector from '../common/LanguageSelector';
 
 const TouristDashboard: React.FC = () => {
@@ -67,7 +72,11 @@ const TouristDashboard: React.FC = () => {
   const menuItems = [
     { id: 'dashboard', labelKey: 'dashboard.menuItems.dashboard', icon: Home },
     { id: 'itinerary', labelKey: 'dashboard.menuItems.aiItinerary', icon: Map },
+
     { id: 'picture-deck', labelKey: 'dashboard.menuItems.pictureDeck', icon: Image, isNew: true },
+
+    { id: 'gps-suggestions', labelKey: 'dashboard.menuItems.nearbyPlaces', icon: Navigation, isNew: true },
+
     { id: 'transport', labelKey: 'dashboard.menuItems.transport', icon: Train, isNew: true },
     { id: 'heritage', labelKey: 'dashboard.menuItems.heritageWalk', icon: Headphones, isNew: true },
     { id: 'artisans', labelKey: 'dashboard.menuItems.artisanChronicles', icon: Palette, isNew: true },
@@ -91,8 +100,13 @@ const TouristDashboard: React.FC = () => {
         return <DashboardHome />;
       case 'itinerary':
         return <AIItineraryPlanner />;
+
       case 'picture-deck':
         return <PictureDeck />;
+
+      case 'gps-suggestions':
+        return <GPSSuggestions />;
+
       case 'transport':
         return <TransportTracker />;
       case 'heritage':
@@ -100,7 +114,7 @@ const TouristDashboard: React.FC = () => {
       case 'artisans':
         return <ArtisanChronicles />;
       case 'recipes':
-        return <RecipeVault />;
+       return <RecipeVault />;
       case 'patachitra':
         return <PatachitraArchive />;
       case 'verified-market':
