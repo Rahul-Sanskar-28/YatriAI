@@ -47,10 +47,17 @@ export const searchDestinations = async (req: Request, res: Response) => {
   try {
     const { query, category, city } = req.query;
 
+    // Helper to safely get string value from query param
+    const getStringValue = (param: any): string => {
+      if (!param) return '';
+      if (Array.isArray(param)) return String(param[0] || '').trim();
+      return String(param).trim();
+    };
+
     // Trim and validate query parameters to ensure they're not empty strings
-    const trimmedQuery = query ? (query as string).trim() : '';
-    const trimmedCategory = category ? (category as string).trim() : '';
-    const trimmedCity = city ? (city as string).trim() : '';
+    const trimmedQuery = getStringValue(query);
+    const trimmedCategory = getStringValue(category);
+    const trimmedCity = getStringValue(city);
 
     if (!trimmedQuery && !trimmedCategory && !trimmedCity) {
       return res.status(400).json({ 
