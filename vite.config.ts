@@ -15,5 +15,17 @@ export default defineConfig({
       // Let Vite auto-detect the protocol and port
       // This fixes the 426 Upgrade Required error
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/gemini': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
 });
