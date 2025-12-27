@@ -315,6 +315,7 @@
     "menuItems": {
       "dashboard": "Dashboard",
       "aiItinerary": "AI Itinerary",
+      "nearbyPlaces": "Nearby Places",
       "transport": "Transport",
       "heritageWalk": "Heritage Walk",
       "artisanChronicles": "Artisan Chronicles",

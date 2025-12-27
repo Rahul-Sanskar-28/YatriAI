@@ -13,6 +13,7 @@ import itineraryRoutes from './routes/itineraryRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
 import trainRoutes from './routes/trainRoutes.js';
 import mlRoutes from './routes/mlRoutes.js';
+import placesRoutes from './routes/placesRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load env from backend/.env and fallback to root .env
@@ -22,7 +23,7 @@ try {
 } catch {}
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
 // Middleware
 app.use(cors({
@@ -41,6 +42,7 @@ app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/trains', trainRoutes);
 app.use('/api/ml', mlRoutes);
+app.use('/api/places', placesRoutes);
 
 // Initialize Gemini AI client
 const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
