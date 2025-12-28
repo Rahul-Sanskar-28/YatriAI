@@ -54,6 +54,7 @@ import PandalDonations from './components/PandalDonations';
 import PictureDeck from './components/PictureDeck';
 import TravelPlanningDashboard from './components/TravelPlanningDashboard';
 import GPSSuggestions from './components/GPSSuggestions';
+import SOSAgent from './components/SOSAgent';
 
 import LanguageSelector from '../common/LanguageSelector';
 
@@ -241,15 +242,31 @@ const TouristDashboard: React.FC = () => {
               className={`fixed lg:sticky top-[60px] left-0 h-[calc(100vh-60px)] w-64 bg-white dark:bg-gray-800 shadow-lg overflow-y-auto z-50 lg:z-auto`}
             >
               <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={user?.avatar}
-                    alt={user?.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{user?.name}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <SOSAgent />
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-white">SOS Agent</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Emergency Assistant</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="relative">
+                      <img
+                        src={user?.avatar}
+                        alt={user?.name}
+                        className="w-12 h-12 rounded-full object-cover shadow-lg border-2 border-gray-200 dark:border-gray-600"
+                      />
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 px-2 py-0.5 rounded-full shadow-sm">
+                          {user?.name?.split(' ')[0]}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
+                    </div>
                   </div>
                 </div>
               </div>
