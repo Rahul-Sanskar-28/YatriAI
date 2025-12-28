@@ -3,6 +3,7 @@ import axios from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import { createServer } from 'http';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import authRoutes from './routes/authRoutes.js';
 import destinationRoutes from './routes/destinationRoutes.js';
@@ -14,11 +15,13 @@ import testimonialRoutes from './routes/testimonialRoutes.js';
 import trainRoutes from './routes/trainRoutes.js';
 import mlRoutes from './routes/mlRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
+import sosAgentRoutes from './routes/sosAgent.js';
 
 import pictureDeckRoutes from './routes/pictureDeckRoutes.js';
 
 import placesRoutes from './routes/placesRoutes.js';
-
+import beaconRoutes from './routes/beaconRoutes.js';
+import { beaconService } from './services/beaconService.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load env from backend/.env and fallback to root .env
@@ -28,6 +31,7 @@ try {
 } catch {}
 
 const app = express();
+const server = createServer(app);
 const PORT = parseInt(process.env.PORT || '3001', 10);
 
 // Middleware
@@ -51,10 +55,12 @@ app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/trains', trainRoutes);
 app.use('/api/ml', mlRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/sos', sosAgentRoutes);
 
 app.use('/api/picture-deck', pictureDeckRoutes);
 
 app.use('/api/places', placesRoutes);
+app.use('/api/beacon', beaconRoutes);
 
 
 // Initialize Gemini AI client
@@ -163,9 +169,13 @@ app.get('/api/health', (req, res) => {
 // Error handler
 app.use(errorHandler);
 
-app.listen(PORT, '0.0.0.0', () => {
+// Initialize beacon service with Socket.IO
+beaconService.initialize(server);
+
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 YatriAI Backend running on http://localhost:${PORT}`);
   console.log(`🌐 Network access: http://10.79.157.114:${PORT}`);
+  console.log(`🔗 Socket.IO enabled for beacon nodes`);
 });
 
 export default app;
