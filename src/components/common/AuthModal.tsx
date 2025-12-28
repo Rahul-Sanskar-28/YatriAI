@@ -1,20 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { X, User, Shield, Store, MapPin, AlertCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
+import { X, User, Shield, Store, MapPin } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  forceTouristRole?: boolean;
-  onSuccessRedirect?: () => void;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole = false, onSuccessRedirect }) => {
-  const { t } = useTranslation('translation');
-  const [step, setStep] = useState<'role' | 'form' | 'mfa'>(forceTouristRole ? 'form' : 'role');
-  const [selectedRole, setSelectedRole] = useState<string>(forceTouristRole ? 'tourist' : '');
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+  const [step, setStep] = useState<'role' | 'form' | 'mfa'>('role');
+  const [selectedRole, setSelectedRole] = useState<string>('');
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -23,97 +19,65 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
     name: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
-  const { login, register } = useAuth();
+  const { login } = useAuth();
 
   const roles = [
     {
       id: 'tourist',
-      titleKey: 'auth.roles.tourist.title',
-      descriptionKey: 'auth.roles.tourist.description',
+      title: 'Tourist / Traveler',
+      description: 'Explore Kolkata with AI-powered recommendations',
       icon: User,
       color: 'from-blue-500 to-cyan-500'
     },
     {
       id: 'admin',
-      titleKey: 'auth.roles.admin.title',
-      descriptionKey: 'auth.roles.admin.description',
+      title: 'Local Authority / Admin',
+      description: 'Manage tourism services and certifications',
       icon: Shield,
       color: 'from-purple-500 to-pink-500'
     },
     {
       id: 'seller',
-      titleKey: 'auth.roles.seller.title',
-      descriptionKey: 'auth.roles.seller.description',
+      title: 'Marketplace Seller',
+      description: 'Sell authentic handicrafts and local products',
       icon: Store,
       color: 'from-green-500 to-emerald-500'
     },
     {
       id: 'guide',
-      titleKey: 'auth.roles.guide.title',
-      descriptionKey: 'auth.roles.guide.description',
+      title: 'Local Guide',
+      description: 'Share your knowledge and earn as a certified guide',
       icon: MapPin,
       color: 'from-orange-500 to-red-500'
     }
   ];
 
-  // Set tourist role when forceTouristRole changes
-  useEffect(() => {
-    if (forceTouristRole && isOpen) {
-      setSelectedRole('tourist');
-      setStep('form');
-    }
-  }, [forceTouristRole, isOpen]);
-
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
     setStep('form');
-    setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
     
     try {
-      if (!isLogin) {
-        // Registration validation
-        if (formData.password !== formData.confirmPassword) {
-          setError(t('auth.passwordMismatch'));
-          setIsLoading(false);
-          return;
-        }
-        if (formData.password.length < 6) {
-          setError(t('auth.passwordTooShort'));
-          setIsLoading(false);
-          return;
-        }
-        await register(formData.email, formData.password, formData.name, selectedRole);
-      } else {
-        await login(formData.email, formData.password, selectedRole);
-      }
+      await login(formData.email, formData.password, selectedRole);
       onClose();
       resetForm();
-      // Call redirect callback if provided
-      if (onSuccessRedirect) {
-        onSuccessRedirect();
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t('auth.authFailed');
-      setError(errorMessage);
+    } catch (error) {
+      console.error('Login failed:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const resetForm = () => {
-    setStep(forceTouristRole ? 'form' : 'role');
-    setSelectedRole(forceTouristRole ? 'tourist' : '');
+    setStep('role');
+    setSelectedRole('');
     setFormData({ email: '', password: '', confirmPassword: '', name: '' });
     setIsLogin(true);
-    setError(null);
   };
 
   const handleClose = () => {
@@ -134,7 +98,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {step === 'role' ? t('auth.chooseRole') : isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
+            {step === 'role' ? 'Choose Your Role' : isLogin ? 'Welcome Back' : 'Create Account'}
           </h2>
           <button
             onClick={handleClose}
@@ -145,20 +109,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
         </div>
 
         <div className="p-6">
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-center space-x-2"
-            >
-              <AlertCircle className="w-5 h-5 text-red-500" />
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            </motion.div>
-          )}
-
           <AnimatePresence mode="wait">
-            {step === 'role' && !forceTouristRole && (
+            {step === 'role' && (
               <motion.div
                 key="role"
                 initial={{ opacity: 0, x: 20 }}
@@ -183,10 +135,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-white transition-colors">
-                            {t(role.titleKey)}
+                            {role.title}
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-white/80 transition-colors">
-                            {t(role.descriptionKey)}
+                            {role.description}
                           </p>
                         </div>
                       </div>
@@ -214,7 +166,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                             <IconComponent className="w-5 h-5" />
                           </div>
                           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            {role ? t(role.titleKey) : ''}
+                            {role?.title}
                           </span>
                         </>
                       );
@@ -222,24 +174,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                   </div>
                   <div className="flex space-x-1 mb-4">
                     <button
-                      onClick={() => { setIsLogin(true); setError(null); }}
+                      onClick={() => setIsLogin(true)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         isLogin
                           ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
                           : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                       }`}
                     >
-                      {t('auth.login')}
+                      Login
                     </button>
                     <button
-                      onClick={() => { setIsLogin(false); setError(null); }}
+                      onClick={() => setIsLogin(false)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         !isLogin
                           ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
                           : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                       }`}
                     >
-                      {t('auth.signUp')}
+                      Sign Up
                     </button>
                   </div>
                 </div>
@@ -248,14 +200,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                   {!isLogin && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {t('auth.fullName')}
+                        Full Name
                       </label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                        placeholder={t('auth.enterFullName')}
+                        placeholder="Enter your full name"
                         required
                       />
                     </div>
@@ -263,28 +215,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      {t('auth.emailAddress')}
+                      Email Address
                     </label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                      placeholder={t('auth.enterEmail')}
+                      placeholder="Enter your email"
                       required
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      {t('auth.password')}
+                      Password
                     </label>
                     <input
                       type="password"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                      placeholder={t('auth.enterPassword')}
+                      placeholder="Enter your password"
                       required
                     />
                   </div>
@@ -292,14 +244,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                   {!isLogin && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {t('auth.confirmPassword')}
+                        Confirm Password
                       </label>
                       <input
                         type="password"
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                        placeholder={t('auth.confirmYourPassword')}
+                        placeholder="Confirm your password"
                         required
                       />
                     </div>
@@ -314,13 +266,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                         required
                       />
                       <label htmlFor="terms" className="text-sm text-gray-600 dark:text-gray-400">
-                        {t('auth.termsAgree')}{' '}
+                        I agree to the{' '}
                         <a href="#" className="text-green-600 hover:text-green-700 transition-colors">
-                          {t('auth.termsOfService')}
+                          Terms of Service
                         </a>{' '}
-                        {t('auth.and')}{' '}
+                        and{' '}
                         <a href="#" className="text-green-600 hover:text-green-700 transition-colors">
-                          {t('auth.privacyPolicy')}
+                          Privacy Policy
                         </a>
                       </label>
                     </div>
@@ -331,20 +283,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, forceTouristRole
                     disabled={isLoading}
                     className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? t('auth.processing') : isLogin ? t('auth.login') : t('auth.createAccount')}
+                    {isLoading ? 'Processing...' : isLogin ? 'Login' : 'Create Account'}
                   </button>
                 </form>
 
-                {!forceTouristRole && (
-                  <div className="mt-4 text-center">
-                    <button
-                      onClick={() => { setStep('role'); setError(null); }}
-                      className="text-sm text-green-600 hover:text-green-700 transition-colors"
-                    >
-                      {t('auth.backToRoles')}
-                    </button>
-                  </div>
-                )}
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => setStep('role')}
+                    className="text-sm text-green-600 hover:text-green-700 transition-colors"
+                  >
+                    ← Back to role selection
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

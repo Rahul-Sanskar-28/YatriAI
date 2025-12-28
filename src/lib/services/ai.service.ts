@@ -83,26 +83,26 @@ export interface ChatResponse {
 // Mock responses for AI chat
 const mockChatResponses: Record<string, ChatResponse> = {
   'best time': {
-    message: 'The best time to visit Jharkhand is from October to March when the weather is pleasant (20-28°C). Monsoon season (July-September) is perfect for waterfalls! 🌧️ Would you like me to help you plan a trip?',
-    suggestions: ['Plan a winter trip', 'See monsoon waterfalls', 'Book a local guide'],
-    relatedDestinations: ['Hundru Falls', 'Dassam Falls', 'Jonha Falls'],
+    message: 'The best time to visit Kolkata is from October to March when the weather is pleasant (20-28°C). Monsoon season (July-September) is perfect for exploring the city\'s heritage! 🌧️ Would you like me to help you plan a trip?',
+    suggestions: ['Plan a winter trip', 'See heritage sites', 'Book a local guide'],
+    relatedDestinations: ['Victoria Memorial', 'Howrah Bridge', 'Dakshineswar Kali Temple'],
   },
   'waterfall': {
-    message: 'Jharkhand has stunning waterfalls! Must-visit ones include:\n\n💧 **Hundru Falls** (98m) - Most famous, spectacular in monsoon\n💧 **Dassam Falls** (44m) - Great for photography\n💧 **Jonha Falls** (43m) - Near Buddha temple\n\nWould you like directions or booking assistance?',
-    suggestions: ['Book waterfall tour', 'See on map', 'Check weather'],
-    relatedDestinations: ['Hundru Falls', 'Dassam Falls', 'Jonha Falls', 'Panchghagh Falls'],
+    message: 'Kolkata is known for its rich heritage and culture! Must-visit places include:\n\n🏛️ **Victoria Memorial** - Iconic white marble monument\n🌉 **Howrah Bridge** - Engineering marvel over Hooghly River\n🕉️ **Dakshineswar Kali Temple** - Sacred temple with spiritual significance\n\nWould you like directions or booking assistance?',
+    suggestions: ['Book heritage tour', 'See on map', 'Check weather'],
+    relatedDestinations: ['Victoria Memorial', 'Howrah Bridge', 'Dakshineswar Kali Temple', 'Kumartuli'],
   },
   'food': {
-    message: 'Try authentic Jharkhandi cuisine! 🍽️\n\n🥘 **Dhuska** - Deep-fried rice flour snack\n🍚 **Pittha** - Steamed rice dumplings\n🍲 **Rugra** - Tribal mushroom dish\n🍺 **Handia** - Traditional rice beer\n\nDon\'t miss tribal delicacies at local markets!',
-    suggestions: ['Find local restaurants', 'Book food tour', 'See tribal markets'],
+    message: 'Try authentic Bengali cuisine! 🍽️\n\n🍛 **Kosha Mangsho** - Spicy mutton curry\n🍤 **Prawn Malai Curry** - Creamy prawn curry\n🍰 **Rasgulla** - Famous Bengali sweet\n☕ **Adda** - Coffee house culture\n\nDon\'t miss the street food at Park Street!',
+    suggestions: ['Find local restaurants', 'Book food tour', 'See local markets'],
   },
   'safari': {
-    message: 'Betla National Park offers excellent wildlife safaris! 🐅\n\n🦁 Best for: Tigers, elephants, leopards, deer\n⏰ Timings: 6 AM - 9 AM (best for tiger spotting)\n💰 Entry: ₹100/person + ₹2000/vehicle\n\nI can help you book early morning slots for the best experience!',
+    message: 'Sundarbans offers excellent wildlife safaris! 🐅\n\n🦁 Best for: Royal Bengal Tigers, crocodiles, spotted deer, wild boars\n⏰ Timings: 6 AM - 9 AM (best for tiger spotting)\n💰 Entry: ₹100/person + ₹2000/vehicle\n\nI can help you book early morning slots for the best experience!',
     suggestions: ['Book safari now', 'Check availability', 'See other wildlife spots'],
-    relatedDestinations: ['Betla National Park', 'Dalma Wildlife Sanctuary', 'Hazaribagh Wildlife Sanctuary'],
+    relatedDestinations: ['Sundarbans', 'Sajnekhali Wildlife Sanctuary', 'Sunderban Tiger Reserve'],
   },
   'default': {
-    message: 'I\'d be happy to help you explore Jharkhand! 🌟 You can ask me about:\n\n🗺️ Destinations & attractions\n🌤️ Best time to visit\n👨‍🏫 Local guides\n🛍️ Handicraft shopping\n🍽️ Local cuisine\n\nWhat would you like to know?',
+    message: 'I\'d be happy to help you explore Kolkata! 🌟 You can ask me about:\n\n🗺️ Destinations & attractions\n🌤️ Best time to visit\n👨‍🏫 Local guides\n🛍️ Handicraft shopping\n🍽️ Local cuisine\n\nWhat would you like to know?',
     suggestions: ['Plan my trip', 'Find a guide', 'Explore destinations', 'Shop handicrafts'],
   },
 };
@@ -281,16 +281,16 @@ class AIService {
     };
 
     if (preferences.interests.includes('nature')) {
-      recommendations.destinations.push('Hundru Falls', 'Betla National Park', 'Netarhat');
-      recommendations.activities.push('Waterfall trekking', 'Wildlife safari', 'Sunrise viewing');
+      recommendations.destinations.push('Sundarbans', 'Sajnekhali Wildlife Sanctuary', 'Sunderban Tiger Reserve');
+      recommendations.activities.push('Wildlife safari', 'Mangrove exploration', 'Sunrise viewing');
     }
     if (preferences.interests.includes('cultural')) {
-      recommendations.destinations.push('Ranchi', 'Tribal Villages', 'Baidyanath Temple');
-      recommendations.activities.push('Tribal dance shows', 'Handicraft workshops', 'Temple visits');
+      recommendations.destinations.push('Victoria Memorial', 'Kumartuli', 'Dakshineswar Kali Temple');
+      recommendations.activities.push('Heritage walks', 'Durga Puja pandal hopping', 'Temple visits');
     }
     if (preferences.interests.includes('adventure')) {
-      recommendations.destinations.push('Parasnath Hill', 'Rajrappa', 'McCluskieganj');
-      recommendations.activities.push('Rock climbing', 'River rafting', 'Camping');
+      recommendations.destinations.push('Sundarbans', 'Howrah Bridge', 'College Street');
+      recommendations.activities.push('Tram rides', 'Street food tours', 'Cultural exploration');
     }
 
     recommendations.tips = [
@@ -304,7 +304,7 @@ class AIService {
   }
 
   /**
-   * Get cultural insights about Jharkhand
+   * Get cultural insights about Kolkata
    * Uses Axicov Cultural Expert agent
    */
   async getCulturalInsights(topic: string): Promise<{
@@ -334,13 +334,13 @@ class AIService {
     // Fallback mock response
     return {
       title: `About ${topic}`,
-      content: `Jharkhand is rich in tribal culture and heritage. The topic "${topic}" is an important part of the local traditions.`,
+      content: `Kolkata is rich in Bengali culture and heritage. The topic "${topic}" is an important part of the local traditions.`,
       keyFacts: [
-        'Jharkhand has 32 tribal communities',
-        'Rich tradition of folk art and music',
-        'Famous for Dokra metal craft',
+        'Kolkata is known as the cultural capital of India',
+        'Rich tradition of literature, art, and music',
+        'Famous for Durga Puja celebrations and Kumartuli artisans',
       ],
-      relatedTopics: ['Tribal festivals', 'Traditional crafts', 'Local cuisine'],
+      relatedTopics: ['Durga Puja', 'Bengali literature', 'Local cuisine'],
     };
   }
 
@@ -430,9 +430,9 @@ class AIService {
     const costPerDay = budget === 'budget' ? 2500 : budget === 'mid-range' ? 5000 : 10000;
     
     const destinations: ItineraryDestination[] = [
-      { id: '1', name: 'Ranchi', category: 'city', image: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg', duration: '1 day' },
-      { id: '2', name: 'Hundru Falls', category: 'nature', image: 'https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg', duration: 'Half day' },
-      { id: '3', name: 'Betla National Park', category: 'wildlife', image: 'https://images.pexels.com/photos/1671324/pexels-photo-1671324.jpeg', duration: '1 day' },
+      { id: '1', name: 'Victoria Memorial', category: 'heritage', image: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg', duration: '1 day' },
+      { id: '2', name: 'Howrah Bridge', category: 'landmark', image: 'https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg', duration: 'Half day' },
+      { id: '3', name: 'Sundarbans', category: 'wildlife', image: 'https://images.pexels.com/photos/1671324/pexels-photo-1671324.jpeg', duration: '1 day' },
     ];
 
     const dailyPlan: DayPlan[] = Array.from({ length: duration }, (_, i) => ({
@@ -451,7 +451,7 @@ class AIService {
 
     return {
       id: Date.now().toString(),
-      title: `AI-Curated ${duration}-Day Jharkhand ${interests.includes('adventure') ? 'Adventure' : 'Discovery'}`,
+      title: `AI-Curated ${duration}-Day Kolkata ${interests.includes('adventure') ? 'Adventure' : 'Discovery'}`,
       duration,
       estimatedCost: costPerDay * duration,
       destinations: destinations.slice(0, Math.min(duration, 3)),

@@ -5,7 +5,9 @@ import {
   getMe,
   updateProfile,
   getAllUsers,
-  updateUserStatus
+  updateUserStatus,
+  updateUserRole,
+  verifyUser
 } from '../controllers/authController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
@@ -22,8 +24,12 @@ router.put('/profile', authenticate, updateProfile);
 // Admin routes
 router.get('/users', authenticate, authorize('admin'), getAllUsers);
 router.patch('/users/:id/status', authenticate, authorize('admin'), updateUserStatus);
+router.patch('/users/:id/role', authenticate, authorize('admin'), updateUserRole);
+router.patch('/users/:id/verify', authenticate, authorize('admin'), verifyUser);
 
 export default router;
+
+
 
 
 

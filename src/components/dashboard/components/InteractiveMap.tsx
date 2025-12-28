@@ -7,14 +7,14 @@ import { VoiceButton } from '../../voice';
 
 const InteractiveMap: React.FC = () => {
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
-  const [userLocation, setUserLocation] = useState({ lat: 23.3441, lng: 85.3096 }); // Ranchi
+  const [userLocation, setUserLocation] = useState({ lat: 22.5726, lng: 88.3639 }); // Kolkata
   const [transportMode, setTransportMode] = useState<'bus' | 'train' | 'car'>('car');
   const [showAudioGuide, setShowAudioGuide] = useState(false);
 
   // Generate audio guide content from destination
   const getAudioGuideContent = (destination: any) => ({
-    introduction: destination.description || `${destination.name} is one of Jharkhand's most treasured destinations, offering visitors a unique blend of natural beauty and cultural heritage.`,
-    history: `${destination.name} has been an important landmark in Jharkhand's history, attracting visitors from across India and abroad. The area is known for its rich tribal heritage and connection to the local Santal, Munda, and Ho communities.`,
+    introduction: destination.description || `${destination.name} is one of Kolkata's most treasured destinations, offering visitors a unique blend of cultural heritage and historical significance.`,
+    history: `${destination.name} has been an important landmark in Kolkata's history, attracting visitors from across India and abroad. The area is known for its rich Bengali heritage and connection to the city's colonial past and cultural traditions.`,
     highlights: [
       `The main attraction at ${destination.name} offers breathtaking views and unique photo opportunities.`,
       `Local artisans near ${destination.name} create beautiful handicrafts that make perfect souvenirs.`,
@@ -35,7 +35,7 @@ const InteractiveMap: React.FC = () => {
   ];
 
   const liveTransportData = [
-    { type: 'bus', route: 'Ranchi - Betla', time: '2:30 PM', status: 'On Time', delay: 0 },
+    { type: 'bus', route: 'Kolkata - Sundarbans', time: '2:30 PM', status: 'On Time', delay: 0 },
     { type: 'train', route: 'Ranchi - Jamshedpur', time: '3:15 PM', status: 'Delayed', delay: 15 },
     { type: 'bus', route: 'Dhanbad - Hundru Falls', time: '4:00 PM', status: 'On Time', delay: 0 },
     { type: 'train', route: 'Bokaro - Ranchi', time: '5:45 PM', status: 'On Time', delay: 0 }
@@ -71,7 +71,7 @@ const InteractiveMap: React.FC = () => {
           Interactive Maps & Navigation 🗺️
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Explore Jharkhand with real-time location tracking and transport information
+          Explore Kolkata with real-time location tracking and transport information
         </p>
       </div>
 
@@ -89,7 +89,7 @@ const InteractiveMap: React.FC = () => {
                     Interactive Map View
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Your current location: Ranchi, Jharkhand
+                    Your current location: Kolkata, West Bengal
                   </p>
                   <button
                     onClick={getCurrentLocation}

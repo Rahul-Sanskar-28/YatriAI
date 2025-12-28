@@ -41,7 +41,7 @@ const GuideLocator: React.FC = () => {
             Find Local Guides 👨‍🏫
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Connect with verified local guides for authentic Jharkhand experiences
+            Connect with verified local guides for authentic Kolkata experiences
           </p>
         </div>
         
@@ -262,7 +262,7 @@ const GuideLocator: React.FC = () => {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-white mb-2">Experience</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedGuide.experience} years of guiding experience in Jharkhand
+                    {selectedGuide.experience} years of guiding experience in Kolkata
                   </p>
                 </div>
 

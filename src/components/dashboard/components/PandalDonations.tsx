@@ -23,7 +23,6 @@ const pandals = [
   {
     id: 'pandal-001',
     name: 'Bagbazar Sarbojanin',
-    nameBengali: 'বাগবাজার সার্বজনীন',
     image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&h=400&q=80',
     location: 'Bagbazar, Kolkata',
     established: 1919,
@@ -31,7 +30,6 @@ const pandals = [
     category: 'Heritage',
     verified: true,
     description: 'One of the oldest Durga Puja committees in Kolkata, known for traditional celebrations.',
-    descriptionBengali: 'কলকাতার প্রাচীনতম দুর্গাপূজা কমিটিগুলির মধ্যে একটি, ঐতিহ্যবাহী উদযাপনের জন্য পরিচিত।',
     goalAmount: 2500000,
     raisedAmount: 1875000,
     donors: 342,
@@ -54,7 +52,6 @@ const pandals = [
   {
     id: 'pandal-002',
     name: 'Kumartuli Park',
-    nameBengali: 'কুমারটুলি পার্ক',
     image: 'https://images.unsplash.com/photo-1599030641314-e7f9e2f5e8e1?auto=format&fit=crop&w=600&h=400&q=80',
     location: 'Kumartuli, Kolkata',
     established: 1995,
@@ -62,7 +59,6 @@ const pandals = [
     category: 'Artistic',
     verified: true,
     description: 'Famous for innovative themes and award-winning pandal art installations.',
-    descriptionBengali: 'উদ্ভাবনী থিম এবং পুরস্কারপ্রাপ্ত প্যান্ডেল আর্ট ইনস্টলেশনের জন্য বিখ্যাত।',
     goalAmount: 3500000,
     raisedAmount: 2800000,
     donors: 567,
@@ -84,7 +80,6 @@ const pandals = [
   {
     id: 'pandal-003',
     name: 'College Square',
-    nameBengali: 'কলেজ স্কোয়ার',
     image: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&w=600&h=400&q=80',
     location: 'College Street, Kolkata',
     established: 1948,
@@ -92,7 +87,6 @@ const pandals = [
     category: 'Cultural',
     verified: true,
     description: 'Known for intellectual and cultural programs alongside traditional puja rituals.',
-    descriptionBengali: 'ঐতিহ্যবাহী পূজা অনুষ্ঠানের পাশাপাশি বুদ্ধিবৃত্তিক এবং সাংস্কৃতিক অনুষ্ঠানের জন্য পরিচিত।',
     goalAmount: 1800000,
     raisedAmount: 980000,
     donors: 234,
@@ -113,7 +107,6 @@ const pandals = [
   {
     id: 'pandal-004',
     name: 'Suruchi Sangha',
-    nameBengali: 'সুরুচি সংঘ',
     image: 'https://images.unsplash.com/photo-1604881991720-f91add269bed?auto=format&fit=crop&w=600&h=400&q=80',
     location: 'New Alipore, Kolkata',
     established: 1975,
@@ -121,7 +114,6 @@ const pandals = [
     category: 'Eco-Friendly',
     verified: true,
     description: 'Pioneer in eco-friendly pujas, using sustainable materials and solar power.',
-    descriptionBengali: 'পরিবেশ বান্ধব পূজায় পথপ্রদর্শক, টেকসই উপকরণ এবং সৌর শক্তি ব্যবহার করে।',
     goalAmount: 2000000,
     raisedAmount: 1650000,
     donors: 456,
@@ -260,7 +252,7 @@ const PandalDonations: React.FC = () => {
                 {' '}🪔
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Transparent blockchain-verified donations • <span className="font-bengali">স্বচ্ছ দান</span>
+                Transparent blockchain-verified donations
               </p>
             </div>
           </div>
@@ -357,7 +349,6 @@ const PandalDonations: React.FC = () => {
                         {/* Info */}
                         <div className="absolute bottom-3 left-3">
                           <h3 className="text-white font-semibold">{pandal.name}</h3>
-                          <p className="text-kolkata-gold text-xs font-bengali">{pandal.nameBengali}</p>
                         </div>
                       </div>
 
@@ -420,7 +411,6 @@ const PandalDonations: React.FC = () => {
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heritage">
                     {selectedPandal.name}
                   </h2>
-                  <p className="text-durga-500 font-bengali">{selectedPandal.nameBengali}</p>
                 </div>
 
                 {/* Progress */}

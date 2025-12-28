@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2, Wallet, Receipt, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, CreditCard, Shield, CheckCircle, Clock, AlertCircle, Ticket, Home, Users, ArrowRight, ExternalLink, Loader2, Wallet, Receipt, RefreshCw, X, Star, MapPin, DollarSign, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bookings } from '../../../data/mockData';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -12,6 +12,16 @@ import { blockchainService, type VerificationResult, type WalletState, type Bloc
 import { paymentService, type PaymentResult, type PaymentIntent } from '../../../lib/services/payment.service';
 import { unifiedPaymentService, type PaymentGateway } from '../../../lib/services/unified-payment.service';
 import { DodoPaymentsConfig, isMetaMaskAvailable, ActiveNetwork, isDodoPaymentsConfigured } from '../../../lib/services/config';
+import api from '../../../lib/api';
+
+// Helper function to replace Jharkhand with Kolkata and Betla with Sundarbans in tour data
+const sanitizeTourData = (tour: any) => {
+  return {
+    ...tour,
+    title: tour.title?.replace(/Jharkhand/gi, 'Kolkata').replace(/Betla/gi, 'Sundarbans') || tour.title,
+    description: tour.description?.replace(/Jharkhand/gi, 'Kolkata').replace(/Betla/gi, 'Sundarbans') || tour.description
+  };
+};
 
 const BookingSystem: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'new'>('current');
@@ -29,8 +39,191 @@ const BookingSystem: React.FC = () => {
   const [walletState, setWalletState] = useState<WalletState>(blockchainService.getWalletState());
   const [recordingOnChain, setRecordingOnChain] = useState<string | null>(null);
 
+  // Booking options state
+  const [selectedBookingType, setSelectedBookingType] = useState<'guide' | 'accommodation' | 'tour' | null>(null);
+  const [approvedGuides, setApprovedGuides] = useState<any[]>([]);
+  const [approvedTours, setApprovedTours] = useState<any[]>([]);
+  const [accommodations, setAccommodations] = useState<any[]>([]);
+  const [isLoadingGuides, setIsLoadingGuides] = useState(false);
+  const [isLoadingTours, setIsLoadingTours] = useState(false);
+  const [isLoadingHotels, setIsLoadingHotels] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+
   const currentBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
   const historyBookings = bookings.filter(b => b.status === 'cancelled');
+
+  // Fetch approved guides when "Book a Guide" is selected
+  useEffect(() => {
+    if (selectedBookingType === 'guide') {
+      fetchApprovedGuides();
+    }
+  }, [selectedBookingType]);
+
+  // Fetch approved tours when "Book a Tour" is selected
+  useEffect(() => {
+    if (selectedBookingType === 'tour') {
+      fetchApprovedTours();
+    }
+  }, [selectedBookingType]);
+
+  // Fetch hotels when "Book a Stay" is selected
+  useEffect(() => {
+    if (selectedBookingType === 'accommodation') {
+      fetchHotels();
+    }
+  }, [selectedBookingType]);
+
+  const fetchApprovedGuides = async () => {
+    setIsLoadingGuides(true);
+    try {
+      const response = await api.getGuides();
+      // Filter for verified/approved guides
+      const guides = Array.isArray(response) ? response : (response.success && response.data ? response.data : []);
+      const verifiedGuides = guides.filter((guide: any) => guide.isVerified !== false);
+      setApprovedGuides(verifiedGuides);
+    } catch (error) {
+      console.error('Error fetching approved guides:', error);
+      setApprovedGuides([]);
+    } finally {
+      setIsLoadingGuides(false);
+    }
+  };
+
+  const fetchApprovedTours = async () => {
+    setIsLoadingTours(true);
+    try {
+      const response = await api.getApprovedTours();
+      let tours = [];
+      if (response.success && response.data) {
+        tours = response.data;
+      } else if (Array.isArray(response)) {
+        tours = response;
+      }
+      // Sanitize tour data to replace Jharkhand with Kolkata and Betla with Sundarbans
+      setApprovedTours(tours.map(sanitizeTourData));
+    } catch (error) {
+      console.error('Error fetching approved tours:', error);
+      setApprovedTours([]);
+    } finally {
+      setIsLoadingTours(false);
+    }
+  };
+
+  const fetchHotels = async () => {
+    setIsLoadingHotels(true);
+    try {
+      // Mock hotels data - can be replaced with API call later
+      // For now, using nearby hotels in Kolkata
+      const mockHotels = [
+        {
+          id: 'hotel-1',
+          name: 'The Oberoi Grand',
+          description: 'Luxury heritage hotel in the heart of Kolkata',
+          location: '15, Jawaharlal Nehru Road, Kolkata',
+          distance: '0.5 km from city center',
+          price: 8500,
+          rating: 4.8,
+          image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400',
+          amenities: ['WiFi', 'AC', 'Pool', 'Spa', 'Restaurant', 'Parking', 'Room Service'],
+          latitude: 22.5448,
+          longitude: 88.3426
+        },
+        {
+          id: 'hotel-2',
+          name: 'Taj Bengal',
+          description: '5-star hotel with modern amenities and heritage charm',
+          location: '34B, Belvedere Road, Alipore, Kolkata',
+          distance: '3 km from city center',
+          price: 12000,
+          rating: 4.9,
+          image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400',
+          amenities: ['WiFi', 'AC', 'Pool', 'Gym', 'Spa', 'Restaurant', 'Bar', 'Parking'],
+          latitude: 22.5308,
+          longitude: 88.3300
+        },
+        {
+          id: 'hotel-3',
+          name: 'Heritage Homestay',
+          description: 'Traditional Bengali home with modern amenities',
+          location: 'Park Street, Kolkata',
+          distance: '1 km from city center',
+          price: 2500,
+          rating: 4.5,
+          image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400',
+          amenities: ['WiFi', 'AC', 'Breakfast', 'Parking', 'Local Tours'],
+          latitude: 22.5514,
+          longitude: 88.3519
+        },
+        {
+          id: 'hotel-4',
+          name: 'Eco Resort Sundarbans',
+          description: 'Sustainable stay near Sundarbans National Park',
+          location: 'Sundarbans, West Bengal',
+          distance: '110 km from Kolkata',
+          price: 3500,
+          rating: 4.7,
+          image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400',
+          amenities: ['WiFi', 'AC', 'Meals', 'Guided Tours', 'Wildlife Viewing'],
+          latitude: 21.9497,
+          longitude: 88.9401
+        },
+        {
+          id: 'hotel-5',
+          name: 'City Center Hotel',
+          description: 'Comfortable hotel in the heart of Kolkata',
+          location: 'Esplanade, Kolkata',
+          distance: '0.8 km from city center',
+          price: 4000,
+          rating: 4.3,
+          image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400',
+          amenities: ['WiFi', 'AC', 'Gym', 'Restaurant', 'Room Service', 'Parking'],
+          latitude: 22.5626,
+          longitude: 88.3630
+        },
+        {
+          id: 'hotel-6',
+          name: 'Boutique Heritage Stay',
+          description: 'Charming heritage property with colonial architecture',
+          location: 'Ballygunge, Kolkata',
+          distance: '5 km from city center',
+          price: 5500,
+          rating: 4.6,
+          image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400',
+          amenities: ['WiFi', 'AC', 'Breakfast', 'Heritage Tours', 'Library', 'Garden'],
+          latitude: 22.5200,
+          longitude: 88.3650
+        }
+      ];
+      setAccommodations(mockHotels);
+    } catch (error) {
+      console.error('Error fetching hotels:', error);
+      setAccommodations([]);
+    } finally {
+      setIsLoadingHotels(false);
+    }
+  };
+
+  const handleBookingOptionClick = (type: 'guide' | 'accommodation' | 'tour') => {
+    setSelectedBookingType(type);
+  };
+
+  const handleBookItem = (item: any) => {
+    setSelectedItem(item);
+    setShowBookingModal(true);
+  };
+
+  const handleConfirmBooking = async () => {
+    // Here you would create the booking via API
+    const itemName = selectedItem?.title 
+      ? sanitizeTourData(selectedItem).title 
+      : selectedItem?.name;
+    alert(`Booking confirmed for ${itemName}!`);
+    setShowBookingModal(false);
+    setSelectedItem(null);
+    setSelectedBookingType(null);
+    // Refresh bookings list
+  };
 
   // Handle wallet connection (ETHIndia)
   const handleWalletConnect = (state: WalletState) => {
@@ -401,7 +594,7 @@ const BookingSystem: React.FC = () => {
                     No Current Bookings
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Start planning your next Jharkhand adventure!
+                    Start planning your next Kolkata adventure!
                   </p>
                   <ShimmerButton onClick={() => setActiveTab('new')}>
                     <Calendar className="w-5 h-5" />
@@ -520,24 +713,27 @@ const BookingSystem: React.FC = () => {
                         emoji: '👨‍🏫'
                       },
                       {
-                        title: 'Accommodation',
-                        description: 'Eco-friendly stays and homestays',
+                        title: 'Book a Stay',
+                        description: 'Nearby hotels and accommodations',
                         icon: Home,
                         color: 'from-green-500 to-emerald-500',
                         emoji: '🏠'
                       },
                       {
-                        title: 'Tour Packages',
-                        description: 'Complete travel packages',
+                        title: 'Book a Tour',
+                        description: 'Approved heritage tours',
                         icon: Ticket,
                         color: 'from-orange-500 to-red-500',
                         emoji: '🎒'
                       }
-                    ].map((option, index) => (
+                    ].map((option, index) => {
+                      const bookingType = index === 0 ? 'guide' : index === 1 ? 'accommodation' : 'tour';
+                      return (
                       <motion.button
                         key={index}
                         whileHover={{ scale: 1.03, y: -5 }}
                         whileTap={{ scale: 0.98 }}
+                        onClick={() => handleBookingOptionClick(bookingType)}
                         className="relative p-8 rounded-2xl text-left group overflow-hidden"
                       >
                         {/* Background gradient */}
@@ -566,14 +762,298 @@ const BookingSystem: React.FC = () => {
                           </div>
                         </div>
                       </motion.button>
-                    ))}
+                      );
+                    })}
                   </div>
+
+                  {/* Booking Options Display */}
+                  {selectedBookingType && (
+                    <div className="mt-8">
+                      {selectedBookingType === 'guide' && (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Available Guides</h4>
+                            <button
+                              onClick={() => setSelectedBookingType(null)}
+                              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                          {isLoadingGuides ? (
+                            <div className="flex items-center justify-center py-12">
+                              <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                            </div>
+                          ) : approvedGuides.length === 0 ? (
+                            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                              No verified guides available at the moment.
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {approvedGuides.map((guide) => (
+                                <motion.div
+                                  key={guide.id}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow cursor-pointer"
+                                  onClick={() => handleBookItem(guide)}
+                                >
+                                  <div className="p-4">
+                                    <div className="flex items-center gap-3 mb-3">
+                                      <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xl font-bold">
+                                        {guide.name?.charAt(0) || 'G'}
+                                      </div>
+                                      <div className="flex-1">
+                                        <h5 className="font-semibold text-gray-900 dark:text-white">{guide.name}</h5>
+                                        {guide.isVerified && (
+                                          <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                                            <CheckCircle className="w-3 h-3" />
+                                            Verified
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    {guide.specialties && guide.specialties.length > 0 && (
+                                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        {guide.specialties.slice(0, 3).join(', ')}
+                                      </p>
+                                    )}
+                                    {guide.languages && guide.languages.length > 0 && (
+                                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+                                        Languages: {guide.languages.join(', ')}
+                                      </p>
+                                    )}
+                                    <div className="flex items-center justify-between text-sm mb-3">
+                                      {guide.rating && (
+                                        <div className="flex items-center gap-1">
+                                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                                          <span className="font-medium">{guide.rating}</span>
+                                        </div>
+                                      )}
+                                      <span className="font-bold text-blue-600 dark:text-blue-400">
+                                        ₹{guide.pricePerDay || guide.price}/day
+                                      </span>
+                                    </div>
+                                    {guide.location && (
+                                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-3 flex items-center gap-1">
+                                        <MapPin className="w-3 h-3" />
+                                        {guide.location}
+                                      </p>
+                                    )}
+                                    <button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-2 rounded-lg font-medium hover:from-blue-600 hover:to-cyan-600 transition-colors">
+                                      Book Guide
+                                    </button>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {selectedBookingType === 'accommodation' && (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Nearby Hotels & Stays</h4>
+                            <button
+                              onClick={() => setSelectedBookingType(null)}
+                              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                          {isLoadingHotels ? (
+                            <div className="flex items-center justify-center py-12">
+                              <Loader2 className="w-8 h-8 animate-spin text-green-500" />
+                            </div>
+                          ) : accommodations.length === 0 ? (
+                            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                              No hotels available at the moment.
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {accommodations.map((hotel) => (
+                                <motion.div
+                                  key={hotel.id}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow cursor-pointer"
+                                  onClick={() => handleBookItem(hotel)}
+                                >
+                                  <div className="relative h-48">
+                                    <img
+                                      src={hotel.image}
+                                      alt={hotel.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                  <div className="p-4">
+                                    <h5 className="font-semibold text-gray-900 dark:text-white mb-1">{hotel.name}</h5>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{hotel.description}</p>
+                                    <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 mb-2">
+                                      <MapPin className="w-3 h-3" />
+                                      {hotel.location}
+                                    </div>
+                                    {hotel.distance && (
+                                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">{hotel.distance}</p>
+                                    )}
+                                    <div className="flex items-center justify-between mb-3">
+                                      <div className="flex items-center gap-1">
+                                        <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                                        <span className="text-sm font-medium">{hotel.rating}</span>
+                                      </div>
+                                      <span className="font-bold text-green-600 dark:text-green-400">₹{hotel.price}/night</span>
+                                    </div>
+                                    {hotel.amenities && hotel.amenities.length > 0 && (
+                                      <div className="flex flex-wrap gap-1 mb-3">
+                                        {hotel.amenities.slice(0, 3).map((amenity: string, idx: number) => (
+                                          <span key={idx} className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                                            {amenity}
+                                          </span>
+                                        ))}
+                                        {hotel.amenities.length > 3 && (
+                                          <span className="text-xs text-gray-500 dark:text-gray-500">+{hotel.amenities.length - 3} more</span>
+                                        )}
+                                      </div>
+                                    )}
+                                    <button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2 rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-colors">
+                                      Book Stay
+                                    </button>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {selectedBookingType === 'tour' && (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-xl font-semibold text-gray-900 dark:text-white">Approved Tours</h4>
+                            <button
+                              onClick={() => setSelectedBookingType(null)}
+                              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                          {isLoadingTours ? (
+                            <div className="flex items-center justify-center py-12">
+                              <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+                            </div>
+                          ) : approvedTours.length === 0 ? (
+                            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                              No approved tours available at the moment.
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {approvedTours.map((tour) => (
+                                <motion.div
+                                  key={tour.id}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow cursor-pointer"
+                                  onClick={() => handleBookItem(tour)}
+                                >
+                                  <div className="relative h-48">
+                                    <img
+                                      src={tour.image || 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400'}
+                                      alt={tour.title}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                  <div className="p-4">
+                                    <h5 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1">{sanitizeTourData(tour).title}</h5>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{sanitizeTourData(tour).description}</p>
+                                    <div className="flex items-center justify-between text-sm mb-3">
+                                      <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                                        <Clock className="w-4 h-4" />
+                                        {tour.duration}
+                                      </span>
+                                      <span className="font-bold text-orange-600 dark:text-orange-400">₹{tour.price}</span>
+                                    </div>
+                                    {tour.guide && (
+                                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-3 flex items-center gap-1">
+                                        <User className="w-3 h-3" />
+                                        Guide: {tour.guide.name || 'Professional Guide'}
+                                      </p>
+                                    )}
+                                    <button className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-colors">
+                                      Book Tour
+                                    </button>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </MagicCard>
             </BlurFade>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Booking Confirmation Modal */}
+      {showBookingModal && selectedItem && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowBookingModal(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Confirm Booking</h3>
+              <button
+                onClick={() => setShowBookingModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{(selectedItem.title ? sanitizeTourData(selectedItem).title : selectedItem.name) || selectedItem.name}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedItem.title ? sanitizeTourData(selectedItem).description : selectedItem.description}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Price:</span>
+                <span className="font-bold text-lg text-gray-900 dark:text-white">₹{selectedItem.price}</span>
+              </div>
+              {selectedItem.duration && (
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Duration:</span>
+                  <span className="text-gray-900 dark:text-white">{selectedItem.duration}</span>
+                </div>
+              )}
+              <div className="pt-4 flex gap-3">
+                <button
+                  onClick={() => setShowBookingModal(false)}
+                  className="flex-1 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmBooking}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2 rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-colors"
+                >
+                  Confirm Booking
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };

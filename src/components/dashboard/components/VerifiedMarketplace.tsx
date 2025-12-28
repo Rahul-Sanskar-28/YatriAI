@@ -18,17 +18,16 @@ import { unifiedPaymentService, type PaymentGateway } from '../../../lib/service
 import { ActiveNetwork } from '../../../lib/services/config';
 import { ethers } from 'ethers';
 import PaymentMethodSelector from '../../payment/PaymentMethodSelector';
+import api from '../../../lib/api';
 
 // Verified Artisan Products with blockchain certificates
 const verifiedProducts = [
   {
     id: 'prod-001',
     name: 'Durga Idol - Ekchala Style',
-    nameBengali: 'দুর্গা প্রতিমা - একচালা শৈলী',
     category: 'Clay Sculpture',
     artist: {
       name: 'Kartik Pal',
-      nameBengali: 'কার্তিক পাল',
       location: 'Kumartuli, Kolkata',
       verified: true,
       rating: 4.9,
@@ -46,7 +45,6 @@ const verifiedProducts = [
     handmade: true,
     deliveryDays: '15-20',
     description: 'Hand-crafted Durga idol using traditional Ekchala technique. Made with Ganges clay and natural pigments. Each piece is unique and comes with a certificate of authenticity.',
-    descriptionBengali: 'ঐতিহ্যবাহী একচালা কৌশল ব্যবহার করে হাতে তৈরি দুর্গা প্রতিমা। গঙ্গার মাটি এবং প্রাকৃতিক রঞ্জক দিয়ে তৈরি।',
     materials: ['Ganges Clay', 'Natural Pigments', 'Straw', 'Jute'],
     dimensions: '24 x 12 x 36 inches',
     weight: '15 kg',
@@ -57,11 +55,9 @@ const verifiedProducts = [
   {
     id: 'prod-002',
     name: 'Ramayana Patachitra Scroll',
-    nameBengali: 'রামায়ণ পটচিত্র স্ক্রোল',
     category: 'Patachitra',
     artist: {
       name: 'Mrinmoyee Devi',
-      nameBengali: 'মৃন্ময়ী দেবী',
       location: 'Naya, Pingla',
       verified: true,
       rating: 4.8,
@@ -78,7 +74,6 @@ const verifiedProducts = [
     handmade: true,
     deliveryDays: '10-15',
     description: 'Authentic Patachitra scroll depicting scenes from Ramayana. Painted using traditional natural pigments on handmade paper. UNESCO recognized folk art form.',
-    descriptionBengali: 'রামায়ণের দৃশ্য চিত্রিত অথেন্টিক পটচিত্র স্ক্রোল। হাতে তৈরি কাগজে প্রাকৃতিক রঞ্জক ব্যবহার করে আঁকা।',
     materials: ['Handmade Paper', 'Natural Pigments', 'Tree Gum'],
     dimensions: '60 x 24 inches',
     weight: '0.5 kg',
@@ -89,11 +84,9 @@ const verifiedProducts = [
   {
     id: 'prod-003',
     name: 'Dokra Dancing Lady',
-    nameBengali: 'ডোকরা নৃত্যরতা',
     category: 'Metal Craft',
     artist: {
       name: 'Abdul Karim',
-      nameBengali: 'আবদুল করিম',
       location: 'Bikna, Bankura',
       verified: true,
       rating: 4.9,
@@ -110,7 +103,6 @@ const verifiedProducts = [
     handmade: true,
     deliveryDays: '7-10',
     description: 'Lost-wax cast bronze figurine using 4000-year-old Dokra technique. Each piece is unique as the mold is destroyed after casting.',
-    descriptionBengali: '৪০০০ বছরের পুরনো ডোকরা কৌশল ব্যবহার করে লস্ট-ওয়াক্স কাস্ট ব্রোঞ্জ মূর্তি।',
     materials: ['Bronze', 'Brass', 'Beeswax', 'Clay'],
     dimensions: '12 x 4 x 4 inches',
     weight: '2.5 kg',
@@ -121,11 +113,9 @@ const verifiedProducts = [
   {
     id: 'prod-004',
     name: 'Baluchari Silk Saree',
-    nameBengali: 'বালুচরী সিল্ক শাড়ি',
     category: 'Textile',
     artist: {
       name: 'Shyamal Das',
-      nameBengali: 'শ্যামল দাস',
       location: 'Bishnupur, Bankura',
       verified: true,
       rating: 5.0,
@@ -142,7 +132,6 @@ const verifiedProducts = [
     handmade: true,
     deliveryDays: '20-30',
     description: 'Handwoven Baluchari silk saree with Mahabharata scenes on pallu. GI tagged product. Takes 15-45 days to weave a single piece.',
-    descriptionBengali: 'পল্লুতে মহাভারতের দৃশ্য সহ হাতে বোনা বালুচরী সিল্ক শাড়ি। জিআই ট্যাগযুক্ত পণ্য।',
     materials: ['Pure Silk', 'Gold/Silver Zari'],
     dimensions: '5.5 meters with blouse piece',
     weight: '0.8 kg',
@@ -158,7 +147,8 @@ interface CartItem {
 }
 
 const VerifiedMarketplace: React.FC = () => {
-  const [selectedProduct, setSelectedProduct] = useState(verifiedProducts[0]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -172,6 +162,65 @@ const VerifiedMarketplace: React.FC = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'crypto' | 'gateway'>('gateway');
   const [selectedGateway, setSelectedGateway] = useState<PaymentGateway | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch approved products on mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.getProducts();
+        if (response.success && response.data) {
+          // Map API products to match component structure
+          const mappedProducts = response.data.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category,
+            artist: {
+              name: p.seller?.name || 'Unknown Artisan',
+              location: 'Kolkata',
+              verified: p.seller?.isVerified || false,
+              rating: 4.8,
+              sales: p.sales || 0,
+              avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80'
+            },
+            images: [p.image || p.imageUrl || 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400'],
+            price: p.price || 0,
+            originalPrice: (p.price || 0) * 1.2,
+            discount: 15,
+            inStock: p.inStock !== false && (p.stock || 0) > 0,
+            stock: p.stock || 0,
+            handmade: true,
+            deliveryDays: '10-15',
+            description: p.description || 'Handcrafted artisan product',
+            materials: ['Handmade'],
+            dimensions: 'Various',
+            weight: 'Various',
+            certificationId: `PROD-${p.id}`,
+            blockchainHash: `0x${p.id.slice(0, 16)}`,
+            featured: false,
+            approved: p.approved
+          }));
+          setProducts(mappedProducts);
+          if (mappedProducts.length > 0) {
+            setSelectedProduct(mappedProducts[0]);
+          }
+        } else {
+          // Fallback to hardcoded products if API fails
+          setProducts(verifiedProducts);
+          setSelectedProduct(verifiedProducts[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        // Fallback to hardcoded products
+        setProducts(verifiedProducts);
+        setSelectedProduct(verifiedProducts[0]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   // Check wallet connection on mount
   useEffect(() => {
@@ -184,7 +233,7 @@ const VerifiedMarketplace: React.FC = () => {
     checkWallet();
   }, []);
 
-  const addToCart = (product: typeof verifiedProducts[0]) => {
+  const addToCart = (product: any) => {
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
@@ -319,7 +368,7 @@ const VerifiedMarketplace: React.FC = () => {
                 {' '}🛡️
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Blockchain-verified authentic handicrafts • <span className="font-bengali">প্রমাণিত শিল্প</span>
+                Blockchain-verified authentic handicrafts
               </p>
             </div>
           </div>
@@ -376,9 +425,20 @@ const VerifiedMarketplace: React.FC = () => {
         {/* Product List */}
         <div className="lg:col-span-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {verifiedProducts.map((product, index) => {
-              const isFavorite = favorites.includes(product.id);
-              const isSelected = selectedProduct.id === product.id;
+            {isLoading ? (
+              <div className="col-span-full flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-heritage-500" />
+              </div>
+            ) : products.length === 0 ? (
+              <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+                <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">No approved products available</p>
+                <p className="text-sm mt-2">Check back soon for artisan crafts!</p>
+              </div>
+            ) : (
+              products.map((product, index) => {
+                const isFavorite = favorites.includes(product.id);
+                const isSelected = selectedProduct && selectedProduct.id === product.id;
 
               return (
                 <BlurFade key={product.id} delay={0.1 * index} inView>
@@ -394,7 +454,7 @@ const VerifiedMarketplace: React.FC = () => {
                       {/* Image */}
                       <div className="relative h-48 rounded-t-xl overflow-hidden">
                         <img
-                          src={product.images[0]}
+                          src={product.images?.[0] || product.imageUrl || product.image || 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400'}
                           alt={product.name}
                           className="w-full h-full object-cover"
                         />
@@ -407,10 +467,16 @@ const VerifiedMarketplace: React.FC = () => {
                               Featured
                             </span>
                           )}
-                          {product.artist.verified && (
+                          {product.approved && (
                             <span className="px-2 py-1 bg-green-500 text-white rounded-full text-xs font-bold flex items-center gap-1">
                               <CheckCircle className="w-3 h-3" />
-                              Verified
+                              Approved
+                            </span>
+                          )}
+                          {product.artist?.verified && (
+                            <span className="px-2 py-1 bg-blue-500 text-white rounded-full text-xs font-bold flex items-center gap-1">
+                              <Shield className="w-3 h-3" />
+                              Verified Seller
                             </span>
                           )}
                         </div>
@@ -441,35 +507,49 @@ const VerifiedMarketplace: React.FC = () => {
                             <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-1">
                               {product.name}
                             </h3>
-                            <p className="text-xs text-kolkata-terracotta font-bengali">
-                              {product.nameBengali}
-                            </p>
                           </div>
                         </div>
 
                         {/* Artist */}
-                        <div className="flex items-center gap-2 mb-3">
-                          <img
-                            src={product.artist.avatar}
-                            alt={product.artist.name}
-                            className="w-6 h-6 rounded-full object-cover"
-                          />
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
-                            {product.artist.name}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-kolkata-yellow text-kolkata-yellow" />
-                            <span className="text-xs text-gray-600">{product.artist.rating}</span>
+                        {product.artist && (
+                          <div className="flex items-center gap-2 mb-3">
+                            <img
+                              src={product.artist?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80'}
+                              alt={product.artist?.name || 'Artisan'}
+                              className="w-6 h-6 rounded-full object-cover"
+                            />
+                            <span className="text-xs text-gray-600 dark:text-gray-400">
+                              {product.artist?.name || 'Artisan'}
+                            </span>
+                            {product.artist?.rating && (
+                              <div className="flex items-center gap-1">
+                                <Star className="w-3 h-3 fill-kolkata-yellow text-kolkata-yellow" />
+                                <span className="text-xs text-gray-600">{product.artist.rating}</span>
+                              </div>
+                            )}
                           </div>
-                        </div>
+                        )}
+
+                        {/* Stock Status */}
+                        {(product.stock !== undefined) && (
+                          <div className="mb-2">
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              (product.stock || 0) > 0 
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                            }`}>
+                              {(product.stock || 0) > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                            </span>
+                          </div>
+                        )}
 
                         {/* Price */}
                         <div className="flex items-center justify-between">
                           <div>
                             <span className="text-lg font-bold text-kolkata-terracotta">
-                              ₹{product.price.toLocaleString()}
+                              ₹{product.price?.toLocaleString() || '0'}
                             </span>
-                            {product.originalPrice > product.price && (
+                            {product.originalPrice && product.originalPrice > product.price && (
                               <span className="text-sm text-gray-400 line-through ml-2">
                                 ₹{product.originalPrice.toLocaleString()}
                               </span>
@@ -480,9 +560,18 @@ const VerifiedMarketplace: React.FC = () => {
                             whileTap={{ scale: 0.95 }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              addToCart(product);
+                              if ((product.stock || 0) > 0) {
+                                addToCart(product);
+                              } else {
+                                alert('This product is out of stock');
+                              }
                             }}
-                            className="p-2 bg-kolkata-terracotta text-white rounded-lg hover:bg-kolkata-terracotta/90"
+                            disabled={(product.stock || 0) === 0}
+                            className={`p-2 rounded-lg ${
+                              (product.stock || 0) > 0
+                                ? 'bg-kolkata-terracotta text-white hover:bg-kolkata-terracotta/90'
+                                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed'
+                            }`}
                           >
                             <ShoppingCart className="w-4 h-4" />
                           </motion.button>
@@ -492,7 +581,8 @@ const VerifiedMarketplace: React.FC = () => {
                   </MagicCard>
                 </BlurFade>
               );
-            })}
+              })
+            )}
           </div>
         </div>
 
@@ -500,46 +590,46 @@ const VerifiedMarketplace: React.FC = () => {
         <div className="lg:col-span-1">
           <div className="sticky top-8 space-y-6">
             {/* Selected Product */}
+            {selectedProduct ? (
             <MagicCard gradientColor="#C45C26" gradientOpacity={0.15}>
               <div className="p-6">
                 <BorderBeam size={200} duration={20} colorFrom="#C45C26" colorTo="#D4A015" />
                 
                 <img
-                  src={selectedProduct.images[0]}
+                  src={selectedProduct.images?.[0] || selectedProduct.imageUrl || selectedProduct.image || 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400'}
                   alt={selectedProduct.name}
                   className="w-full h-48 object-cover rounded-xl mb-4"
                 />
 
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                   {selectedProduct.name}
                 </h2>
-                <p className="text-kolkata-terracotta font-bengali mb-4">
-                  {selectedProduct.nameBengali}
-                </p>
 
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   {selectedProduct.description}
                 </p>
 
                 {/* Artist Info */}
-                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl mb-4">
-                  <img
-                    src={selectedProduct.artist.avatar}
-                    alt={selectedProduct.artist.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {selectedProduct.artist.name}
-                      </span>
-                      {selectedProduct.artist.verified && (
-                        <BadgeCheck className="w-4 h-4 text-green-500" />
-                      )}
+                {selectedProduct.artist && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl mb-4">
+                    <img
+                      src={selectedProduct.artist?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80'}
+                      alt={selectedProduct.artist?.name || 'Artisan'}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {selectedProduct.artist?.name || 'Artisan'}
+                        </span>
+                        {selectedProduct.artist?.verified && (
+                          <BadgeCheck className="w-4 h-4 text-green-500" />
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">{selectedProduct.artist?.location || 'Kolkata'}</p>
                     </div>
-                    <p className="text-xs text-gray-500">{selectedProduct.artist.location}</p>
                   </div>
-                </div>
+                )}
 
                 {/* Blockchain Certificate */}
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 mb-4 border border-green-200 dark:border-green-800">
@@ -550,10 +640,10 @@ const VerifiedMarketplace: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                    Certificate ID: {selectedProduct.certificationId}
+                    Certificate ID: {selectedProduct.certificationId || `PROD-${selectedProduct.id}`}
                   </p>
                   <p className="text-xs text-gray-500 font-mono truncate">
-                    {selectedProduct.blockchainHash}
+                    {selectedProduct.blockchainHash || `0x${selectedProduct.id?.slice(0, 16) || '0000000000000000'}`}
                   </p>
                   <button
                     onClick={() => setShowCertificate(true)}
@@ -564,14 +654,27 @@ const VerifiedMarketplace: React.FC = () => {
                   </button>
                 </div>
 
+                {/* Stock Status */}
+                <div className="mb-4 p-3 bg-heritage-50 dark:bg-gray-700/50 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Stock Available:</span>
+                    <span className={`text-sm font-bold ${(selectedProduct.stock || 0) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {selectedProduct.stock || 0} units
+                    </span>
+                  </div>
+                  {selectedProduct.stock > 0 && selectedProduct.stock <= 5 && (
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">⚠️ Low stock - Only {selectedProduct.stock} left!</p>
+                  )}
+                </div>
+
                 {/* Price & CTA */}
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <span className="text-2xl font-bold text-kolkata-terracotta">
-                      ₹{selectedProduct.price.toLocaleString()}
+                      ₹{selectedProduct.price?.toLocaleString() || '0'}
                     </span>
                     <p className="text-xs text-gray-500">
-                      Delivery: {selectedProduct.deliveryDays} days
+                      Delivery: {selectedProduct.deliveryDays || '10-15'} days
                     </p>
                   </div>
                 </div>
@@ -579,13 +682,26 @@ const VerifiedMarketplace: React.FC = () => {
                 <ShimmerButton
                   className="w-full py-3"
                   background="linear-gradient(135deg, #C45C26 0%, #D4A015 100%)"
-                  onClick={() => addToCart(selectedProduct)}
+                  onClick={() => {
+                    if ((selectedProduct.stock || 0) > 0) {
+                      addToCart(selectedProduct);
+                    } else {
+                      alert('This product is out of stock');
+                    }
+                  }}
+                  disabled={(selectedProduct.stock || 0) === 0}
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  <span>Add to Cart</span>
+                  <span>{(selectedProduct.stock || 0) > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
                 </ShimmerButton>
               </div>
             </MagicCard>
+            ) : (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center border border-heritage-500/10">
+                <Package className="w-12 h-12 text-heritage-500 mx-auto mb-4 opacity-50" />
+                <p className="text-gray-500 dark:text-gray-400">Select a product to view details</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -629,7 +745,7 @@ const VerifiedMarketplace: React.FC = () => {
                         cart.map((item) => (
                           <div key={item.product.id} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                             <img
-                              src={item.product.images[0]}
+                              src={item.product.images?.[0] || item.product.imageUrl || item.product.image || 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400'}
                               alt={item.product.name}
                               className="w-16 h-16 object-cover rounded-lg"
                             />

@@ -21,7 +21,6 @@ const heritageLocations = [
   {
     id: 'loc-001',
     name: 'Victoria Memorial',
-    nameBengali: 'ভিক্টোরিয়া মেমোরিয়াল',
     icon: VictoriaMemorialIcon,
     image: 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=600&h=400&q=80',
     nftImage: 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=400&h=400&q=80',
@@ -40,7 +39,6 @@ const heritageLocations = [
   {
     id: 'loc-002',
     name: 'Howrah Bridge',
-    nameBengali: 'হাওড়া ব্রিজ',
     icon: HowrahBridgeIcon,
     image: 'https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?auto=format&fit=crop&w=600&h=400&q=80',
     nftImage: 'https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?auto=format&fit=crop&w=400&h=400&q=80',
@@ -59,7 +57,6 @@ const heritageLocations = [
   {
     id: 'loc-003',
     name: 'Kumartuli',
-    nameBengali: 'কুমারটুলি',
     icon: TerracottaIcon,
     image: 'https://images.unsplash.com/photo-1599030641314-e7f9e2f5e8e1?auto=format&fit=crop&w=600&h=400&q=80',
     nftImage: 'https://images.unsplash.com/photo-1599030641314-e7f9e2f5e8e1?auto=format&fit=crop&w=400&h=400&q=80',
@@ -78,7 +75,6 @@ const heritageLocations = [
   {
     id: 'loc-004',
     name: 'Dakshineswar Temple',
-    nameBengali: 'দক্ষিণেশ্বর মন্দির',
     icon: DurgaIcon,
     image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&h=400&q=80',
     nftImage: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=400&h=400&q=80',
@@ -259,7 +255,7 @@ const HeritageNFT: React.FC = () => {
                 {' '}🏆
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Collect digital badges for visiting heritage sites • <span className="font-bengali">ঐতিহ্য ব্যাজ</span>
+                Collect digital badges for visiting heritage sites
               </p>
             </div>
           </div>
@@ -398,7 +394,6 @@ const HeritageNFT: React.FC = () => {
                             <IconComponent className="w-5 h-5 text-white" />
                             <h3 className="text-white font-semibold">{location.name}</h3>
                           </div>
-                          <p className="text-kolkata-gold text-xs font-bengali">{location.nameBengali}</p>
                         </div>
                       </div>
 
@@ -479,7 +474,6 @@ const HeritageNFT: React.FC = () => {
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heritage">
                     {selectedLocation.name}
                   </h2>
-                  <p className="text-kolkata-terracotta font-bengali">{selectedLocation.nameBengali}</p>
                 </div>
 
                 <div className="space-y-3 mb-6">

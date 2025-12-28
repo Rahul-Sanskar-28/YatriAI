@@ -81,7 +81,7 @@ In Beeceptor dashboard, add these mocking rules:
   ],
   "relatedDestinations": [
     "Hundru Falls",
-    "Betla National Park",
+    "Sundarbans",
     "Ranchi"
   ]
 }
@@ -244,17 +244,371 @@ In Beeceptor dashboard, add these mocking rules:
 
 ---
 
+### Transport API (Real-Time Updates)
+
+These endpoints provide real-time transport availability data for Kolkata. Each request returns dynamically updated arrival times to simulate live tracking.
+
+#### Tram Routes
+
+**Endpoint:** `GET /api/transport/trams`
+
+**Response:**
+```json
+{
+  "success": true,
+  "routes": [
+    {
+      "id": "tram-36",
+      "routeNumber": "36",
+      "name": "Esplanade - Gariahat",
+      "from": "Esplanade",
+      "to": "Gariahat",
+      "status": "running",
+      "nextArrival": 3,
+      "frequency": "15 min",
+      "color": "#FFB800"
+    },
+    {
+      "id": "tram-5",
+      "routeNumber": "5",
+      "name": "Howrah Station - Esplanade",
+      "from": "Howrah Station",
+      "to": "Esplanade",
+      "status": "running",
+      "nextArrival": 8,
+      "frequency": "20 min",
+      "color": "#E23D28"
+    },
+    {
+      "id": "tram-25",
+      "routeNumber": "25",
+      "name": "Shyambazar - Tollygunge",
+      "from": "Shyambazar",
+      "to": "Tollygunge",
+      "status": "delayed",
+      "nextArrival": 15,
+      "frequency": "12 min",
+      "color": "#C45C26"
+    }
+  ],
+  "lastUpdated": "2024-01-15T10:00:00Z"
+}
+```
+
+**Note:** For real-time simulation, configure Beeceptor to return different `nextArrival` values on each request (e.g., decrement by 1-2 minutes each time).
+
+---
+
+#### Metro Lines
+
+**Endpoint:** `GET /api/transport/metro`
+
+**Response:**
+```json
+{
+  "success": true,
+  "lines": [
+    {
+      "id": "metro-blue",
+      "name": "Blue Line (North-South)",
+      "from": "Dakshineswar",
+      "to": "Kavi Subhash",
+      "status": "running",
+      "nextTrain": 2,
+      "frequency": "5 min",
+      "color": "#1E3A5F"
+    },
+    {
+      "id": "metro-green",
+      "name": "Green Line (East-West)",
+      "from": "Salt Lake Sector V",
+      "to": "Howrah Maidan",
+      "status": "running",
+      "nextTrain": 4,
+      "frequency": "8 min",
+      "color": "#2D5A27"
+    }
+  ],
+  "lastUpdated": "2024-01-15T10:00:00Z"
+}
+```
+
+---
+
+#### Local Trains
+
+**Endpoint:** `GET /api/transport/trains`
+
+**Response:**
+```json
+{
+  "success": true,
+  "trains": [
+    {
+      "id": "sealdah-main",
+      "name": "Sealdah Main Line",
+      "from": "Sealdah",
+      "to": "Ranaghat",
+      "status": "running",
+      "nextTrain": 5,
+      "frequency": "10 min",
+      "color": "#C45C26"
+    },
+    {
+      "id": "howrah-main",
+      "name": "Howrah Main Line",
+      "from": "Howrah",
+      "to": "Bardhaman",
+      "status": "running",
+      "nextTrain": 8,
+      "frequency": "15 min",
+      "color": "#C45C26"
+    },
+    {
+      "id": "circular",
+      "name": "Kolkata Circular Railway",
+      "from": "Majerhat",
+      "to": "Dum Dum",
+      "status": "delayed",
+      "nextTrain": 12,
+      "frequency": "20 min",
+      "color": "#C45C26"
+    }
+  ],
+  "lastUpdated": "2024-01-15T10:00:00Z"
+}
+```
+
+---
+
+#### Bus Routes
+
+**Endpoint:** `GET /api/transport/buses`
+
+**Response:**
+```json
+{
+  "success": true,
+  "routes": [
+    {
+      "id": "bus-s12",
+      "routeNumber": "S12",
+      "name": "Airport - Howrah",
+      "from": "Airport",
+      "to": "Howrah",
+      "status": "running",
+      "nextBus": 7,
+      "frequency": "20 min",
+      "color": "#2D5A27"
+    },
+    {
+      "id": "bus-230",
+      "routeNumber": "230",
+      "name": "Garia - Esplanade",
+      "from": "Garia",
+      "to": "Esplanade",
+      "status": "running",
+      "nextBus": 3,
+      "frequency": "10 min",
+      "color": "#2D5A27"
+    },
+    {
+      "id": "bus-heritage",
+      "routeNumber": "H1",
+      "name": "Heritage Special",
+      "from": "Victoria Memorial",
+      "to": "Howrah Bridge",
+      "status": "running",
+      "nextBus": 15,
+      "frequency": "30 min",
+      "color": "#2D5A27"
+    }
+  ],
+  "lastUpdated": "2024-01-15T10:00:00Z"
+}
+```
+
+**💡 Pro Tip:** To simulate real-time updates in Beeceptor:
+
+1. **Using JavaScript in Beeceptor Response:**
+   In Beeceptor dashboard, select "JavaScript" as response type and use this code:
+
+   ```javascript
+   // For /api/transport/trams endpoint
+   const baseArrival = Math.floor(Math.random() * 10) + 2; // Random between 2-12 minutes
+   const status = Math.random() > 0.8 ? 'delayed' : 'running';
+   
+   return {
+     success: true,
+     routes: [
+       {
+         id: 'tram-36',
+         routeNumber: '36',
+         name: 'Esplanade - Gariahat',
+         from: 'Esplanade',
+         to: 'Gariahat',
+         status: status,
+         nextArrival: baseArrival,
+         frequency: '15 min',
+         color: '#FFB800'
+       },
+       {
+         id: 'tram-5',
+         routeNumber: '5',
+         name: 'Howrah Station - Esplanade',
+         from: 'Howrah Station',
+         to: 'Esplanade',
+         status: 'running',
+         nextArrival: baseArrival + 5,
+         frequency: '20 min',
+         color: '#E23D28'
+       },
+       {
+         id: 'tram-25',
+         routeNumber: '25',
+         name: 'Shyambazar - Tollygunge',
+         from: 'Shyambazar',
+         to: 'Tollygunge',
+         status: Math.random() > 0.85 ? 'delayed' : 'running',
+         nextArrival: baseArrival + 10,
+         frequency: '12 min',
+         color: '#C45C26'
+       }
+     ],
+     lastUpdated: new Date().toISOString()
+   };
+   ```
+
+2. **For Metro Lines** (`/api/transport/metro`):
+   ```javascript
+   return {
+     success: true,
+     lines: [
+       {
+         id: 'metro-blue',
+         name: 'Blue Line (North-South)',
+         from: 'Dakshineswar',
+         to: 'Kavi Subhash',
+         status: 'running',
+         nextTrain: Math.floor(Math.random() * 3) + 1,
+         frequency: '5 min',
+         color: '#1E3A5F'
+       },
+       {
+         id: 'metro-green',
+         name: 'Green Line (East-West)',
+         from: 'Salt Lake Sector V',
+         to: 'Howrah Maidan',
+         status: 'running',
+         nextTrain: Math.floor(Math.random() * 5) + 2,
+         frequency: '8 min',
+         color: '#2D5A27'
+       }
+     ],
+     lastUpdated: new Date().toISOString()
+   };
+   ```
+
+3. **For Local Trains** (`/api/transport/trains`):
+   ```javascript
+   return {
+     success: true,
+     trains: [
+       {
+         id: 'sealdah-main',
+         name: 'Sealdah Main Line',
+         from: 'Sealdah',
+         to: 'Ranaghat',
+         status: 'running',
+         nextTrain: Math.floor(Math.random() * 6) + 3,
+         frequency: '10 min',
+         color: '#C45C26'
+       },
+       {
+         id: 'howrah-main',
+         name: 'Howrah Main Line',
+         from: 'Howrah',
+         to: 'Bardhaman',
+         status: 'running',
+         nextTrain: Math.floor(Math.random() * 8) + 5,
+         frequency: '15 min',
+         color: '#C45C26'
+       },
+       {
+         id: 'circular',
+         name: 'Kolkata Circular Railway',
+         from: 'Majerhat',
+         to: 'Dum Dum',
+         status: Math.random() > 0.85 ? 'delayed' : 'running',
+         nextTrain: Math.floor(Math.random() * 10) + 8,
+         frequency: '20 min',
+         color: '#C45C26'
+       }
+     ],
+     lastUpdated: new Date().toISOString()
+   };
+   ```
+
+4. **For Bus Routes** (`/api/transport/buses`):
+   ```javascript
+   return {
+     success: true,
+     routes: [
+       {
+         id: 'bus-s12',
+         routeNumber: 'S12',
+         name: 'Airport - Howrah',
+         from: 'Airport',
+         to: 'Howrah',
+         status: 'running',
+         nextBus: Math.floor(Math.random() * 8) + 4,
+         frequency: '20 min',
+         color: '#2D5A27'
+       },
+       {
+         id: 'bus-230',
+         routeNumber: '230',
+         name: 'Garia - Esplanade',
+         from: 'Garia',
+         to: 'Esplanade',
+         status: 'running',
+         nextBus: Math.floor(Math.random() * 4) + 1,
+         frequency: '10 min',
+         color: '#2D5A27'
+       },
+       {
+         id: 'bus-heritage',
+         routeNumber: 'H1',
+         name: 'Heritage Special',
+         from: 'Victoria Memorial',
+         to: 'Howrah Bridge',
+         status: 'running',
+         nextBus: Math.floor(Math.random() * 12) + 10,
+         frequency: '30 min',
+         color: '#2D5A27'
+       }
+     ],
+     lastUpdated: new Date().toISOString()
+   };
+   ```
+
+5. **Use Beeceptor's "Response Delay"** feature to simulate network latency (100-500ms recommended)
+
+---
+
 ## 🔧 Environment Variables Reference
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `VITE_BEECEPTOR_URL` | Beeceptor base URL | (empty - uses local mocks) |
+| `VITE_BEECEPTOR_URL` | Beeceptor base URL | `https://yatriai.free.beeceptor.com` |
 | `VITE_USE_MOCK_WEATHER` | Use weather mock | `true` |
 | `VITE_USE_MOCK_AI` | Use AI mock | `true` |
 | `VITE_USE_MOCK_PAYMENT` | Use payment mock | `true` |
 | `VITE_USE_MOCK_BLOCKCHAIN` | Use blockchain mock | `true` |
 | `VITE_USE_MOCK_TRANSLATE` | Use translation mock | `true` |
 | `VITE_USE_MOCK_VOICE` | Use voice mock | `true` |
+| `VITE_USE_MOCK_TRANSPORT` | Use transport mock (fallback) | `true` |
+| `VITE_TRANSPORT_API_URL` | Transport API URL (optional override) | `${VITE_BEECEPTOR_URL}/api/transport` |
 
 ---
 

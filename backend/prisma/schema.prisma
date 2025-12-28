@@ -145,6 +145,7 @@ model Tour {
   price       Float
   status      TourStatus @default(Draft)
   bookings    Int       @default(0)
+  approved    Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -196,6 +197,7 @@ model Product {
   stock       Int           @default(0)
   status      ProductStatus @default(Active)
   sales       Int           @default(0)
+  approved    Boolean       @default(false)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -255,7 +257,9 @@ model Feedback {
   userId    String
   rating    Int
   comment   String
+  category  String   @default("platform")
   sentiment String?
+  verified  Boolean  @default(false)
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -285,6 +289,7 @@ model Testimonial {
 
   @@map("testimonials")
 }
+
 
 
 

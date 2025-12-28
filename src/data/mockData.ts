@@ -350,6 +350,16 @@ export const bookings: Booking[] = [
     status: 'confirmed',
     amount: 25000,
     blockchainHash: '0xabcdef1234567890fedcba'
+  },
+  {
+    id: '4',
+    type: 'guide',
+    title: 'Victoria Memorial Heritage Walk',
+    titleBengali: 'ভিক্টোরিয়া মেমোরিয়াল হেরিটেজ ওয়াক',
+    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+    status: 'confirmed',
+    amount: 3500,
+    blockchainHash: '0xfuture1234567890abcdef'
   }
 ];
 

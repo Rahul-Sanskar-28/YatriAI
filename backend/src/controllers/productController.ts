@@ -5,11 +5,12 @@ const prisma = new PrismaClient();
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const { category } = req.query;
+    const { category, approved } = req.query;
 
     const products = await prisma.product.findMany({
       where: {
         status: 'Active',
+        approved: approved === 'all' ? undefined : true, // Only show approved products unless admin requests all
         ...(category && { category: category as string })
       },
       include: {
@@ -35,7 +36,10 @@ export const getAllProducts = async (req: Request, res: Response) => {
         description: p.description,
         price: p.price,
         image: p.image,
+        imageUrl: p.image,
         category: p.category,
+        stock: p.stock,
+        approved: p.approved,
         seller: {
           name: p.seller.shopName,
           rating: p.seller.rating,
@@ -124,7 +128,8 @@ export const getMyProducts = async (req: Request, res: Response) => {
         imageUrl: p.image,
         category: p.category,
         status: p.status.replace('_', ' '),
-        sales: p.sales
+        sales: p.sales,
+        approved: p.approved
       }))
     });
   } catch (error) {
@@ -141,21 +146,47 @@ export const createProduct = async (req: Request, res: Response) => {
 
     const seller = await prisma.seller.findUnique({ where: { userId: req.user.userId } });
     if (!seller) {
-      return res.status(404).json({ success: false, message: 'Seller profile not found' });
+      return res.status(404).json({ success: false, message: 'Seller profile not found. Please complete your seller profile first.' });
     }
 
     const { name, description, price, image, category, stock } = req.body;
 
+    // Validate required fields
+    if (!name || !description || !price || !category) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing required fields: name, description, price, and category are required' 
+      });
+    }
+
+    if (!image || image.trim() === '') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Product image is required' 
+      });
+    }
+
+    if (isNaN(price) || Number(price) <= 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Price must be a positive number' 
+      });
+    }
+
+    const stockValue = stock ? Number(stock) : 0;
+    const statusValue = stockValue > 0 ? 'Active' : 'Out_of_Stock';
+
     const product = await prisma.product.create({
       data: {
         sellerId: seller.id,
-        name,
-        description,
-        price,
-        image,
-        category,
-        stock: stock || 0,
-        status: stock > 0 ? 'Active' : 'Out_of_Stock'
+        name: name.trim(),
+        description: description.trim(),
+        price: Number(price),
+        image: image.trim(),
+        category: category.trim(),
+        stock: stockValue,
+        status: statusValue as 'Active' | 'Out_of_Stock' | 'Draft',
+        approved: false // Products need admin approval
       }
     });
 
@@ -170,12 +201,41 @@ export const createProduct = async (req: Request, res: Response) => {
         imageUrl: product.image,
         category: product.category,
         status: product.status.replace('_', ' '),
-        sales: product.sales
+        sales: product.sales,
+        approved: product.approved
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create product error:', error);
-    res.status(500).json({ success: false, message: 'Failed to create product' });
+    
+    // Handle Prisma validation errors
+    if (error.code === 'P2002') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'A product with this name already exists' 
+      });
+    }
+    
+    if (error.code === 'P2003') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid seller reference' 
+      });
+    }
+
+    // Handle schema mismatch errors (missing column)
+    if (error.message && error.message.includes('Unknown argument') || 
+        error.message && error.message.includes('Unknown field')) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Database schema mismatch. Please run the migration: ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "approved" BOOLEAN NOT NULL DEFAULT false;' 
+      });
+    }
+
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Failed to create product. Please try again.' 
+    });
   }
 };
 
@@ -219,12 +279,111 @@ export const updateProduct = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
     const { id } = req.params;
+    
+    // Check if user owns the product or is admin
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { seller: { include: { user: true } } }
+    });
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    // Allow deletion if user is admin or owns the product
+    if (req.user.role !== 'admin' && product.seller.userId !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this product' });
+    }
+
     await prisma.product.delete({ where: { id } });
     res.json({ success: true, message: 'Product deleted' });
   } catch (error) {
     console.error('Delete product error:', error);
     res.status(500).json({ success: false, message: 'Failed to delete product' });
+  }
+};
+
+export const approveProduct = async (req: Request, res: Response) => {
+  try {
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Admin access required' });
+    }
+
+    const { id } = req.params;
+    const { approved } = req.body;
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: { approved: approved === true || approved === 'true' }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        id: product.id,
+        name: product.name,
+        approved: product.approved
+      }
+    });
+  } catch (error) {
+    console.error('Approve product error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update product approval' });
+  }
+};
+
+export const getPendingProducts = async (req: Request, res: Response) => {
+  try {
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Admin access required' });
+    }
+
+    const products = await prisma.product.findMany({
+      where: { approved: false },
+      include: {
+        seller: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json({
+      success: true,
+      data: products.map(p => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        price: p.price,
+        imageUrl: p.image,
+        category: p.category,
+        stock: p.stock,
+        status: p.status.replace('_', ' '),
+        sales: p.sales,
+        approved: p.approved,
+        createdAt: p.createdAt,
+        seller: {
+          id: p.seller.id,
+          name: p.seller.user.name,
+          email: p.seller.user.email
+        }
+      }))
+    });
+  } catch (error) {
+    console.error('Get pending products error:', error);
+    res.status(500).json({ success: false, message: 'Failed to get pending products' });
   }
 };
 
@@ -264,6 +423,8 @@ export const getSellerStats = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Failed to get stats' });
   }
 };
+
+
 
 
 

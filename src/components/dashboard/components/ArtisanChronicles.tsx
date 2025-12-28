@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, MapPin, Calendar, Award, Heart, Share2, 
   ChevronRight, Play, ExternalLink, Shield, Star,
-  BookOpen, Camera, Clock, Globe, Sparkles, Volume2
+  BookOpen, Camera, Clock, Globe, Sparkles, Volume2, Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MagicCard } from '../../magicui/MagicCard';
@@ -12,15 +12,14 @@ import { AnimatedGradientText } from '../../magicui/AnimatedGradientText';
 import { BlurFade } from '../../magicui/BlurFade';
 import { TerracottaIcon, PatachitraIcon } from '../../kolkata/KolkataIcons';
 import { voiceService, isElevenLabsConfigured } from '../../../lib/services';
+import api from '../../../lib/api';
 
 // Artisan data with rich stories
 const artisans = [
   {
     id: 'artisan-001',
     name: 'Kartik Pal',
-    nameBengali: 'কার্তিক পাল',
     craft: 'Kumartuli Clay Idol Making',
-    craftBengali: 'কুমারটুলি মাটির প্রতিমা শিল্প',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&h=400&q=80',
     coverImage: 'https://images.unsplash.com/photo-1599030641314-e7f9e2f5e8e1?auto=format&fit=crop&w=800&h=400&q=80',
     location: 'Kumartuli, North Kolkata',
@@ -31,20 +30,11 @@ const artisans = [
     featured: true,
     awards: ['National Award 2018', 'State Artisan Award 2015', 'UNESCO Recognition 2020'],
     story: {
-      en: {
-        intro: "In the narrow lanes of Kumartuli, where the air is thick with the scent of wet clay and the sound of artisans at work, Kartik Pal continues a tradition that his family has upheld for five generations.",
-        journey: "At the age of 8, young Kartik first touched clay under his grandfather's watchful eyes. 'The clay speaks to you,' his grandfather would say, 'you just need to learn its language.' Today, at 65, Kartik has mastered that language, creating Durga idols that are not just sculptures but embodiments of devotion.",
-        philosophy: "Unlike modern workshops that use molds, Kartik still follows the traditional 'ekchala' style - each idol carved entirely by hand. 'When I shape Ma Durga's eyes,' he explains, 'I'm not just sculpting clay. I'm giving birth to the divine. Each stroke is a prayer.'",
-        legacy: "His workshop has created idols for some of Kolkata's most prestigious Durga Puja pandals. But what gives Kartik the most joy? Teaching his granddaughter the craft, ensuring this 200-year-old tradition lives on.",
-        quote: "মাটি থেকে মা তৈরি করি - From clay, I create the Mother."
-      },
-      bn: {
-        intro: "কুমারটুলির সরু গলিতে, যেখানে বাতাস ভেজা মাটির গন্ধে ভরা এবং শিল্পীদের কাজের শব্দে মুখর, কার্তিক পাল একটি ঐতিহ্য বহন করে চলেছেন যা তাঁর পরিবার পাঁচ প্রজন্ম ধরে ধরে রেখেছে।",
-        journey: "৮ বছর বয়সে, ছোট্ট কার্তিক তাঁর দাদুর সতর্ক দৃষ্টিতে প্রথম মাটি স্পর্শ করেছিলেন। 'মাটি তোমার সাথে কথা বলে,' দাদু বলতেন, 'তোমাকে শুধু তার ভাষা শিখতে হবে।' আজ, ৬৫ বছর বয়সে, কার্তিক সেই ভাষায় দক্ষ হয়েছেন।",
-        philosophy: "আধুনিক কর্মশালার মতো ছাঁচ ব্যবহার না করে, কার্তিক এখনও ঐতিহ্যবাহী 'একচালা' শৈলী অনুসরণ করেন - প্রতিটি প্রতিমা সম্পূর্ণ হাতে তৈরি। 'যখন আমি মা দুর্গার চোখ আকার দিই,' তিনি বলেন, 'আমি শুধু মাটি ভাস্কর্য করছি না। আমি দেবত্বের জন্ম দিচ্ছি।'",
-        legacy: "তাঁর কর্মশালা কলকাতার সবচেয়ে মর্যাদাপূর্ণ দুর্গা পূজা প্যান্ডেলের জন্য প্রতিমা তৈরি করেছে। কিন্তু কার্তিককে সবচেয়ে বেশি আনন্দ দেয় কী? তাঁর নাতনিকে এই শিল্প শেখানো।",
-        quote: "মাটি থেকে মা তৈরি করি।"
-      }
+      intro: "In the narrow lanes of Kumartuli, where the air is thick with the scent of wet clay and the sound of artisans at work, Kartik Pal continues a tradition that his family has upheld for five generations.",
+      journey: "At the age of 8, young Kartik first touched clay under his grandfather's watchful eyes. 'The clay speaks to you,' his grandfather would say, 'you just need to learn its language.' Today, at 65, Kartik has mastered that language, creating Durga idols that are not just sculptures but embodiments of devotion.",
+      philosophy: "Unlike modern workshops that use molds, Kartik still follows the traditional 'ekchala' style - each idol carved entirely by hand. 'When I shape Ma Durga's eyes,' he explains, 'I'm not just sculpting clay. I'm giving birth to the divine. Each stroke is a prayer.'",
+      legacy: "His workshop has created idols for some of Kolkata's most prestigious Durga Puja pandals. But what gives Kartik the most joy? Teaching his granddaughter the craft, ensuring this 200-year-old tradition lives on.",
+      quote: "From clay, I create the Mother."
     },
     products: [
       { name: 'Durga Idol (12 inch)', price: 15000 },
@@ -56,9 +46,7 @@ const artisans = [
   {
     id: 'artisan-002',
     name: 'Mrinmoyee Devi',
-    nameBengali: 'মৃন্ময়ী দেবী',
     craft: 'Patachitra Scroll Painting',
-    craftBengali: 'পটচিত্র স্ক্রোল পেইন্টিং',
     image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&h=400&q=80',
     coverImage: 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=800&h=400&q=80',
     location: 'Naya Village, Pingla',
@@ -69,20 +57,11 @@ const artisans = [
     featured: true,
     awards: ['President\'s Award 2019', 'Bengal Craft Master 2017'],
     story: {
-      en: {
-        intro: "In the village of Naya, where every wall tells a story through Patachitra paintings, Mrinmoyee Devi is known as the 'Singing Painter' - for she paints while singing the ancient Pater Gaan.",
-        journey: "Born into a family of Patuas (scroll painters), Mrinmoyee learned to hold a brush before she could write. Her mother taught her the secret of making natural colors - from burnt earth for red, indigo plants for blue, and tamarind seeds mixed with coconut shell ash for black.",
-        philosophy: "Each Patachitra tells a story - from the Ramayana to social messages about the environment. 'My paintings are not just art,' Mrinmoyee explains, 'they are my voice. Through them, I speak about our gods, our struggles, and our hopes.'",
-        legacy: "Mrinmoyee has trained over 50 women in her village, creating a cooperative that now exports Patachitra to galleries worldwide. She believes art is not just heritage but livelihood - a way to preserve culture while empowering communities.",
-        quote: "রঙে রঙে কথা বলি - I speak through colors."
-      },
-      bn: {
-        intro: "নয়া গ্রামে, যেখানে প্রতিটি দেয়াল পটচিত্রের মাধ্যমে গল্প বলে, মৃন্ময়ী দেবী 'গায়িকা চিত্রকর' নামে পরিচিত - কারণ তিনি প্রাচীন পটের গান গাইতে গাইতে আঁকেন।",
-        journey: "পটুয়া পরিবারে জন্মগ্রহণ করে, মৃন্ময়ী লেখার আগেই তুলি ধরতে শিখেছিলেন। তাঁর মা তাঁকে প্রাকৃতিক রং তৈরির রহস্য শিখিয়েছিলেন - পোড়া মাটি থেকে লাল, নীল গাছ থেকে নীল।",
-        philosophy: "প্রতিটি পটচিত্র একটি গল্প বলে - রামায়ণ থেকে পরিবেশ সম্পর্কে সামাজিক বার্তা। 'আমার ছবি শুধু শিল্প নয়,' মৃন্ময়ী বলেন, 'এগুলো আমার কণ্ঠস্বর।'",
-        legacy: "মৃন্ময়ী তাঁর গ্রামে ৫০ জনেরও বেশি মহিলাকে প্রশিক্ষণ দিয়েছেন, একটি সমবায় তৈরি করেছেন যা এখন বিশ্বব্যাপী গ্যালারিতে পটচিত্র রপ্তানি করে।",
-        quote: "রঙে রঙে কথা বলি।"
-      }
+      intro: "In the village of Naya, where every wall tells a story through Patachitra paintings, Mrinmoyee Devi is known as the 'Singing Painter' - for she paints while singing the ancient Pater Gaan.",
+      journey: "Born into a family of Patuas (scroll painters), Mrinmoyee learned to hold a brush before she could write. Her mother taught her the secret of making natural colors - from burnt earth for red, indigo plants for blue, and tamarind seeds mixed with coconut shell ash for black.",
+      philosophy: "Each Patachitra tells a story - from the Ramayana to social messages about the environment. 'My paintings are not just art,' Mrinmoyee explains, 'they are my voice. Through them, I speak about our gods, our struggles, and our hopes.'",
+      legacy: "Mrinmoyee has trained over 50 women in her village, creating a cooperative that now exports Patachitra to galleries worldwide. She believes art is not just heritage but livelihood - a way to preserve culture while empowering communities.",
+      quote: "I speak through colors."
     },
     products: [
       { name: 'Ramayana Scroll (5 ft)', price: 25000 },
@@ -94,9 +73,7 @@ const artisans = [
   {
     id: 'artisan-003',
     name: 'Abdul Karim',
-    nameBengali: 'আবদুল করিম',
     craft: 'Dokra Metal Craft',
-    craftBengali: 'ডোকরা ধাতু শিল্প',
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&h=400&q=80',
     coverImage: 'https://images.unsplash.com/photo-1504309092620-4d0ec726efa4?auto=format&fit=crop&w=800&h=400&q=80',
     location: 'Bikna, Bankura',
@@ -107,20 +84,11 @@ const artisans = [
     featured: true,
     awards: ['Shilp Guru Award 2016', 'National Dokra Master 2020'],
     story: {
-      en: {
-        intro: "In the remote village of Bikna, where the ancient lost-wax casting technique has been practiced for over 4,000 years, Abdul Karim keeps alive one of humanity's oldest metal-working traditions.",
-        journey: "Dokra craft came to Abdul's family through a Hindu-Muslim collaboration that dates back centuries. 'In our village,' he says with pride, 'we don't see religion in art. The craft belongs to the land, not to any one community.'",
-        philosophy: "The lost-wax (cire perdue) technique involves creating a wax model, coating it with clay, melting the wax out, and pouring molten bronze into the hollow. Each piece is unique - once the clay mold breaks, it can never be replicated.",
-        legacy: "Abdul's dancing lady figurines and tribal sculptures have found homes in museums from Paris to New York. Yet he still works in his small workshop, heating brass in the same furnace his grandfather used.",
-        quote: "আগুন থেকে শিল্প জন্মায় - Art is born from fire."
-      },
-      bn: {
-        intro: "বিকনা গ্রামে, যেখানে প্রাচীন লস্ট-ওয়াক্স কাস্টিং কৌশল ৪,০০০ বছরেরও বেশি সময় ধরে অনুশীলন করা হয়েছে, আবদুল করিম মানবতার প্রাচীনতম ধাতু শিল্পের ঐতিহ্য বাঁচিয়ে রেখেছেন।",
-        journey: "ডোকরা শিল্প আবদুলের পরিবারে এসেছে শতাব্দী প্রাচীন হিন্দু-মুসলিম সহযোগিতার মাধ্যমে। 'আমাদের গ্রামে,' তিনি গর্বের সাথে বলেন, 'আমরা শিল্পে ধর্ম দেখি না।'",
-        philosophy: "লস্ট-ওয়াক্স কৌশলে মোমের মডেল তৈরি করা হয়, মাটি দিয়ে আবরণ দেওয়া হয়, মোম গলিয়ে বের করা হয়, এবং গলিত ব্রোঞ্জ ঢালা হয়। প্রতিটি টুকরো অনন্য।",
-        legacy: "আবদুলের নৃত্যরত মহিলার মূর্তি এবং ট্রাইবাল ভাস্কর্য প্যারিস থেকে নিউইয়র্ক পর্যন্ত জাদুঘরে স্থান পেয়েছে।",
-        quote: "আগুন থেকে শিল্প জন্মায়।"
-      }
+      intro: "In the remote village of Bikna, where the ancient lost-wax casting technique has been practiced for over 4,000 years, Abdul Karim keeps alive one of humanity's oldest metal-working traditions.",
+      journey: "Dokra craft came to Abdul's family through a Hindu-Muslim collaboration that dates back centuries. 'In our village,' he says with pride, 'we don't see religion in art. The craft belongs to the land, not to any one community.'",
+      philosophy: "The lost-wax (cire perdue) technique involves creating a wax model, coating it with clay, melting the wax out, and pouring molten bronze into the hollow. Each piece is unique - once the clay mold breaks, it can never be replicated.",
+      legacy: "Abdul's dancing lady figurines and tribal sculptures have found homes in museums from Paris to New York. Yet he still works in his small workshop, heating brass in the same furnace his grandfather used.",
+      quote: "Art is born from fire."
     },
     products: [
       { name: 'Dancing Lady (12 inch)', price: 18000 },
@@ -132,9 +100,7 @@ const artisans = [
   {
     id: 'artisan-004',
     name: 'Shyamal Das',
-    nameBengali: 'শ্যামল দাস',
     craft: 'Baluchari Silk Weaving',
-    craftBengali: 'বালুচরী রেশম বয়ন',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&h=400&q=80',
     coverImage: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&h=400&q=80',
     location: 'Bishnupur, Bankura',
@@ -145,20 +111,11 @@ const artisans = [
     featured: true,
     awards: ['National Award 2010', 'Sant Kabir Award 2015', 'Padma Shri Nominee 2022'],
     story: {
-      en: {
-        intro: "In the terracotta town of Bishnupur, where temples tell stories in clay, Shyamal Das weaves stories in silk. His Baluchari sarees are not just garments - they are epics you can wear.",
-        journey: "The Baluchari tradition nearly died in the 1950s. Shyamal's grandfather was one of the last master weavers. 'He made me swear,' Shyamal recalls, 'that I would never let this art die. That promise has been my life's purpose.'",
-        philosophy: "Each Baluchari saree takes 15-45 days to weave. The pallu (decorative end) depicts scenes from the Ramayana or Mahabharata. 'When a bride wears my saree,' Shyamal says, 'she carries our civilization's stories to her new home.'",
-        legacy: "Shyamal has trained hundreds of weavers and fought to get Baluchari its GI (Geographical Indication) tag. His sarees have been worn by Prime Ministers and displayed in the Victoria & Albert Museum.",
-        quote: "প্রতিটি সুতোয় একটি গল্প - Every thread holds a story."
-      },
-      bn: {
-        intro: "টেরাকোটার শহর বিষ্ণুপুরে, যেখানে মন্দিরগুলি মাটিতে গল্প বলে, শ্যামল দাস রেশমে গল্প বোনেন। তাঁর বালুচরী শাড়ি শুধু পোশাক নয় - এগুলো পরিধানযোগ্য মহাকাব্য।",
-        journey: "বালুচরী ঐতিহ্য প্রায় ১৯৫০-এর দশকে মারা যাচ্ছিল। শ্যামলের দাদু ছিলেন শেষ মাস্টার বয়নকারীদের একজন। 'তিনি আমাকে শপথ করিয়েছিলেন,' শ্যামল স্মরণ করেন।",
-        philosophy: "প্রতিটি বালুচরী শাড়ি বুনতে ১৫-৪৫ দিন সময় লাগে। পল্লু রামায়ণ বা মহাভারতের দৃশ্য চিত্রিত করে।",
-        legacy: "শ্যামল শত শত বয়নকারীকে প্রশিক্ষণ দিয়েছেন এবং বালুচরীকে জিআই ট্যাগ পেতে লড়াই করেছেন।",
-        quote: "প্রতিটি সুতোয় একটি গল্প।"
-      }
+      intro: "In the terracotta town of Bishnupur, where temples tell stories in clay, Shyamal Das weaves stories in silk. His Baluchari sarees are not just garments - they are epics you can wear.",
+      journey: "The Baluchari tradition nearly died in the 1950s. Shyamal's grandfather was one of the last master weavers. 'He made me swear,' Shyamal recalls, 'that I would never let this art die. That promise has been my life's purpose.'",
+      philosophy: "Each Baluchari saree takes 15-45 days to weave. The pallu (decorative end) depicts scenes from the Ramayana or Mahabharata. 'When a bride wears my saree,' Shyamal says, 'she carries our civilization's stories to her new home.'",
+      legacy: "Shyamal has trained hundreds of weavers and fought to get Baluchari its GI (Geographical Indication) tag. His sarees have been worn by Prime Ministers and displayed in the Victoria & Albert Museum.",
+      quote: "Every thread holds a story."
     },
     products: [
       { name: 'Ramayana Baluchari Saree', price: 85000 },
@@ -171,12 +128,33 @@ const artisans = [
 
 const ArtisanChronicles: React.FC = () => {
   const [selectedArtisan, setSelectedArtisan] = useState(artisans[0]);
-  const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [activeTab, setActiveTab] = useState<'story' | 'products' | 'gallery'>('story');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [approvedProducts, setApprovedProducts] = useState<any[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   const elevenLabsConfigured = isElevenLabsConfigured();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (activeTab === 'products') {
+        setIsLoadingProducts(true);
+        try {
+          const response = await api.getProducts();
+          if (response.success && response.data) {
+            // Filter only approved products
+            setApprovedProducts(response.data.filter((p: any) => p.approved !== false));
+          }
+        } catch (error) {
+          console.error('Error fetching products:', error);
+        } finally {
+          setIsLoadingProducts(false);
+        }
+      }
+    };
+    fetchProducts();
+  }, [activeTab]);
 
   const handleSpeak = async (text: string) => {
     if (isSpeaking) {
@@ -189,13 +167,13 @@ const ArtisanChronicles: React.FC = () => {
     try {
       if (elevenLabsConfigured) {
         const result = await voiceService.textToSpeech(text, {
-          language: language === 'bn' ? 'hi' : 'en'
+          language: 'en'
         });
         if (result.audioUrl) {
           voiceService.playAudio(result.audioUrl, `artisan-${selectedArtisan.id}`, () => setIsSpeaking(false));
         }
       } else {
-        voiceService.speakWithBrowserTTS(text, language === 'bn' ? 'hi' : 'en');
+        voiceService.speakWithBrowserTTS(text, 'en');
         const words = text.split(' ').length;
         const duration = (words / 150) * 60 * 1000;
         setTimeout(() => setIsSpeaking(false), duration);
@@ -214,7 +192,7 @@ const ArtisanChronicles: React.FC = () => {
     );
   };
 
-  const currentStory = selectedArtisan.story[language];
+  const currentStory = selectedArtisan.story;
 
   return (
     <div className="space-y-8">
@@ -232,34 +210,8 @@ const ArtisanChronicles: React.FC = () => {
                 {' '}🎨
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Preserving stories of Bengal's master craftspeople • <span className="font-bengali">শিল্পীদের কাহিনী</span>
+                Preserving stories of Bengal's master craftspeople
               </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Language Toggle */}
-            <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
-              <button
-                onClick={() => setLanguage('en')}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  language === 'en'
-                    ? 'bg-kolkata-terracotta text-white'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
-                }`}
-              >
-                🇬🇧 English
-              </button>
-              <button
-                onClick={() => setLanguage('bn')}
-                className={`px-4 py-2 text-sm font-medium transition-colors font-bengali ${
-                  language === 'bn'
-                    ? 'bg-durga-500 text-white'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
-                }`}
-              >
-                🪔 বাংলা
-              </button>
             </div>
           </div>
         </div>
@@ -309,7 +261,6 @@ const ArtisanChronicles: React.FC = () => {
 
                   <div className="absolute bottom-0 left-0 right-0 p-3">
                     <h3 className="text-white font-semibold text-sm">{artisan.name}</h3>
-                    <p className="text-kolkata-gold text-xs font-bengali">{artisan.nameBengali}</p>
                     <p className="text-white/70 text-xs mt-1">{artisan.craft}</p>
                   </div>
                 </div>
@@ -345,7 +296,6 @@ const ArtisanChronicles: React.FC = () => {
                   />
                   <div className="mb-2">
                     <h2 className="text-2xl font-bold text-white font-heritage">{selectedArtisan.name}</h2>
-                    <p className="text-kolkata-gold font-bengali">{selectedArtisan.nameBengali}</p>
                   </div>
                 </div>
 
@@ -413,7 +363,7 @@ const ArtisanChronicles: React.FC = () => {
                       exit={{ opacity: 0, y: -10 }}
                       className="space-y-4"
                     >
-                      <div className={`prose dark:prose-invert max-w-none ${language === 'bn' ? 'font-bengali' : ''}`}>
+                      <div className="prose dark:prose-invert max-w-none">
                         <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                           {currentStory.intro}
                         </p>
@@ -430,7 +380,7 @@ const ArtisanChronicles: React.FC = () => {
 
                       {/* Quote */}
                       <div className="bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/10 rounded-xl p-6 border-l-4 border-kolkata-terracotta">
-                        <p className={`text-xl italic text-kolkata-terracotta dark:text-kolkata-gold ${language === 'bn' ? 'font-bengali' : 'font-heritage'}`}>
+                        <p className="text-xl italic text-kolkata-terracotta dark:text-kolkata-gold font-heritage">
                           "{currentStory.quote}"
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
@@ -448,23 +398,85 @@ const ArtisanChronicles: React.FC = () => {
                       exit={{ opacity: 0, y: -10 }}
                       className="space-y-4"
                     >
-                      {selectedArtisan.products.map((product, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl"
-                        >
-                          <div>
-                            <h4 className="font-medium text-gray-900 dark:text-white">{product.name}</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Handcrafted • Authentic</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-kolkata-terracotta">₹{product.price.toLocaleString()}</p>
-                            <ShimmerButton className="text-xs py-1 px-3 mt-1" background="linear-gradient(135deg, #C45C26 0%, #D4A015 100%)">
-                              Inquire
-                            </ShimmerButton>
-                          </div>
+                      {isLoadingProducts ? (
+                        <div className="flex items-center justify-center py-12">
+                          <Loader2 className="w-8 h-8 animate-spin text-kolkata-terracotta" />
                         </div>
-                      ))}
+                      ) : approvedProducts.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {approvedProducts.map((product, index) => (
+                            <motion.div
+                              key={product.id || index}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            >
+                              <div className="flex items-center gap-3 flex-1">
+                                {product.imageUrl || product.image ? (
+                                  <img
+                                    src={product.imageUrl || product.image}
+                                    alt={product.name}
+                                    className="w-16 h-16 rounded-lg object-cover"
+                                  />
+                                ) : null}
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-gray-900 dark:text-white">{product.name}</h4>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                                    {product.description || 'Handcrafted • Authentic'}
+                                  </p>
+                                  {product.category && (
+                                    <span className="text-xs text-kolkata-terracotta mt-1 inline-block">
+                                      {product.category}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right ml-4">
+                                <p className="text-lg font-bold text-kolkata-terracotta">₹{product.price?.toLocaleString() || '0'}</p>
+                                <ShimmerButton 
+                                  className="text-xs py-1 px-3 mt-1" 
+                                  background="linear-gradient(135deg, #C45C26 0%, #D4A015 100%)"
+                                  onClick={() => {
+                                    // Navigate to product details or marketplace
+                                    window.open(`/marketplace?product=${product.id}`, '_blank');
+                                  }}
+                                >
+                                  View Details
+                                </ShimmerButton>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                          <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                          <p>No approved products available yet</p>
+                          <p className="text-sm mt-2">Check back soon for artisan crafts!</p>
+                        </div>
+                      )}
+                      {/* Show hardcoded products as fallback if no API products */}
+                      {approvedProducts.length === 0 && !isLoadingProducts && selectedArtisan.products && (
+                        <div className="space-y-4">
+                          {selectedArtisan.products.map((product, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl"
+                            >
+                              <div>
+                                <h4 className="font-medium text-gray-900 dark:text-white">{product.name}</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Handcrafted • Authentic</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-bold text-kolkata-terracotta">₹{product.price.toLocaleString()}</p>
+                                <ShimmerButton className="text-xs py-1 px-3 mt-1" background="linear-gradient(135deg, #C45C26 0%, #D4A015 100%)">
+                                  Inquire
+                                </ShimmerButton>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </motion.div>
                   )}
 

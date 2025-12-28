@@ -1,9 +1,10 @@
-import React from 'react';
-import { Star, Quote } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Quote, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Marquee } from '../magicui/Marquee';
 import { BlurFade } from '../magicui/BlurFade';
 import { MagicCard } from '../magicui/MagicCard';
+import api from '../../lib/api';
 
 // Kolkata-themed testimonials with translation keys
 const kolkataTestimonialKeys = [
@@ -45,8 +46,33 @@ const kolkataTestimonialKeys = [
   }
 ];
 
-const TestimonialCard = ({ testimonial }: { testimonial: typeof kolkataTestimonialKeys[0] }) => {
+interface Testimonial {
+  id: string;
+  name: string;
+  avatar: string;
+  rating: number;
+  comment: string;
+  sentiment?: string;
+  location?: string;
+  translationKey?: string; // For fallback testimonials
+}
+
+const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
   const { t } = useTranslation('translation');
+  
+  // Use translation if translationKey exists, otherwise use direct values
+  const name = testimonial.translationKey 
+    ? t(`${testimonial.translationKey}.name`) 
+    : testimonial.name;
+  const comment = testimonial.translationKey 
+    ? t(`${testimonial.translationKey}.comment`) 
+    : testimonial.comment;
+  const location = testimonial.translationKey 
+    ? t(`${testimonial.translationKey}.location`) 
+    : (testimonial.location || 'Kolkata');
+  const sentiment = testimonial.translationKey 
+    ? t(`${testimonial.translationKey}.sentiment`) 
+    : (testimonial.sentiment || 'positive');
   
   return (
     <MagicCard
@@ -58,23 +84,23 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof kolkataTestimoni
         <Quote className="w-8 h-8 text-kolkata-yellow/30 mb-4" />
         
         <div className="flex items-center space-x-1 mb-4">
-          {[...Array(testimonial.rating)].map((_, i) => (
+          {[...Array(testimonial.rating || 5)].map((_, i) => (
             <Star key={i} className="w-4 h-4 text-kolkata-yellow fill-current" />
           ))}
-          {[...Array(5 - testimonial.rating)].map((_, i) => (
+          {[...Array(5 - (testimonial.rating || 5))].map((_, i) => (
             <Star key={i} className="w-4 h-4 text-gray-300 dark:text-gray-600" />
           ))}
         </div>
         
         <blockquote className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed text-sm">
-          "{t(`${testimonial.translationKey}.comment`)}"
+          "{comment}"
         </blockquote>
         
         <div className="flex items-center space-x-3">
           <div className="relative">
             <img
-              src={testimonial.avatar}
-              alt={t(`${testimonial.translationKey}.name`)}
+              src={testimonial.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop'}
+              alt={name}
               className="w-12 h-12 rounded-full object-cover border-2 border-kolkata-yellow/50 dark:border-kolkata-gold/50"
             />
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-kolkata-yellow rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
@@ -86,15 +112,15 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof kolkataTestimoni
           
           <div className="flex-1">
             <div className="font-semibold text-gray-900 dark:text-white text-sm">
-              {t(`${testimonial.translationKey}.name`)}
+              {name}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              {t(`${testimonial.translationKey}.location`)}
+              {location}
             </div>
           </div>
           
           <div className="px-2 py-1 bg-kolkata-yellow/20 dark:bg-kolkata-gold/20 text-kolkata-terracotta dark:text-kolkata-gold rounded-full text-xs font-medium">
-            {t(`${testimonial.translationKey}.sentiment`)}
+            {sentiment}
           </div>
         </div>
       </div>
@@ -104,11 +130,87 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof kolkataTestimoni
 
 const TestimonialsCarousel: React.FC = () => {
   const { t } = useTranslation('translation');
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.getTestimonials();
+      if (response.success && response.data && response.data.length > 0) {
+        // Convert API testimonials to our format
+        const apiTestimonials: Testimonial[] = response.data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          avatar: item.avatar,
+          rating: item.rating,
+          comment: item.comment,
+          sentiment: item.sentiment,
+          location: item.location || 'Kolkata'
+        }));
+        setTestimonials(apiTestimonials);
+      } else {
+        // Fallback to hardcoded testimonials
+        const fallbackTestimonials: Testimonial[] = kolkataTestimonialKeys.map(item => ({
+          id: item.id.toString(),
+          name: t(`${item.translationKey}.name`),
+          avatar: item.avatar,
+          rating: item.rating,
+          comment: t(`${item.translationKey}.comment`),
+          sentiment: t(`${item.translationKey}.sentiment`),
+          location: t(`${item.translationKey}.location`),
+          translationKey: item.translationKey
+        }));
+        setTestimonials(fallbackTestimonials);
+      }
+    } catch (error) {
+      console.error('Failed to fetch testimonials:', error);
+      // Fallback to hardcoded testimonials
+      const fallbackTestimonials: Testimonial[] = kolkataTestimonialKeys.map(item => ({
+        id: item.id.toString(),
+        name: t(`${item.translationKey}.name`),
+        avatar: item.avatar,
+        rating: item.rating,
+        comment: t(`${item.translationKey}.comment`),
+        sentiment: t(`${item.translationKey}.sentiment`),
+        location: t(`${item.translationKey}.location`),
+        translationKey: item.translationKey
+      }));
+      setTestimonials(fallbackTestimonials);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Ensure we have enough testimonials for the marquee (duplicate if needed)
+  const allTestimonials = testimonials.length > 0 
+    ? [...testimonials, ...testimonials] 
+    : [...kolkataTestimonialKeys.map(item => ({
+        id: item.id.toString(),
+        name: t(`${item.translationKey}.name`),
+        avatar: item.avatar,
+        rating: item.rating,
+        comment: t(`${item.translationKey}.comment`),
+        sentiment: t(`${item.translationKey}.sentiment`),
+        location: t(`${item.translationKey}.location`),
+        translationKey: item.translationKey
+      })), ...kolkataTestimonialKeys.map(item => ({
+        id: item.id.toString(),
+        name: t(`${item.translationKey}.name`),
+        avatar: item.avatar,
+        rating: item.rating,
+        comment: t(`${item.translationKey}.comment`),
+        sentiment: t(`${item.translationKey}.sentiment`),
+        location: t(`${item.translationKey}.location`),
+        translationKey: item.translationKey
+      }))];
   
-  // Ensure we have enough testimonials for the marquee
-  const allTestimonials = [...kolkataTestimonialKeys, ...kolkataTestimonialKeys];
-  const firstRow = allTestimonials.slice(0, allTestimonials.length / 2);
-  const secondRow = allTestimonials.slice(allTestimonials.length / 2);
+  const firstRow = allTestimonials.slice(0, Math.ceil(allTestimonials.length / 2));
+  const secondRow = allTestimonials.slice(Math.ceil(allTestimonials.length / 2));
 
   return (
     <section id="testimonials" className="py-24 bg-kolkata-cream dark:bg-gray-900 transition-colors duration-300 relative overflow-hidden">
@@ -144,23 +246,29 @@ const TestimonialsCarousel: React.FC = () => {
       </div>
 
       {/* Marquee Testimonials */}
-      <div className="relative">
-        {/* Gradient overlays for smooth fade */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-kolkata-cream dark:from-gray-900 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-kolkata-cream dark:from-gray-900 to-transparent z-10 pointer-events-none" />
-        
-        <Marquee pauseOnHover speed={20} className="py-4">
-          {firstRow.map((testimonial, index) => (
-            <TestimonialCard key={index} testimonial={testimonial} />
-          ))}
-        </Marquee>
-        
-        <Marquee reverse pauseOnHover speed={20} className="py-4">
-          {secondRow.map((testimonial, index) => (
-            <TestimonialCard key={index} testimonial={testimonial} />
-          ))}
-        </Marquee>
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="w-8 h-8 animate-spin text-kolkata-yellow" />
+        </div>
+      ) : (
+        <div className="relative">
+          {/* Gradient overlays for smooth fade */}
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-kolkata-cream dark:from-gray-900 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-kolkata-cream dark:from-gray-900 to-transparent z-10 pointer-events-none" />
+          
+          <Marquee pauseOnHover speed={20} className="py-4">
+            {firstRow.map((testimonial, index) => (
+              <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} />
+            ))}
+          </Marquee>
+          
+          <Marquee reverse pauseOnHover speed={20} className="py-4">
+            {secondRow.map((testimonial, index) => (
+              <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} />
+            ))}
+          </Marquee>
+        </div>
+      )}
 
       {/* Trust indicators - Kolkata themed */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
@@ -168,7 +276,7 @@ const TestimonialsCarousel: React.FC = () => {
           <div className="flex flex-wrap justify-center items-center gap-8 text-center">
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2">
-                {kolkataTestimonialKeys.slice(0, 4).map((testimonial, i) => (
+                {(testimonials.length > 0 ? testimonials : kolkataTestimonialKeys).slice(0, 4).map((testimonial, i) => (
                   <img
                     key={i}
                     src={testimonial.avatar}

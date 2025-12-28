@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Map, 
@@ -11,19 +11,24 @@ import {
   Star,
   Clock,
   DollarSign,
-
+  Trash2,
+  X,
   Search,
   LogOut,
   MessageCircle,
   Headphones,
   Award,
   Sun,
-  Moon
+  Moon,
+  Loader2,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { guideTours, guideBookings } from '../../data/mockData';
+import api from '../../lib/api';
 
 const GuideDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -60,9 +65,9 @@ const GuideDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-kolkata-cream/30 to-heritage-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-kolkata-cream/30 to-heritage-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300 flex flex-col">
       {/* Top Header Bar */}
-      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700">
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta rounded-lg flex items-center justify-center">
@@ -97,12 +102,12 @@ const GuideDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex">
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <motion.div 
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          className="w-72 bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl shadow-xl h-[calc(100vh-60px)] sticky top-[60px] overflow-y-auto border-r border-kolkata-yellow/20"
+          className="w-72 bg-white/80 dark:bg-gray-800/90 backdrop-blur-xl shadow-xl h-[calc(100vh-60px)] fixed top-[60px] left-0 bottom-0 overflow-y-auto border-r border-kolkata-yellow/20 flex-shrink-0"
         >
           {/* Header */}
           <div className="p-6 border-b border-kolkata-yellow/20 bg-gradient-to-r from-kolkata-yellow/10 to-heritage-500/10">
@@ -172,7 +177,7 @@ const GuideDashboard: React.FC = () => {
         </motion.div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-x-hidden">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden ml-72">
           <div className="p-8">
             <AnimatePresence mode="wait">
               <motion.div
@@ -204,19 +209,6 @@ const GuideDashboard: React.FC = () => {
           <span className="absolute -top-1 -right-1 w-3 h-3 bg-durga-500 rounded-full" />
           <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             AI Assistant 🤖
-          </span>
-        </motion.button>
-
-        {/* Quick Tour Button */}
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-gradient-to-r from-heritage-500 to-kolkata-sepia text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
-          title="Create Tour"
-        >
-          <Plus className="w-6 h-6" />
-          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            New Tour 🏛️
           </span>
         </motion.button>
       </div>
@@ -333,30 +325,7 @@ const GuideDashboardHome: React.FC = () => {
             Tour Performance
           </h3>
           <div className="space-y-4">
-            {guideTours.slice(0, 3).map((tour, index) => (
-              <motion.div 
-                key={tour.id} 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + index * 0.1 }}
-                className="p-4 bg-gradient-to-r from-heritage-50 to-transparent dark:from-heritage-900/20 dark:to-transparent rounded-xl hover:from-heritage-100 dark:hover:from-heritage-900/30 transition-colors"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium text-gray-900 dark:text-white">{tour.title}</p>
-                  <span className="text-sm text-kolkata-terracotta dark:text-kolkata-gold font-semibold">₹{tour.price}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm text-kolkata-sepia dark:text-gray-400">
-                  <span>{tour.bookings} bookings</span>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    tour.status === 'Active'
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                      : 'bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
-                  }`}>
-                    {tour.status}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
+            <TourPerformanceList />
           </div>
         </motion.div>
       </div>
@@ -390,10 +359,94 @@ const GuideDashboardHome: React.FC = () => {
   );
 };
 
+// Helper function to replace Jharkhand with Kolkata and Betla with Sundarbans in tour data
+const sanitizeTourData = (tour: any) => {
+  return {
+    ...tour,
+    title: tour.title?.replace(/Jharkhand/gi, 'Kolkata').replace(/Betla/gi, 'Sundarbans') || tour.title,
+    description: tour.description?.replace(/Jharkhand/gi, 'Kolkata').replace(/Betla/gi, 'Sundarbans') || tour.description
+  };
+};
+
 // My Tours Component with Kolkata Theme
 const MyTours: React.FC = () => {
-  const [tours] = useState(guideTours);
+  const [tours, setTours] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedTour, setSelectedTour] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    fetchTours();
+  }, []);
+
+  const fetchTours = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('You are not logged in. Please log in and try again.');
+        setIsLoading(false);
+        return;
+      }
+      
+      const response = await api.getMyTours();
+      console.log('Tours API response:', response);
+      
+      // Handle response - API client returns the data directly
+      if (response && response.success !== false) {
+        // Response could be { success: true, data: [...] } or just the array
+        const toursData = Array.isArray(response) 
+          ? response 
+          : (response.data || (response.success ? [] : null));
+        
+        if (toursData !== null) {
+          // Replace Jharkhand with Kolkata in all tours
+          setTours(toursData.map(sanitizeTourData));
+        } else {
+          setError(response.message || 'Failed to load tours');
+        }
+      } else {
+        setError(response?.message || 'Failed to load tours');
+      }
+    } catch (err: any) {
+      console.error('Error fetching tours:', err);
+      let errorMessage = 'Failed to load tours. ';
+      
+      if (err?.message?.includes('No token provided') || err?.message?.includes('Not authenticated')) {
+        errorMessage += 'You are not logged in. Please log out and log back in.';
+      } else if (err?.message) {
+        errorMessage += err.message;
+      } else if (err?.response?.data?.message) {
+        errorMessage += err.response.data.message;
+      } else {
+        errorMessage += 'Please check your connection and try again.';
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (tourId: string) => {
+    if (!window.confirm('Are you sure you want to delete this tour? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      await api.deleteTour(tourId);
+      await fetchTours();
+      alert('Tour deleted successfully');
+    } catch (error) {
+      console.error('Error deleting tour:', error);
+      alert('Failed to delete tour');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -413,6 +466,7 @@ const MyTours: React.FC = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={() => setShowAddModal(true)}
           className="bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white px-5 py-2.5 rounded-xl shadow-lg flex items-center space-x-2"
         >
           <Plus className="w-5 h-5" />
@@ -420,85 +474,230 @@ const MyTours: React.FC = () => {
         </motion.button>
       </div>
 
-      {/* Tours Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tours.map((tour, index) => (
-          <motion.div
-            key={tour.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ y: -5 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-kolkata-yellow/10 group"
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-red-800 dark:text-red-200">
+          {error}
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-heritage-500" />
+        </div>
+      ) : tours.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 shadow-lg text-center border border-heritage-500/10">
+          <Map className="w-16 h-16 text-heritage-500 mx-auto mb-4 opacity-50" />
+          <h3 className="text-xl font-semibold font-heritage text-gray-900 dark:text-white mb-2">
+            No Tours Yet
+          </h3>
+          <p className="text-kolkata-sepia dark:text-gray-400 mb-4">
+            Create your first heritage tour to get started
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowAddModal(true)}
+            className="bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white px-5 py-2.5 rounded-xl shadow-lg"
           >
-            <div className="relative">
-              <img
-                src={tour.image}
-                alt={tour.title}
-                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute top-3 right-3">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
-                  tour.status === 'Active'
-                    ? 'bg-green-500/80 text-white'
-                    : 'bg-gray-500/80 text-white'
-                }`}>
-                  {tour.status}
-                </span>
-              </div>
-            </div>
-            <div className="p-6">
-              <h3 className="text-lg font-semibold font-heritage text-gray-900 dark:text-white mb-2">
-                {tour.title}
-              </h3>
-              
-              <p className="text-kolkata-sepia dark:text-gray-400 text-sm mb-4 line-clamp-2">
-                {tour.description}
-              </p>
-              
-              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <div className="flex items-center gap-1 bg-kolkata-yellow/10 px-2 py-1 rounded-lg">
-                  <Clock className="w-4 h-4 text-kolkata-terracotta" />
-                  {tour.duration}
+            Create Tour
+          </motion.button>
+        </div>
+      ) : (
+        <>
+          {/* Tours Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tours.map((tour, index) => {
+              const sanitizedTour = sanitizeTourData(tour);
+              return (
+              <motion.div
+                key={tour.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-kolkata-yellow/10 group"
+              >
+                <div className="relative">
+                  <img
+                    src={sanitizedTour.image || 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400'}
+                    alt={sanitizedTour.title}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 right-3 flex gap-2 flex-wrap">
+                    {sanitizedTour.approved === false && (
+                      <span className="px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm bg-yellow-500/80 text-white">
+                        Pending Approval
+                      </span>
+                    )}
+                    {sanitizedTour.approved === true && (
+                      <span className="px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm bg-green-500/80 text-white">
+                        ✓ Approved
+                      </span>
+                    )}
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
+                      sanitizedTour.status === 'Active'
+                        ? 'bg-blue-500/80 text-white'
+                        : 'bg-gray-500/80 text-white'
+                    }`}>
+                      {sanitizedTour.status}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 bg-heritage-50 dark:bg-heritage-900/20 px-2 py-1 rounded-lg">
-                  <DollarSign className="w-4 h-4 text-heritage-500" />
-                  ₹{tour.price}
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold font-heritage text-gray-900 dark:text-white mb-2">
+                    {sanitizedTour.title}
+                  </h3>
+                  
+                  <p className="text-kolkata-sepia dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                    {sanitizedTour.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <div className="flex items-center gap-1 bg-kolkata-yellow/10 px-2 py-1 rounded-lg">
+                      <Clock className="w-4 h-4 text-kolkata-terracotta" />
+                      {sanitizedTour.duration}
+                    </div>
+                    <div className="flex items-center gap-1 bg-heritage-50 dark:bg-heritage-900/20 px-2 py-1 rounded-lg">
+                      <DollarSign className="w-4 h-4 text-heritage-500" />
+                      ₹{sanitizedTour.price}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm mb-4">
+                    <span className="text-kolkata-sepia dark:text-gray-400">
+                      {sanitizedTour.bookings} bookings
+                    </span>
+                    <div className="flex items-center text-kolkata-gold">
+                      <Star className="w-4 h-4 mr-1 fill-current" />
+                      4.8
+                    </div>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setSelectedTour(sanitizedTour);
+                        setShowViewModal(true);
+                      }}
+                      className="flex-1 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white px-3 py-2.5 rounded-xl text-sm font-medium shadow-lg flex items-center justify-center"
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      View
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setSelectedTour(sanitizedTour);
+                        setShowEditModal(true);
+                      }}
+                      className="flex-1 border border-kolkata-yellow/30 text-kolkata-terracotta dark:text-kolkata-gold px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-kolkata-yellow/10 transition-colors flex items-center justify-center"
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleDelete(tour.id)}
+                      className="px-3 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors flex items-center justify-center"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </motion.button>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Add Tour Modal */}
+      {showAddModal && (
+        <AddTourModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={async (tourData) => {
+            try {
+              // Client-side validation
+              if (!tourData.title || !tourData.description || !tourData.duration || !tourData.price || !tourData.image) {
+                alert('Please fill in all required fields');
+                return;
+              }
+
+              if (isNaN(Number(tourData.price)) || Number(tourData.price) <= 0) {
+                alert('Price must be a positive number');
+                return;
+              }
+
+              const response = await api.createTour({
+                title: tourData.title.trim(),
+                description: tourData.description.trim(),
+                duration: tourData.duration.trim(),
+                price: Number(tourData.price),
+                image: tourData.image.trim()
+              });
               
-              <div className="flex items-center justify-between text-sm mb-4">
-                <span className="text-kolkata-sepia dark:text-gray-400">
-                  {tour.bookings} bookings
-                </span>
-                <div className="flex items-center text-kolkata-gold">
-                  <Star className="w-4 h-4 mr-1 fill-current" />
-                  4.8
-                </div>
-              </div>
-              
-              <div className="flex space-x-2">
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white px-3 py-2.5 rounded-xl text-sm font-medium shadow-lg flex items-center justify-center"
-                >
-                  <Eye className="w-4 h-4 mr-1" />
-                  View
-                </motion.button>
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 border border-kolkata-yellow/30 text-kolkata-terracotta dark:text-kolkata-gold px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-kolkata-yellow/10 transition-colors flex items-center justify-center"
-                >
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+              if (response.success) {
+                await fetchTours();
+                setShowAddModal(false);
+                alert('Tour created successfully! It will be visible after admin approval.');
+              } else {
+                alert(response.message || 'Failed to create tour');
+              }
+            } catch (error: any) {
+              console.error('Error creating tour:', error);
+              alert(error?.message || 'Failed to create tour. Please try again.');
+            }
+          }}
+        />
+      )}
+
+      {/* Edit Tour Modal */}
+      {showEditModal && selectedTour && (
+        <EditTourModal
+          tour={selectedTour}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedTour(null);
+          }}
+          onUpdate={async (tourData) => {
+            try {
+              const response = await api.updateTour(selectedTour.id, {
+                title: tourData.title,
+                description: tourData.description,
+                duration: tourData.duration,
+                price: Number(tourData.price),
+                image: tourData.image
+              });
+              if (response.success) {
+                await fetchTours();
+                setShowEditModal(false);
+                setSelectedTour(null);
+                alert('Tour updated successfully');
+              } else {
+                alert('Failed to update tour');
+              }
+            } catch (error: any) {
+              console.error('Error updating tour:', error);
+              alert(error?.message || 'Failed to update tour');
+            }
+          }}
+        />
+      )}
+
+      {/* View Tour Modal */}
+      {showViewModal && selectedTour && (
+        <ViewTourModal
+          tour={selectedTour}
+          onClose={() => {
+            setShowViewModal(false);
+            setSelectedTour(null);
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -515,23 +714,119 @@ interface GuideBooking {
   participants: number;
 }
 
+// Tour Performance List Component
+const TourPerformanceList: React.FC = () => {
+  const [tours, setTours] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        const response = await api.getMyTours();
+        if (response.success && response.data) {
+          setTours(response.data.slice(0, 3));
+        }
+      } catch (error) {
+        console.error('Error fetching tours:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTours();
+  }, []);
+
+  if (isLoading) {
+    return <div className="text-center py-8 text-kolkata-sepia dark:text-gray-400">Loading...</div>;
+  }
+
+  if (tours.length === 0) {
+    return <div className="text-center py-8 text-kolkata-sepia dark:text-gray-400">No tours yet</div>;
+  }
+
+  return (
+    <>
+      {tours.map((tour: any, index: number) => (
+        <motion.div 
+          key={tour.id} 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6 + index * 0.1 }}
+          className="p-4 bg-gradient-to-r from-heritage-50 to-transparent dark:from-heritage-900/20 dark:to-transparent rounded-xl hover:from-heritage-100 dark:hover:from-heritage-900/30 transition-colors"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="font-medium text-gray-900 dark:text-white">{tour.title}</p>
+            <span className="text-sm text-kolkata-terracotta dark:text-kolkata-gold font-semibold">₹{tour.price}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm text-kolkata-sepia dark:text-gray-400">
+            <span>{tour.bookings || 0} bookings</span>
+            <span className={`px-2 py-1 rounded-full text-xs ${
+              tour.status === 'Active'
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                : 'bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+            }`}>
+              {tour.status}
+            </span>
+          </div>
+        </motion.div>
+      ))}
+    </>
+  );
+};
+
 // Manage Bookings Component with Kolkata Theme
 const ManageBookings: React.FC = () => {
-  const [bookings, setBookings] = useState<GuideBooking[]>(guideBookings as GuideBooking[]);
+  const [bookings, setBookings] = useState<GuideBooking[]>([]);
   const [filterStatus, setFilterStatus] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.getMyGuideProfile();
+      if (response.success && response.data && response.data.bookings) {
+        setBookings(response.data.bookings.map((b: any) => ({
+          id: b.id,
+          tourName: b.tourName,
+          touristName: b.touristName,
+          touristEmail: b.touristEmail,
+          date: b.date,
+          status: b.status,
+          amount: b.amount || 0,
+          participants: b.participants || 1
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredBookings = bookings.filter(booking => {
     const matchesSearch = booking.touristName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          booking.tourName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'All' || booking.status === filterStatus;
+    const matchesFilter = filterStatus === 'All' || 
+                         booking.status.toLowerCase() === filterStatus.toLowerCase();
     return matchesSearch && matchesFilter;
   });
 
-  const handleStatusChange = (bookingId: string, newStatus: 'Confirmed' | 'Pending' | 'Cancelled') => {
-    setBookings(bookings.map(booking => 
-      booking.id === bookingId ? { ...booking, status: newStatus } : booking
-    ));
+  const handleStatusChange = async (bookingId: string, newStatus: 'confirmed' | 'pending' | 'cancelled') => {
+    try {
+      const response = await api.updateGuideBookingStatus(bookingId, newStatus);
+      if (response.success) {
+        await fetchBookings();
+      } else {
+        alert('Failed to update booking status');
+      }
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+      alert('Failed to update booking status');
+    }
   };
 
   return (
@@ -650,13 +945,16 @@ const ManageBookings: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
-                      value={booking.status}
-                      onChange={(e) => handleStatusChange(booking.id, e.target.value as any)}
+                      value={booking.status.toLowerCase()}
+                      onChange={(e) => {
+                        const newStatus = e.target.value as 'confirmed' | 'pending' | 'cancelled';
+                        handleStatusChange(booking.id, newStatus);
+                      }}
                       className="text-sm bg-kolkata-yellow/10 border border-kolkata-yellow/30 rounded-lg px-3 py-1.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-kolkata-yellow"
                     >
-                      <option value="Pending">Pending</option>
-                      <option value="Confirmed">Confirmed</option>
-                      <option value="Cancelled">Cancelled</option>
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="cancelled">Cancelled</option>
                     </select>
                   </td>
                 </motion.tr>
@@ -802,6 +1100,411 @@ const GuideProfile: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Tour Modal Components
+type TourPayload = { title: string; description: string; duration: string; price: string; image: string };
+
+const AddTourModal: React.FC<{ onClose: () => void; onAdd: (payload: TourPayload) => void }> = ({ onClose, onAdd }) => {
+  const [formData, setFormData] = useState<TourPayload>({
+    title: '',
+    description: '',
+    duration: '',
+    price: '',
+    image: ''
+  });
+  const [imagePreview, setImagePreview] = useState<string>('');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setImagePreview(base64);
+        setFormData({ ...formData, image: base64 });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title || !formData.description || !formData.duration || !formData.price || !formData.image) {
+      alert('Please fill in all fields');
+      return;
+    }
+    onAdd(formData);
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-2xl border border-heritage-500/20 flex flex-col overflow-hidden"
+      >
+        <div className="flex items-center justify-between p-6 border-b border-heritage-500/10 flex-shrink-0">
+          <h2 className="text-xl font-semibold font-heritage text-gray-900 dark:text-white flex items-center gap-2">
+            <Map className="w-5 h-5 text-heritage-500" />
+            Create New Tour
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Tour Title *</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g., Victoria Memorial Heritage Walk"
+                className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-heritage-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Description *</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={4}
+                placeholder="Describe your heritage tour..."
+                className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-heritage-500"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Duration *</label>
+                <input
+                  type="text"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  placeholder="e.g., 3 hours"
+                  className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-heritage-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Price (₹) *</label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="2000"
+                  className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-heritage-500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Tour Image *</label>
+              {imagePreview ? (
+                <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-heritage-500/30 mb-2">
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImagePreview('');
+                      setFormData({ ...formData, image: '' });
+                    }}
+                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-heritage-500/30 rounded-xl p-8 text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    id="tour-image-upload"
+                  />
+                  <label htmlFor="tour-image-upload" className="cursor-pointer">
+                    <Map className="w-12 h-12 text-heritage-500 mx-auto mb-2" />
+                    <p className="text-sm text-kolkata-sepia dark:text-gray-400">Click to upload tour image</p>
+                  </label>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6 pt-6 border-t border-heritage-500/10">
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onClose}
+              className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              Cancel
+            </motion.button>
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white px-4 py-3 rounded-xl shadow-lg"
+            >
+              Create Tour
+            </motion.button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const EditTourModal: React.FC<{ tour: any; onClose: () => void; onUpdate: (payload: TourPayload) => void }> = ({ tour, onClose, onUpdate }) => {
+  const sanitizedTour = sanitizeTourData(tour);
+  const [formData, setFormData] = useState<TourPayload>({
+    title: sanitizedTour.title || '',
+    description: sanitizedTour.description || '',
+    duration: sanitizedTour.duration || '',
+    price: sanitizedTour.price?.toString() || '',
+    image: sanitizedTour.image || ''
+  });
+  const [imagePreview, setImagePreview] = useState<string>(sanitizedTour.image || '');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setImagePreview(base64);
+        setFormData({ ...formData, image: base64 });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdate(formData);
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-2xl border border-heritage-500/20 flex flex-col overflow-hidden"
+      >
+        <div className="flex items-center justify-between p-6 border-b border-heritage-500/10 flex-shrink-0">
+          <h2 className="text-xl font-semibold font-heritage text-gray-900 dark:text-white flex items-center gap-2">
+            <Edit className="w-5 h-5 text-heritage-500" />
+            Edit Tour
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Tour Title *</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-heritage-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Description *</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={4}
+                className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-heritage-500"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Duration *</label>
+                <input
+                  type="text"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-heritage-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Price (₹) *</label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-heritage-500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-kolkata-sepia dark:text-gray-300 mb-2">Tour Image *</label>
+              {imagePreview ? (
+                <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-heritage-500/30 mb-2">
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImagePreview('');
+                      setFormData({ ...formData, image: '' });
+                    }}
+                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : null}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full px-4 py-3 border border-heritage-500/30 rounded-xl bg-heritage-50/50 dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6 pt-6 border-t border-heritage-500/10">
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onClose}
+              className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              Cancel
+            </motion.button>
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 bg-gradient-to-r from-kolkata-yellow to-kolkata-terracotta text-white px-4 py-3 rounded-xl shadow-lg"
+            >
+              Update Tour
+            </motion.button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const ViewTourModal: React.FC<{ tour: any; onClose: () => void }> = ({ tour, onClose }) => {
+  const sanitizedTour = sanitizeTourData(tour);
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-2xl border border-heritage-500/20 flex flex-col overflow-hidden"
+      >
+        <div className="flex items-center justify-between p-6 border-b border-heritage-500/10 flex-shrink-0">
+          <h2 className="text-xl font-semibold font-heritage text-gray-900 dark:text-white flex items-center gap-2">
+            <Eye className="w-5 h-5 text-heritage-500" />
+            Tour Details
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-6">
+            <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-heritage-500/30">
+              <img
+                src={sanitizedTour.image || 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400'}
+                alt={sanitizedTour.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold font-heritage text-gray-900 dark:text-white mb-2">{sanitizedTour.title}</h3>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">{sanitizedTour.description}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-heritage-50 dark:bg-gray-700/50 rounded-xl">
+                  <p className="text-sm text-kolkata-sepia dark:text-gray-400 mb-1">Duration</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{sanitizedTour.duration}</p>
+                </div>
+                <div className="p-4 bg-heritage-50 dark:bg-gray-700/50 rounded-xl">
+                  <p className="text-sm text-kolkata-sepia dark:text-gray-400 mb-1">Price</p>
+                  <p className="text-2xl font-bold text-heritage-600 dark:text-kolkata-gold">₹{sanitizedTour.price?.toLocaleString() || '0'}</p>
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                {sanitizedTour.approved === false && (
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/80 text-white">
+                    Pending Approval
+                  </span>
+                )}
+                {sanitizedTour.approved === true && (
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/80 text-white">
+                    ✓ Approved
+                  </span>
+                )}
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  sanitizedTour.status === 'Active' ? 'bg-blue-500/80 text-white' : 'bg-gray-500/80 text-white'
+                }`}>
+                  {sanitizedTour.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

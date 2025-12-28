@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
-import { Star, TrendingUp, TrendingDown, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, TrendingUp, TrendingDown, MessageSquare, ThumbsUp, ThumbsDown, Loader2, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import api from '../../../lib/api';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const FeedbackPortal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'submit' | 'analytics' | 'history'>('submit');
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
-  const [category, setCategory] = useState('guide');
+  const [category, setCategory] = useState('platform');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [myFeedbackHistory, setMyFeedbackHistory] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const feedbackCategories = [
     { id: 'guide', label: 'Guide Service', icon: '👨‍🏫' },
@@ -61,13 +70,91 @@ const FeedbackPortal: React.FC = () => {
     }
   ];
 
-  const handleSubmitFeedback = (e: React.FormEvent) => {
+  // Fetch user's feedback history
+  useEffect(() => {
+    if (activeTab === 'history') {
+      fetchMyFeedbackHistory();
+    }
+  }, [activeTab]);
+
+  const fetchMyFeedbackHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const response = await api.getAllFeedback();
+      if (response.success && response.data) {
+        // Filter to show only current user's feedback
+        const userFeedback = response.data.filter((fb: any) => 
+          fb.user?.email === user?.email || fb.userId === user?.id
+        );
+        setMyFeedbackHistory(userFeedback);
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch feedback history:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  const handleDeleteFeedback = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this feedback? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingId(id);
+    try {
+      const response = await api.deleteFeedback(id);
+      if (response.success) {
+        // Refresh feedback list
+        await fetchMyFeedbackHistory();
+      }
+    } catch (error: any) {
+      console.error('Failed to delete feedback:', error);
+      alert(error.message || 'Failed to delete feedback');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleSubmitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting feedback:', { category, rating, feedback });
-    // Reset form
-    setRating(0);
-    setFeedback('');
-    alert('Thank you for your feedback! It helps us improve our services.');
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    try {
+      const response = await api.submitFeedback({
+        rating,
+        comment: feedback,
+        category,
+        sentiment: undefined // Can be analyzed on backend
+      });
+
+      if (response.success) {
+        setSubmitSuccess(true);
+        // Reset form
+        setRating(0);
+        setFeedback('');
+        setCategory('platform');
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSubmitSuccess(false);
+        }, 3000);
+
+        // Refresh history if on history tab
+        if (activeTab === 'history') {
+          fetchMyFeedbackHistory();
+        }
+      } else {
+        setSubmitError(response.message || 'Failed to submit feedback');
+      }
+    } catch (error: any) {
+      console.error('Error submitting feedback:', error);
+      const errorMessage = error.message || error.response?.data?.message || 'Failed to submit feedback. Please try again.';
+      setSubmitError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getSentimentColor = (sentiment: string) => {
@@ -195,12 +282,33 @@ const FeedbackPortal: React.FC = () => {
                 />
               </div>
 
+              {submitSuccess && (
+                <div className="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="text-sm font-medium">Thank you for your feedback! It will be reviewed by our admin team.</span>
+                </div>
+              )}
+
+              {submitError && (
+                <div className="flex items-center space-x-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
+                  <XCircle className="w-5 h-5" />
+                  <span className="text-sm font-medium">{submitError}</span>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={rating === 0 || !feedback.trim()}
-                className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={rating === 0 || !feedback.trim() || isSubmitting}
+                className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
-                Submit Feedback
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  <span>Submit Feedback</span>
+                )}
               </button>
             </form>
           </div>
@@ -409,62 +517,99 @@ const FeedbackPortal: React.FC = () => {
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               My Review History
             </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Your feedback will appear here after submission. Verified feedback will be displayed on the landing page.
+            </p>
           </div>
           
-          <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {recentFeedback.map((review) => (
-              <div key={review.id} className="p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="flex items-center space-x-2 mb-1">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
+          {isLoadingHistory ? (
+            <div className="flex items-center justify-center p-12">
+              <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {myFeedbackHistory.length === 0 ? (
+                <div className="p-12 text-center">
+                  <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 dark:text-gray-400">
+                    You haven't submitted any feedback yet. Share your experience to help improve our services!
+                  </p>
+                </div>
+              ) : (
+                myFeedbackHistory.map((review) => (
+                  <div key={review.id} className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            {review.category || 'General'}
+                          </span>
+                          {review.verified && (
+                            <span className="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                              ✓ Verified
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 mt-2">{review.comment}</p>
                       </div>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {review.category}
-                      </span>
+                      
+                      <div className="text-right ml-4">
+                        {review.sentiment && (
+                          <span className={`text-xs px-2 py-1 rounded-full block mb-2 ${
+                            review.sentiment === 'positive' 
+                              ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                              : review.sentiment === 'negative'
+                              ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                              : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                          }`}>
+                            {review.sentiment}
+                          </span>
+                        )}
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Recently'}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-400">{review.comment}</p>
+                    
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                      {!review.verified && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          ⏳ Pending admin verification. Once verified, your feedback will be displayed on the landing page.
+                        </p>
+                      )}
+                      <button
+                        onClick={() => handleDeleteFeedback(review.id)}
+                        disabled={deletingId === review.id}
+                        className="flex items-center space-x-1 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {deletingId === review.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Deleting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="w-4 h-4" />
+                            <span>Delete</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  
-                  <div className="text-right">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      review.sentiment === 'positive' 
-                        ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                        : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
-                    }`}>
-                      AI: {review.sentiment}
-                    </span>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      {review.date}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center space-x-4">
-                    <button className="flex items-center space-x-1 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400">
-                      <ThumbsUp className="w-4 h-4" />
-                      <span>{review.helpful}</span>
-                    </button>
-                    <button className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-                      Edit
-                    </button>
-                  </div>
-                  <button className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

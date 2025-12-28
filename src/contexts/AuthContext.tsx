@@ -339,7 +339,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         userName: registeredUser.name,
         type: 'system',
         title: 'Welcome to YatriAI! 🎉',
-        message: `Hi ${registeredUser.name}! Your account has been created successfully. Start exploring Jharkhand's amazing destinations!`,
+        message: `Hi ${registeredUser.name}! Your account has been created successfully. Start exploring Kolkata's amazing destinations!`,
         priority: 'high',
         actionUrl: '/',
         actionLabel: 'Start Exploring',

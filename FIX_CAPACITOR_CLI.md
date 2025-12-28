@@ -139,3 +139,6 @@ foreach ($path in $studioPaths) {
 6. Open: `npx cap open android`
 
 
+
+
+

@@ -105,3 +105,6 @@ npx cap sync android
 See `docs/CAPACITOR_ANDROID_SETUP.md` for detailed guide.
 
 
+
+
+

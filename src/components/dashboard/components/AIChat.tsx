@@ -40,7 +40,7 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
     {
       id: '1',
       type: 'bot',
-      content: 'Namaste! I\'m your AI travel assistant for Jharkhand. How can I help you plan your perfect trip today? 🌟',
+      content: 'Namaste! I\'m your AI travel assistant for Kolkata. How can I help you plan your perfect trip today? 🌟',
       timestamp: new Date(),
       suggestions: ['Plan my trip', 'Find a guide', 'Explore destinations']
     }
@@ -568,7 +568,7 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Ask me anything about Jharkhand..."
+                placeholder="Ask me anything about Kolkata..."
                 className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               />
             </div>

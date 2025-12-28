@@ -271,7 +271,7 @@ const SafetyFeatures: React.FC = () => {
                 {
                   type: 'info',
                   title: 'Wildlife Activity Alert',
-                  message: 'Increased elephant movement reported near Betla National Park. Maintain safe distance.',
+                  message: 'Increased wildlife activity reported near Sundarbans. Maintain safe distance.',
                   time: '2 hours ago'
                 },
                 {

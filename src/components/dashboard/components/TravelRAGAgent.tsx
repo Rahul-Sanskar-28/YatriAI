@@ -826,8 +826,7 @@ const TravelRAGAgent: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 space-y-3">
+        <div className="space-y-3">
             {errorMsg && (
               <div className="rounded-xl border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20 p-3 text-sm text-yellow-800 dark:text-yellow-100">
                 {errorMsg}
@@ -1200,86 +1199,47 @@ const TravelRAGAgent: React.FC = () => {
                   )}
                 </ShimmerButton>
               </div>
-            </div>
 
-            <div className="space-y-3">
-              <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                  <Database className="w-4 h-4 text-emerald-500" />
-                  Retrieval summary
-                </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Intelligently combines curated local knowledge (destinations, itineraries, guides) with real-time web insights and budget analysis to provide comprehensive, up-to-date travel recommendations.
-                </p>
-                {latestAssistant?.budget && (
-                  <div className="mt-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-sm">
-                    <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-                      <Coins className="w-4 h-4" />
-                      Active budget window
+              {/* Retrieval Summary and How to Use Boxes */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                    <Database className="w-4 h-4 text-emerald-500" />
+                    Retrieval summary
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Intelligently combines curated local knowledge (destinations, itineraries, guides) with real-time web insights and budget analysis to provide comprehensive, up-to-date travel recommendations.
+                  </p>
+                  {latestAssistant?.budget && (
+                    <div className="mt-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-sm">
+                      <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+                        <Coins className="w-4 h-4" />
+                        Active budget window
+                      </div>
+                      <div className="text-gray-900 dark:text-white mt-1">
+                        ₹{formatINR(latestAssistant.budget.low)} - ₹{formatINR(latestAssistant.budget.high)} / day
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{latestAssistant.budget.basis}</p>
                     </div>
-                    <div className="text-gray-900 dark:text-white mt-1">
-                      ₹{formatINR(latestAssistant.budget.low)} - ₹{formatINR(latestAssistant.budget.high)} / day
+                  )}
+                </div>
+
+                <BlurFade delay={0.05} inView>
+                  <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-emerald-50 to-orange-50 dark:from-emerald-900/20 dark:to-orange-900/20 p-4">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                      <Compass className="w-4 h-4 text-orange-500" />
+                      How to use
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{latestAssistant.budget.basis}</p>
+                    <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
+                      <li>Specify your travel details: city, dates, party type (solo/couple/family/friends), and budget level.</li>
+                      <li>The system combines local curated knowledge with current web insights for comprehensive planning.</li>
+                      <li>Get integrated recommendations covering attractions, itineraries, budget analysis, and transport options.</li>
+                      <li>Ask follow-ups like "swap to luxury", "add waterfalls", or "show train-friendly plan".</li>
+                    </ul>
                   </div>
-                )}
+                </BlurFade>
               </div>
-
-              <BlurFade delay={0.05} inView>
-                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-emerald-50 to-orange-50 dark:from-emerald-900/20 dark:to-orange-900/20 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                    <Compass className="w-4 h-4 text-orange-500" />
-                    How to use
-                  </div>
-                  <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
-                    <li>Specify your travel details: city, dates, party type (solo/couple/family/friends), and budget level.</li>
-                    <li>The system combines local curated knowledge with current web insights for comprehensive planning.</li>
-                    <li>Get integrated recommendations covering attractions, itineraries, budget analysis, and transport options.</li>
-                    <li>Ask follow-ups like "swap to luxury", "add waterfalls", or "show train-friendly plan".</li>
-                  </ul>
-                </div>
-              </BlurFade>
             </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                <Database className="w-4 h-4 text-emerald-500" />
-                Retrieval summary
-              </div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                Intelligently combines curated local knowledge (destinations, itineraries, guides) with real-time web insights and budget analysis to provide comprehensive, up-to-date travel recommendations.
-              </p>
-              {latestAssistant?.budget && (
-                <div className="mt-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-sm">
-                  <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-                    <Coins className="w-4 h-4" />
-                    Active budget window
-                  </div>
-                  <div className="text-gray-900 dark:text-white mt-1">
-                    ₹{formatINR(latestAssistant.budget.low)} - ₹{formatINR(latestAssistant.budget.high)} / day
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{latestAssistant.budget.basis}</p>
-                </div>
-              )}
-            </div>
-
-            <BlurFade delay={0.05} inView>
-              <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-emerald-50 to-orange-50 dark:from-emerald-900/20 dark:to-orange-900/20 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                  <Compass className="w-4 h-4 text-orange-500" />
-                  How to use
-                </div>
-                <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
-                  <li>Specify your travel details: city, dates, party type (solo/couple/family/friends), and budget level.</li>
-                  <li>The system combines local curated knowledge with current web insights for comprehensive planning.</li>
-                  <li>Get integrated recommendations covering attractions, itineraries, budget analysis, and transport options.</li>
-                  <li>Ask follow-ups like “swap to luxury”, “add waterfalls”, or “show train-friendly plan”.</li>
-                </ul>
-              </div>
-            </BlurFade>
-          </div>
         </div>
       </div>
     </MagicCard>

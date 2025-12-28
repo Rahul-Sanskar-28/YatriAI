@@ -158,8 +158,8 @@ async function main() {
     prisma.tour.create({
       data: {
         guideId: guides[0].id,
-        title: 'Wildlife Safari at Betla National Park',
-        description: 'Explore the rich wildlife of Jharkhand with expert guidance',
+        title: 'Wildlife Safari at Sundarbans',
+        description: 'Explore the rich wildlife of Sundarbans with expert guidance',
         image: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400',
         status: 'Active',
         duration: '3 days',
@@ -276,13 +276,13 @@ async function main() {
   const destinations = await Promise.all([
     prisma.destination.create({
       data: {
-        name: 'Betla National Park',
-        description: 'Home to tigers, elephants, and diverse wildlife in pristine forests',
+        name: 'Sundarbans',
+        description: 'Home to Royal Bengal Tigers, crocodiles, and diverse wildlife in pristine mangrove forests',
         image: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=800',
         category: 'nature',
         rating: 4.5,
-        latitude: 23.9,
-        longitude: 84.2
+        latitude: 21.9497,
+        longitude: 88.9401
       }
     }),
     prisma.destination.create({
@@ -338,7 +338,7 @@ async function main() {
       data: {
         userId: tourists[0].id,
         type: 'accommodation',
-        title: 'Eco Resort Stay - Betla',
+        title: 'Eco Resort Stay - Sundarbans',
         date: new Date('2024-01-20'),
         status: 'pending',
         amount: 4500
@@ -419,7 +419,7 @@ async function main() {
     prisma.aITip.create({ data: { content: "🌟 Best time to visit Hundru Falls is during monsoon season (July-September)" } }),
     prisma.aITip.create({ data: { content: "🎭 Don't miss the Sarhul festival in March - experience authentic tribal culture" } }),
     prisma.aITip.create({ data: { content: "🌡️ Weather Alert: Pleasant weather expected this weekend, perfect for outdoor activities" } }),
-    prisma.aITip.create({ data: { content: "🦎 Wildlife Tip: Early morning safaris at Betla have 80% higher tiger spotting chances" } }),
+    prisma.aITip.create({ data: { content: "🦎 Wildlife Tip: Early morning safaris at Sundarbans have 80% higher tiger spotting chances" } }),
     prisma.aITip.create({ data: { content: "🏺 Local markets in Ranchi offer authentic Dokra art at 30% lower prices than tourist areas" } }),
     prisma.aITip.create({ data: { content: "🚗 Pro Tip: Book local guides in advance during festival seasons for better rates" } })
   ]);
@@ -476,6 +476,8 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+
 
 
 

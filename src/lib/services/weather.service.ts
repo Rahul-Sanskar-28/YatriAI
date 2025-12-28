@@ -62,8 +62,8 @@ const mockWeatherData: Record<string, WeatherData> = {
     ],
     lastUpdated: new Date().toISOString(),
   },
-  'betla-national-park': {
-    location: 'Betla National Park, Jharkhand',
+  'sundarbans': {
+    location: 'Sundarbans, West Bengal',
     temperature: 25,
     feelsLike: 26,
     humidity: 75,

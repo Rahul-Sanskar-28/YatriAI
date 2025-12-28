@@ -27,17 +27,20 @@ import {
   Moon,
   Menu,
   X,
-  Navigation
+  Navigation,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { bookings } from '../../data/mockData';
+import api from '../../lib/api';
+import groqService, { Recommendation } from '../../lib/services/groq.service';
 import AIItineraryPlanner from './components/AIItineraryPlanner';
 import AIChat from './components/AIChat';
 import BookingSystem from './components/BookingSystem';
 import InteractiveMap from './components/InteractiveMap';
-import Marketplace from './components/Marketplace';
 import GuideLocator from './components/GuideLocator';
 import FeedbackPortal from './components/FeedbackPortal';
 import SafetyFeatures from './components/SafetyFeatures';
@@ -55,7 +58,6 @@ import PictureDeck from './components/PictureDeck';
 
 import GPSSuggestions from './components/GPSSuggestions';
 
-import LanguageSelector from '../common/LanguageSelector';
 
 const TouristDashboard: React.FC = () => {
   const { t } = useTranslation('translation');
@@ -106,7 +108,6 @@ const TouristDashboard: React.FC = () => {
     { id: 'pandal-donate', labelKey: 'dashboard.menuItems.pandalDonations', icon: Heart, isNew: true, isBlockchain: true },
     { id: 'bookings', labelKey: 'dashboard.menuItems.bookings', icon: CreditCard },
     { id: 'map', labelKey: 'dashboard.menuItems.interactiveMap', icon: MapPin },
-    { id: 'marketplace', labelKey: 'dashboard.menuItems.marketplace', icon: ShoppingBag },
     { id: 'guides', labelKey: 'dashboard.menuItems.findGuides', icon: Users },
     { id: 'feedback', labelKey: 'dashboard.menuItems.feedback', icon: Star },
     { id: 'safety', labelKey: 'dashboard.menuItems.safety', icon: Shield },
@@ -146,8 +147,6 @@ const TouristDashboard: React.FC = () => {
         return <BookingSystem />;
       case 'map':
         return <InteractiveMap />;
-      case 'marketplace':
-        return <Marketplace />;
       case 'guides':
         return <GuideLocator />;
       case 'feedback':
@@ -162,9 +161,9 @@ const TouristDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 flex flex-col">
       {/* Top Header Bar */}
-      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700">
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="flex items-center justify-between px-4 sm:px-6 py-3">
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Burger Menu Button - Mobile */}
@@ -184,11 +183,6 @@ const TouristDashboard: React.FC = () => {
             </h1>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Language Selector */}
-            <div className="hidden sm:block">
-              <LanguageSelector />
-            </div>
-            
             {/* Theme Toggle */}
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -213,7 +207,7 @@ const TouristDashboard: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex relative">
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar Backdrop - Mobile */}
         <AnimatePresence>
           {isSidebarOpen && isMobile && (
@@ -235,7 +229,7 @@ const TouristDashboard: React.FC = () => {
               animate={isMobile ? { x: 0 } : false}
               exit={isMobile ? { x: '-100%' } : false}
               transition={{ type: 'tween', duration: 0.3 }}
-              className={`fixed lg:sticky top-[60px] left-0 h-[calc(100vh-60px)] w-64 bg-white dark:bg-gray-800 shadow-lg overflow-y-auto z-50 lg:z-auto`}
+              className={`fixed lg:fixed lg:top-[60px] lg:left-0 lg:bottom-0 left-0 h-[calc(100vh-60px)] w-64 bg-white dark:bg-gray-800 shadow-lg overflow-y-auto z-50 lg:z-auto flex-shrink-0`}
             >
               <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-3">
@@ -303,7 +297,7 @@ const TouristDashboard: React.FC = () => {
         </AnimatePresence>
 
         {/* Main Content */}
-        <div className="flex-1 w-full lg:w-auto overflow-x-hidden">
+        <div className="flex-1 w-full lg:w-auto overflow-y-auto overflow-x-hidden min-h-0 lg:ml-64">
           <div className="p-4 sm:p-6 lg:p-8">
             {renderContent()}
           </div>
@@ -360,13 +354,194 @@ const TouristDashboard: React.FC = () => {
 const DashboardHome: React.FC = () => {
   const { t } = useTranslation('translation');
   const { user } = useAuth();
+  const [userBookings, setUserBookings] = useState<any[]>([]);
+  const [userItineraries, setUserItineraries] = useState<any[]>([]);
+  const [allRecommendations, setAllRecommendations] = useState<Recommendation[]>([]);
+  const [currentRecommendationIndex, setCurrentRecommendationIndex] = useState(0);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+  const [stats, setStats] = useState([
+    { labelKey: 'dashboard.stats.placesVisited', value: '0', icon: Map, color: 'from-kolkata-yellow to-kolkata-gold' },
+    { labelKey: 'dashboard.stats.totalBookings', value: '0', icon: Calendar, color: 'from-kolkata-terracotta to-durga-500' },
+    { labelKey: 'dashboard.stats.upcomingTrips', value: '0', icon: Star, color: 'from-kolkata-hooghly to-kolkata-blue' },
+    { labelKey: 'dashboard.stats.savedPlaces', value: '0', icon: TrendingUp, color: 'from-heritage-500 to-kolkata-sepia' }
+  ]);
 
-  const stats = [
-    { labelKey: 'dashboard.stats.placesVisited', value: '5', icon: Map, color: 'from-kolkata-yellow to-kolkata-gold' },
-    { labelKey: 'dashboard.stats.totalBookings', value: bookings.filter(b => b.status === 'confirmed').length.toString(), icon: Calendar, color: 'from-kolkata-terracotta to-durga-500' },
-    { labelKey: 'dashboard.stats.upcomingTrips', value: '12', icon: Star, color: 'from-kolkata-hooghly to-kolkata-blue' },
-    { labelKey: 'dashboard.stats.savedPlaces', value: '2,450', icon: TrendingUp, color: 'from-heritage-500 to-kolkata-sepia' }
-  ];
+  // Fetch user data on mount
+  useEffect(() => {
+    fetchUserData();
+    fetchRecommendations();
+  }, []);
+
+  // Helper function to calculate and update stats
+  const calculateAndUpdateStats = (fetchedBookings: any[], fetchedItineraries: any[]) => {
+    // Calculate stats with case-insensitive status comparison
+    const confirmedBookings = fetchedBookings.filter((b: any) => 
+      b.status && b.status.toLowerCase() === 'confirmed'
+    );
+    const upcomingBookings = fetchedBookings.filter((b: any) => {
+      if (!b.status || b.status.toLowerCase() !== 'confirmed') return false;
+      try {
+        // Parse booking date and set to start of day for comparison
+        const bookingDate = new Date(b.date);
+        bookingDate.setHours(0, 0, 0, 0);
+        
+        // Get today's date at start of day for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Booking is upcoming if date is today or in the future
+        const isUpcoming = bookingDate >= today;
+        
+        console.log(`📅 Booking "${b.title}": date=${b.date}, parsed=${bookingDate.toISOString()}, today=${today.toISOString()}, isUpcoming=${isUpcoming}`);
+        
+        return isUpcoming;
+      } catch (error) {
+        console.error(`❌ Error parsing booking date for "${b.title}":`, error);
+        return false;
+      }
+    });
+    
+    console.log(`📊 Stats calculation: ${fetchedBookings.length} total bookings, ${confirmedBookings.length} confirmed, ${upcomingBookings.length} upcoming`);
+
+    // Count unique places visited from itineraries
+    const visitedPlaces = new Set<string>();
+    fetchedItineraries.forEach((itinerary: any) => {
+      if (itinerary.destinations && Array.isArray(itinerary.destinations)) {
+        itinerary.destinations.forEach((dest: any) => {
+          if (dest.id) visitedPlaces.add(dest.id);
+        });
+      }
+    });
+
+    // Update stats
+    setStats([
+      { 
+        labelKey: 'dashboard.stats.placesVisited', 
+        value: visitedPlaces.size.toString(), 
+        icon: Map, 
+        color: 'from-kolkata-yellow to-kolkata-gold' 
+      },
+      { 
+        labelKey: 'dashboard.stats.totalBookings', 
+        value: confirmedBookings.length.toString(), 
+        icon: Calendar, 
+        color: 'from-kolkata-terracotta to-durga-500' 
+      },
+      { 
+        labelKey: 'dashboard.stats.upcomingTrips', 
+        value: upcomingBookings.length.toString(), 
+        icon: Star, 
+        color: 'from-kolkata-hooghly to-kolkata-blue' 
+      },
+      { 
+        labelKey: 'dashboard.stats.savedPlaces', 
+        value: visitedPlaces.size.toString(), // Using visited places as saved places for now
+        icon: TrendingUp, 
+        color: 'from-heritage-500 to-kolkata-sepia' 
+      }
+    ]);
+  };
+
+  const fetchUserData = async () => {
+    setIsLoadingStats(true);
+    let fetchedBookings: any[] = [];
+    let fetchedItineraries: any[] = [];
+    
+    try {
+      // Fetch bookings
+      const bookingsResponse = await api.getMyBookings();
+      console.log('📊 Bookings API Response:', bookingsResponse);
+      fetchedBookings = bookingsResponse.success && bookingsResponse.data ? bookingsResponse.data : [];
+      console.log(`✅ Loaded ${fetchedBookings.length} bookings, ${fetchedBookings.filter((b: any) => b.status?.toLowerCase() === 'confirmed').length} confirmed`);
+      setUserBookings(fetchedBookings);
+
+      // Fetch itineraries
+      const itinerariesResponse = await api.getMyItineraries();
+      console.log('🗺️ Itineraries API Response:', itinerariesResponse);
+      fetchedItineraries = itinerariesResponse.success && itinerariesResponse.data ? itinerariesResponse.data : [];
+      console.log(`✅ Loaded ${fetchedItineraries.length} itineraries`);
+      setUserItineraries(fetchedItineraries);
+    } catch (error) {
+      console.error('❌ Error fetching user data:', error);
+      // Fallback to mock data on error
+      fetchedBookings = bookings;
+      fetchedItineraries = [];
+      console.log(`🔄 Using fallback mock data: ${fetchedBookings.length} bookings`);
+      setUserBookings(bookings);
+      setUserItineraries([]);
+    } finally {
+      // Always calculate stats regardless of API success/failure
+      calculateAndUpdateStats(fetchedBookings, fetchedItineraries);
+      setIsLoadingStats(false);
+    }
+  };
+
+  const fetchRecommendations = async () => {
+    setIsLoadingRecommendations(true);
+    try {
+      const response = await groqService.getAllRecommendations();
+
+      if (response.success && response.recommendations) {
+        setAllRecommendations(response.recommendations);
+        setCurrentRecommendationIndex(0); // Start from the beginning
+      }
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+    } finally {
+      setIsLoadingRecommendations(false);
+    }
+  };
+
+  const handleRefreshRecommendations = () => {
+    // Cycle to the next 3 recommendations
+    if (allRecommendations.length > 0) {
+      const nextIndex = (currentRecommendationIndex + 3) % allRecommendations.length;
+      setCurrentRecommendationIndex(nextIndex);
+    } else {
+      // If no recommendations loaded yet, fetch them
+      fetchRecommendations();
+    }
+  };
+
+  // Get current 3 recommendations to display
+  const getCurrentRecommendations = (): Recommendation[] => {
+    if (allRecommendations.length === 0) return [];
+    
+    const recommendations: Recommendation[] = [];
+    for (let i = 0; i < 3; i++) {
+      const index = (currentRecommendationIndex + i) % allRecommendations.length;
+      recommendations.push(allRecommendations[index]);
+    }
+    return recommendations;
+  };
+
+  const currentRecommendations = getCurrentRecommendations();
+
+  // Get category gradient colors
+  const getCategoryGradient = (category: string) => {
+    const gradients: Record<string, string> = {
+      heritage: 'from-heritage-50 to-kolkata-cream dark:from-heritage-900/20 dark:to-heritage-900/10',
+      culture: 'from-durga-50 to-durga-100/50 dark:from-durga-900/20 dark:to-durga-900/10',
+      food: 'from-kolkata-yellow/20 to-kolkata-terracotta/10 dark:from-kolkata-yellow/10 dark:to-kolkata-terracotta/5',
+      nature: 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10',
+      adventure: 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/10',
+      spiritual: 'from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/10',
+    };
+    return gradients[category] || 'from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700';
+  };
+
+  const getCategoryBorder = (category: string) => {
+    const borders: Record<string, string> = {
+      heritage: 'border-heritage-200/30',
+      culture: 'border-durga-200/30',
+      food: 'border-kolkata-yellow/20',
+      nature: 'border-green-200/30',
+      adventure: 'border-blue-200/30',
+      spiritual: 'border-purple-200/30',
+    };
+    return borders[category] || 'border-gray-200 dark:border-gray-700';
+  };
 
   return (
     <div className="space-y-8">
@@ -394,7 +569,11 @@ const DashboardHome: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t(stat.labelKey)}</p>
+                  {isLoadingStats ? (
+                    <Loader2 className="w-6 h-6 animate-spin text-kolkata-terracotta" />
+                  ) : (
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                  )}
                 </div>
                 <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color}`}>
                   <IconComponent className="w-6 h-6 text-white" />
@@ -410,8 +589,13 @@ const DashboardHome: React.FC = () => {
         {/* Recent Bookings */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.overview.recentBookings')}</h3>
+          {isLoadingStats ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-kolkata-terracotta" />
+            </div>
+          ) : userBookings.length > 0 ? (
           <div className="space-y-4">
-            {bookings.slice(0, 3).map((booking) => (
+              {userBookings.slice(0, 3).map((booking: any) => (
               <div key={booking.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">{booking.title}</p>
@@ -427,25 +611,74 @@ const DashboardHome: React.FC = () => {
               </div>
             ))}
           </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No bookings yet</p>
+            </div>
+          )}
         </div>
 
-        {/* AI Recommendations - Kolkata Themed */}
+        {/* AI Recommendations - Real-time from Groq */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.overview.recommendedPlaces')}</h3>
-          <div className="space-y-4">
-            <div className="p-4 bg-gradient-to-r from-kolkata-yellow/20 to-kolkata-terracotta/10 dark:from-kolkata-yellow/10 dark:to-kolkata-terracotta/5 rounded-lg border border-kolkata-yellow/20">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🚃 {t('features.tramHeritage.title')}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('features.tramHeritage.description')}</p>
-            </div>
-            <div className="p-4 bg-gradient-to-r from-durga-50 to-durga-100/50 dark:from-durga-900/20 dark:to-durga-900/10 rounded-lg border border-durga-200/30">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🪔 {t('features.pujoRoute.title')}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('features.pujoRoute.description')}</p>
-            </div>
-            <div className="p-4 bg-gradient-to-r from-heritage-50 to-kolkata-cream dark:from-heritage-900/20 dark:to-heritage-900/10 rounded-lg border border-heritage-200/30">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">🏛️ {t('features.heritageWalk.title')}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t('features.heritageWalk.description')}</p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {t('dashboard.overview.recommendedPlaces')}
+            </h3>
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 180 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleRefreshRecommendations}
+              disabled={isLoadingRecommendations}
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-kolkata-terracotta dark:hover:text-kolkata-gold transition-colors rounded-lg hover:bg-kolkata-yellow/10 dark:hover:bg-kolkata-gold/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Refresh recommendations"
+            >
+              {isLoadingRecommendations ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <RefreshCw className="w-5 h-5" />
+              )}
+            </motion.button>
           </div>
+          {isLoadingRecommendations && allRecommendations.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-kolkata-terracotta" />
+              <span className="ml-3 text-gray-600 dark:text-gray-400">Loading recommendations...</span>
+            </div>
+          ) : currentRecommendations.length > 0 ? (
+            <div className="space-y-4">
+              {currentRecommendations.map((rec, index) => (
+                <motion.div
+                  key={`${currentRecommendationIndex}-${index}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`p-4 bg-gradient-to-r ${getCategoryGradient(rec.category)} rounded-lg border ${getCategoryBorder(rec.category)}`}
+                >
+                  <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    {rec.icon} {rec.title}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{rec.description}</p>
+                </motion.div>
+              ))}
+              {allRecommendations.length > 3 && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                  Showing {currentRecommendationIndex + 1}-{Math.min(currentRecommendationIndex + 3, allRecommendations.length)} of {allRecommendations.length} recommendations
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Map className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No recommendations available</p>
+              <button
+                onClick={fetchRecommendations}
+                className="mt-4 text-sm text-kolkata-terracotta dark:text-kolkata-gold hover:underline"
+              >
+                Load recommendations
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

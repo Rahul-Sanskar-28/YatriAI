@@ -45,11 +45,20 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
+    // Always refresh token from localStorage before each request
+    const currentToken = localStorage.getItem('token');
+    this.token = currentToken; // Update cached token
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      ...(currentToken && { Authorization: `Bearer ${currentToken}` }),
       ...options.headers,
     };
+
+    // Log if no token is found (for debugging)
+    if (!currentToken) {
+      console.warn('⚠️ No authentication token found in localStorage');
+    }
 
     const url = `${this.baseUrl}${endpoint}`;
 
@@ -64,16 +73,33 @@ class ApiClient {
         ...(DEBUG_MODE && { source: 'ApiClient' }),
       } as any);
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        // If response is not JSON, create error object
+        data = { success: false, message: `Server error: ${response.status} ${response.statusText}` };
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || 'Request failed');
+        // Create error with response data for better error handling
+        const error: any = new Error(data.message || `Request failed: ${response.status}`);
+        error.response = { data, status: response.status };
+        throw error;
       }
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
+      // Preserve error message and response data
       if (error instanceof Error) {
-        throw error;
+        // If it's already an Error with response data, re-throw it
+        if (error.response) {
+          throw error;
+        }
+        // Otherwise wrap it
+        const wrappedError: any = new Error(error.message);
+        wrappedError.response = error.response;
+        throw wrappedError;
       }
       throw new Error('Network error');
     }
@@ -129,6 +155,24 @@ class ApiClient {
     });
   }
 
+  async updateUserRole(id: string, role: string) {
+    return this.request<any>(`/auth/users/${id}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  async verifyUser(id: string, isVerified: boolean = true) {
+    return this.request<any>(`/auth/users/${id}/verify`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isVerified }),
+    });
+  }
+
+  async getAllSellers() {
+    return this.request<any[]>('/products/sellers');
+  }
+
   // Destinations
   async getDestinations(category?: string) {
     const query = category ? `?category=${category}` : '';
@@ -159,6 +203,10 @@ class ApiClient {
     });
   }
 
+  async getMyTours() {
+    return this.request<any[]>('/guides/tours/my');
+  }
+
   async createTour(data: any) {
     return this.request<any>('/guides/tours', {
       method: 'POST',
@@ -177,6 +225,21 @@ class ApiClient {
     return this.request<void>(`/guides/tours/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  async getPendingTours() {
+    return this.request<any[]>('/guides/tours/pending');
+  }
+
+  async approveTour(id: string, approved: boolean) {
+    return this.request<any>(`/guides/tours/${id}/approve`, {
+      method: 'PATCH',
+      body: JSON.stringify({ approved }),
+    });
+  }
+
+  async getApprovedTours() {
+    return this.request<any[]>('/guides/tours/approved');
   }
 
   async updateGuideBookingStatus(id: string, status: string) {
@@ -224,6 +287,17 @@ class ApiClient {
     });
   }
 
+  async approveProduct(id: string, approved: boolean) {
+    return this.request<any>(`/products/${id}/approve`, {
+      method: 'PATCH',
+      body: JSON.stringify({ approved }),
+    });
+  }
+
+  async getPendingProducts() {
+    return this.request<any[]>('/products/pending');
+  }
+
   // Bookings
   async getMyBookings() {
     return this.request<any[]>('/bookings/my');
@@ -248,6 +322,11 @@ class ApiClient {
 
   async getAllBookings() {
     return this.request<any[]>('/bookings');
+  }
+
+  // Analytics endpoints
+  async getAnalytics() {
+    return this.request<any>('/analytics');
   }
 
   async updateBookingStatus(id: string, status: string) {
@@ -302,10 +381,30 @@ class ApiClient {
     return this.request<string[]>('/testimonials/tips');
   }
 
-  async submitFeedback(data: { rating: number; comment: string; sentiment?: string }) {
+  async submitFeedback(data: { rating: number; comment: string; category?: string; sentiment?: string }) {
     return this.request<any>('/testimonials/feedback', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  async getAllFeedback(verified?: boolean) {
+    const query = verified !== undefined ? `?verified=${verified}` : '';
+    return this.request<any[]>('/testimonials/feedback' + query, {
+      method: 'GET',
+    });
+  }
+
+  async verifyFeedback(id: string, action: 'approve' | 'reject') {
+    return this.request<any>(`/testimonials/feedback/${id}/verify`, {
+      method: 'PATCH',
+      body: JSON.stringify({ action }),
+    });
+  }
+
+  async deleteFeedback(id: string) {
+    return this.request<any>(`/testimonials/feedback/${id}`, {
+      method: 'DELETE',
     });
   }
 }

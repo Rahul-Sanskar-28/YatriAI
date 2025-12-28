@@ -283,6 +283,56 @@ export const updateUserStatus = async (req: Request, res: Response) => {
   }
 };
 
+// Admin: Update user role
+export const updateUserRole = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        id: user.id,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Update user role error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update user role' });
+  }
+};
+
+// Admin: Verify user
+export const verifyUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { isVerified } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { isVerified: isVerified ?? true }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        id: user.id,
+        isVerified: user.isVerified
+      }
+    });
+  } catch (error) {
+    console.error('Verify user error:', error);
+    res.status(500).json({ success: false, message: 'Failed to verify user' });
+  }
+};
+
+
+
 
 
 

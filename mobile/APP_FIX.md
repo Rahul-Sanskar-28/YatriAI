@@ -52,3 +52,6 @@ If you still see "Hello Android!":
 3. Rebuild: `cd android && ./gradlew clean && cd .. && npx expo run:android`
 
 
+
+
+
