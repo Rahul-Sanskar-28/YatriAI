@@ -45,7 +45,7 @@ import TransportTracker from './components/TransportTracker';
 import HeritageWalk from './components/HeritageWalk';
 import AddaBot from './components/AddaBot';
 import ArtisanChronicles from './components/ArtisanChronicles';
-import RecipeVault from './components/RecipeVault';
+import RecipeVault from './components/RecipeVaultNew';
 import PatachitraArchive from './components/PatachitraArchive';
 import VerifiedMarketplace from './components/VerifiedMarketplace';
 import HeritageNFT from './components/HeritageNFT';

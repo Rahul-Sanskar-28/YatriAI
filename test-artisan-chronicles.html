@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Chronicles API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .test-btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-btn:hover {
+            background: #0056b3;
+        }
+        .role-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .role-btn {
+            background: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .role-btn.active {
+            background: #007bff;
+        }
+        .profile-form {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Artisan Chronicles API Test</h1>
+        <p>Testing the Artisan Chronicles functionality with role-based permissions.</p>
+
+        <!-- Role Selector -->
+        <div class="role-selector">
+            <h3>Select User Role for Testing:</h3>
+            <button class="role-btn active" onclick="setRole('admin')" id="admin-btn">Admin User</button>
+            <button class="role-btn" onclick="setRole('seller')" id="seller-btn">Seller User</button>
+            <button class="role-btn" onclick="setRole('tourist')" id="tourist-btn">Tourist User</button>
+            <p id="current-role">Current Role: <strong>Admin</strong> (Can create, verify, delete)</p>
+        </div>
+
+        <!-- Test 1: Backend Health Check -->
+        <div class="test-section">
+            <h3>1️⃣ Backend Health Check</h3>
+            <p>Verify that the Artisan Chronicles API backend is running and accessible.</p>
+            <button class="test-btn" onclick="testBackendHealth()">Test Backend Health</button>
+            <div id="health-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 2: Get Artisan Statistics -->
+        <div class="test-section">
+            <h3>2️⃣ Get Artisan Statistics</h3>
+            <p>Test retrieving artisan statistics and overview data.</p>
+            <button class="test-btn" onclick="testGetStats()">Get Statistics</button>
+            <div id="stats-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 3: Get All Artisan Profiles -->
+        <div class="test-section">
+            <h3>3️⃣ Get All Artisan Profiles</h3>
+            <p>Test retrieving all artisan profiles (accessible to all authenticated users).</p>
+            <button class="test-btn" onclick="testGetProfiles()">Get All Profiles</button>
+            <div id="profiles-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 4: Create Artisan Profile -->
+        <div class="test-section">
+            <h3>4️⃣ Create Artisan Profile</h3>
+            <p>Test creating a new artisan profile (Admin and Seller only).</p>
+            
+            <div class="profile-form">
+                <div class="form-group">
+                    <label>Artisan Name:</label>
+                    <input type="text" id="artisan-name" value="Test Master Artisan" />
+                </div>
+                <div class="form-group">
+                    <label>Specialization:</label>
+                    <input type="text" id="artisan-specialization" value="Traditional Bengali Crafts" />
+                </div>
+                <div class="form-group">
+                    <label>Location:</label>
+                    <input type="text" id="artisan-location" value="Kolkata, West Bengal" />
+                </div>
+                <div class="form-group">
+                    <label>Experience (Years):</label>
+                    <input type="number" id="artisan-experience" value="25" />
+                </div>
+                <div class="form-group">
+                    <label>Biography:</label>
+                    <textarea id="artisan-bio" rows="3">A master artisan dedicated to preserving traditional Bengali crafts and passing on ancient techniques to future generations.</textarea>
+                </div>
+            </div>
+            
+            <button class="test-btn" onclick="testCreateProfile()">Create Profile</button>
+            <div id="create-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 5: Image Upload Test -->
+        <div class="test-section">
+            <h3>5️⃣ Image Upload Test</h3>
+            <p>Test the image upload functionality for artisan profiles.</p>
+            <button class="test-btn" onclick="testImageUpload()">Test Image Upload</button>
+            <div id="upload-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 6: My Profiles Test -->
+        <div class="test-section">
+            <h3>6️⃣ My Profiles Test</h3>
+            <p>Test retrieving user's own artisan profiles (Admin/Seller only).</p>
+            <button class="test-btn" onclick="testMyProfiles()">Test My Profiles</button>
+            <div id="my-profiles-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 7: Verification Test -->
+        <div class="test-section">
+            <h3>7️⃣ Profile Verification Test</h3>
+            <p>Test profile verification functionality (Admin only).</p>
+            <input type="text" id="verify-profile-id" placeholder="Profile ID to verify" />
+            <button class="test-btn" onclick="testVerifyProfile('Verified')">Verify Profile</button>
+            <button class="test-btn" onclick="testVerifyProfile('Rejected')">Reject Profile</button>
+            <div id="verify-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test Summary -->
+        <div class="test-section">
+            <h3>📊 Test Summary</h3>
+            <div id="test-summary">
+                <p>Run the tests above to see the summary.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/artisans';
+        let currentRole = 'admin';
+        let testResults = [];
+
+        // Role management
+        function setRole(role) {
+            currentRole = role;
+            
+            // Update button states
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${role}-btn`).classList.add('active');
+            
+            // Update role display
+            const roleInfo = {
+                admin: 'Admin (Can create, verify, delete)',
+                seller: 'Seller (Can create, delete own)',
+                tourist: 'Tourist (View only)'
+            };
+            document.getElementById('current-role').innerHTML = `Current Role: <strong>${role.charAt(0).toUpperCase() + role.slice(1)}</strong> (${roleInfo[role]})`;
+            
+            // Clear previous results
+            testResults = [];
+            updateTestSummary();
+        }
+
+        function getAuthToken() {
+            const tokens = {
+                admin: 'mock-token-admin-987654321',
+                seller: 'mock-token-seller-123456789',
+                tourist: 'mock-token-tourist-123456789'
+            };
+            return tokens[currentRole];
+        }
+
+        function showResult(resultId, success, message, data = null) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.className = `result ${success ? 'success' : 'error'}`;
+            resultDiv.style.display = 'block';
+            
+            let content = `${success ? '✅' : '❌'} ${message}\n`;
+            if (data) {
+                content += `\nResponse Data:\n${JSON.stringify(data, null, 2)}`;
+            }
+            resultDiv.textContent = content;
+            
+            // Add to test results
+            testResults.push({
+                test: resultId.replace('-result', ''),
+                success,
+                message,
+                role: currentRole,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            updateTestSummary();
+        }
+
+        function updateTestSummary() {
+            const summaryDiv = document.getElementById('test-summary');
+            if (testResults.length === 0) return;
+            
+            const successCount = testResults.filter(r => r.success).length;
+            const totalCount = testResults.length;
+            
+            let summary = `<h4>Results for ${currentRole.toUpperCase()} role: ${successCount}/${totalCount} tests passed</h4>\n<ul>`;
+            testResults.forEach(result => {
+                summary += `<li>${result.success ? '✅' : '❌'} ${result.test}: ${result.message} (${result.timestamp})</li>`;
+            });
+            summary += '</ul>';
+            
+            summaryDiv.innerHTML = summary;
+        }
+
+        // Test 1: Backend Health Check
+        async function testBackendHealth() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('health-result', true, `Backend is healthy! Status: ${data.status}`, data);
+                } else {
+                    showResult('health-result', false, `Backend health check failed: ${response.status}`);
+                }
+            } catch (error) {
+                showResult('health-result', false, `Backend connection failed: ${error.message}`);
+            }
+        }
+
+        // Test 2: Get Statistics
+        async function testGetStats() {
+            const token = getAuthToken();
+            
+            try {
+                const response = await fetch(`${API_BASE}/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('stats-result', true, `Statistics retrieved successfully!`, data.data);
+                } else {
+                    showResult('stats-result', false, `Failed to get statistics: ${data.message}`, data);
+                }
+            } catch (error) {
+                showResult('stats-result', false, `Statistics error: ${error.message}`);
+            }
+        }
+
+        // Test 3: Get All Profiles
+        async function testGetProfiles() {
+            const token = getAuthToken();
+            
+            try {
+                const response = await fetch(`${API_BASE}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const profileCount = data.data.profiles.length;
+                    showResult('profiles-result', true, `Retrieved ${profileCount} artisan profiles successfully!`, {
+                        count: profileCount,
+                        profiles: data.data.profiles.map(p => ({ id: p.id, name: p.name, specialization: p.specialization, verification: p.verification.status }))
+                    });
+                } else {
+                    showResult('profiles-result', false, `Failed to get profiles: ${data.message}`, data);
+                }
+            } catch (error) {
+                showResult('profiles-result', false, `Profiles error: ${error.message}`);
+            }
+        }
+
+        // Test 4: Create Profile
+        async function testCreateProfile() {
+            if (!['admin', 'seller'].includes(currentRole)) {
+                showResult('create-result', false, `Create profile not available for ${currentRole} role`);
+                return;
+            }
+            
+            const token = getAuthToken();
+            
+            const profileData = {
+                name: document.getElementById('artisan-name').value,
+                specialization: document.getElementById('artisan-specialization').value,
+                location: document.getElementById('artisan-location').value,
+                experience: parseInt(document.getElementById('artisan-experience').value) || 0,
+                bio: document.getElementById('artisan-bio').value,
+                title: 'Master Craftsman',
+                generation: '3rd Generation',
+                skills: ['Traditional Crafts', 'Heritage Preservation'],
+                products: ['Handmade Items', 'Cultural Artifacts'],
+                contactInfo: {
+                    phone: '+91 98765 43210',
+                    workshop: 'Test Workshop'
+                }
+            };
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(profileData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult('create-result', true, `Artisan profile created successfully! ID: ${result.data.id}`, result.data);
+                } else {
+                    showResult('create-result', false, `Failed to create profile: ${result.message}`, result);
+                }
+            } catch (error) {
+                showResult('create-result', false, `Create profile error: ${error.message}`);
+            }
+        }
+
+        // Test 5: Image Upload
+        async function testImageUpload() {
+            if (!['admin', 'seller'].includes(currentRole)) {
+                showResult('upload-result', false, `Image upload not available for ${currentRole} role`);
+                return;
+            }
+            
+            // Create a test image (1x1 PNG)
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(0, 0, 1, 1);
+            
+            canvas.toBlob(async (blob) => {
+                try {
+                    const formData = new FormData();
+                    formData.append('recipeImage', blob, 'test-artisan.png');
+                    
+                    const token = getAuthToken();
+                    const response = await fetch(`${API_BASE}/upload-image`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        showResult('upload-result', true, `Image uploaded successfully! URL: ${result.data.imageUrl}`, result.data);
+                    } else {
+                        showResult('upload-result', false, `Image upload failed: ${result.message}`, result);
+                    }
+                } catch (error) {
+                    showResult('upload-result', false, `Image upload error: ${error.message}`);
+                }
+            }, 'image/png');
+        }
+
+        // Test 6: My Profiles
+        async function testMyProfiles() {
+            if (!['admin', 'seller'].includes(currentRole)) {
+                showResult('my-profiles-result', false, `My Profiles not available for ${currentRole} role`);
+                return;
+            }
+            
+            const token = getAuthToken();
+            
+            try {
+                const response = await fetch(`${API_BASE}/my-profiles`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const profileCount = result.data.profiles.length;
+                    showResult('my-profiles-result', true, `Retrieved ${profileCount} my profiles successfully`, {
+                        count: profileCount,
+                        profiles: result.data.profiles.map(p => ({ id: p.id, name: p.name, status: p.status, verification: p.verification.status }))
+                    });
+                } else {
+                    showResult('my-profiles-result', false, `Failed to get my profiles: ${result.message}`, result);
+                }
+            } catch (error) {
+                showResult('my-profiles-result', false, `My profiles error: ${error.message}`);
+            }
+        }
+
+        // Test 7: Verify Profile
+        async function testVerifyProfile(status) {
+            if (currentRole !== 'admin') {
+                showResult('verify-result', false, `Profile verification only available for admin role`);
+                return;
+            }
+            
+            const profileId = document.getElementById('verify-profile-id').value;
+            if (!profileId) {
+                showResult('verify-result', false, `Please enter a profile ID to verify`);
+                return;
+            }
+            
+            const token = getAuthToken();
+            
+            try {
+                const response = await fetch(`${API_BASE}/${profileId}/verify`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ 
+                        status, 
+                        notes: `Profile ${status.toLowerCase()} by admin during testing` 
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult('verify-result', true, `Profile ${status.toLowerCase()} successfully!`, result.data);
+                } else {
+                    showResult('verify-result', false, `Failed to ${status.toLowerCase()} profile: ${result.message}`, result);
+                }
+            } catch (error) {
+                showResult('verify-result', false, `Verification error: ${error.message}`);
+            }
+        }
+
+        // Initialize with backend health check
+        window.addEventListener('load', () => {
+            console.log('🎨 Artisan Chronicles API Test initialized');
+            console.log('Backend URL:', API_BASE);
+            console.log('Current Role:', currentRole);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Vault Frontend Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .recipe-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-draft { background: #e2e3e5; color: #383d41; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍛 Recipe Vault Frontend Test</h1>
+        <p>Testing the Recipe Vault API integration with role-based permissions</p>
+
+        <!-- Test Results -->
+        <div id="results"></div>
+
+        <!-- Add Recipe Form -->
+        <div id="add-recipe-section" style="display: none;">
+            <h2>Add New Recipe</h2>
+            <form id="recipe-form">
+                <div class="form-group">
+                    <label for="title">Recipe Title *</label>
+                    <input type="text" id="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category *</label>
+                    <select id="category" required>
+                        <option value="Bengali_Sweets">Bengali Sweets</option>
+                        <option value="Street_Food">Street Food</option>
+                        <option value="Traditional_Meals">Traditional Meals</option>
+                        <option value="Festival_Specials">Festival Specials</option>
+                        <option value="Tea_Snacks">Tea Snacks</option>
+                        <option value="Fish_Curry">Fish Curry</option>
+                        <option value="Rice_Dishes">Rice Dishes</option>
+                        <option value="Vegetarian">Vegetarian</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ingredients">Ingredients (one per line) *</label>
+                    <textarea id="ingredients" placeholder="1 cup rice&#10;2 tbsp oil&#10;Salt to taste" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="instructions">Instructions (one per line) *</label>
+                    <textarea id="instructions" placeholder="Heat oil in pan&#10;Add rice and stir&#10;Cook for 10 minutes" required></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label for="prepTime">Prep Time (min)</label>
+                        <input type="number" id="prepTime" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="cookTime">Cook Time (min)</label>
+                        <input type="number" id="cookTime" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="servings">Servings</label>
+                        <input type="number" id="servings" value="4">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="difficulty">Difficulty</label>
+                    <select id="difficulty">
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Add Recipe</button>
+                <button type="button" onclick="hideAddForm()">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="margin: 20px 0;">
+            <button onclick="loadRecipes()">🔄 Load All Recipes</button>
+            <button onclick="loadMyRecipes()">👤 Load My Recipes</button>
+            <button onclick="loadStats()">📊 Load Stats</button>
+            <button onclick="showAddForm()">➕ Add Recipe</button>
+            <button onclick="switchToAdmin()">🛡️ Switch to Admin</button>
+            <button onclick="switchToTourist()">🏛️ Switch to Tourist</button>
+        </div>
+
+        <div id="current-role" style="margin: 10px 0; font-weight: bold;"></div>
+    </div>
+
+    <script>
+        let currentToken = 'mock-token-tourist-123456789';
+        let currentRole = 'tourist';
+
+        // Update role display
+        function updateRoleDisplay() {
+            document.getElementById('current-role').innerHTML = 
+                `Current Role: ${currentRole.toUpperCase()} ${currentRole === 'tourist' ? '🏛️' : '🛡️'}`;
+        }
+
+        // Switch roles
+        function switchToAdmin() {
+            currentToken = 'mock-token-admin-987654321';
+            currentRole = 'admin';
+            updateRoleDisplay();
+            showMessage('Switched to Admin role', 'success');
+        }
+
+        function switchToTourist() {
+            currentToken = 'mock-token-tourist-123456789';
+            currentRole = 'tourist';
+            updateRoleDisplay();
+            showMessage('Switched to Tourist role', 'success');
+        }
+
+        // API calls
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                };
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(`http://localhost:3001/api/recipes${endpoint}`, options);
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Request failed');
+                }
+
+                return result;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Show message
+        function showMessage(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(messageDiv);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        // Load recipes
+        async function loadRecipes() {
+            try {
+                showMessage('Loading all recipes...', 'info');
+                const result = await apiCall('');
+                const recipes = result.data.recipes;
+                
+                showMessage(`✅ Loaded ${recipes.length} recipes`, 'success');
+                displayRecipes(recipes, 'All Recipes');
+            } catch (error) {
+                showMessage(`❌ Error loading recipes: ${error.message}`, 'error');
+            }
+        }
+
+        // Load my recipes
+        async function loadMyRecipes() {
+            try {
+                showMessage('Loading my recipes...', 'info');
+                const result = await apiCall('/my-recipes');
+                const recipes = result.data.recipes;
+                
+                showMessage(`✅ Loaded ${recipes.length} of my recipes`, 'success');
+                displayRecipes(recipes, 'My Recipes');
+            } catch (error) {
+                showMessage(`❌ Error loading my recipes: ${error.message}`, 'error');
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                showMessage('Loading recipe statistics...', 'info');
+                const result = await apiCall('/stats');
+                const stats = result.data;
+                
+                showMessage(`📊 Stats: ${stats.totalRecipes} recipes, ${stats.totalViews} views`, 'success');
+                
+                const statsHtml = `
+                    <div class="recipe-card">
+                        <h3>📊 Recipe Statistics</h3>
+                        <p><strong>Total Recipes:</strong> ${stats.totalRecipes}</p>
+                        <p><strong>Total Views:</strong> ${stats.totalViews}</p>
+                        <p><strong>Categories:</strong> ${Object.entries(stats.categoryStats).map(([cat, count]) => `${cat}: ${count}`).join(', ')}</p>
+                        <p><strong>Difficulties:</strong> ${Object.entries(stats.difficultyStats).map(([diff, count]) => `${diff}: ${count}`).join(', ')}</p>
+                    </div>
+                `;
+                document.getElementById('results').innerHTML += statsHtml;
+            } catch (error) {
+                showMessage(`❌ Error loading stats: ${error.message}`, 'error');
+            }
+        }
+
+        // Display recipes
+        function displayRecipes(recipes, title) {
+            const recipesHtml = `
+                <div class="recipe-card">
+                    <h3>${title} (${recipes.length})</h3>
+                    ${recipes.map(recipe => `
+                        <div style="border-left: 4px solid #007bff; padding-left: 15px; margin: 10px 0;">
+                            <div>
+                                <span class="status-badge status-${recipe.status.toLowerCase()}">${recipe.status}</span>
+                                <strong>${recipe.title}</strong>
+                            </div>
+                            <p style="margin: 5px 0; color: #666;">${recipe.description}</p>
+                            <small>
+                                Category: ${recipe.category.replace('_', ' ')} | 
+                                Difficulty: ${recipe.difficulty} | 
+                                Time: ${recipe.prepTime + recipe.cookTime}min | 
+                                Views: ${recipe.views} | 
+                                By: ${recipe.author.name}
+                            </small>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('results').innerHTML += recipesHtml;
+        }
+
+        // Show/hide add form
+        function showAddForm() {
+            document.getElementById('add-recipe-section').style.display = 'block';
+        }
+
+        function hideAddForm() {
+            document.getElementById('add-recipe-section').style.display = 'none';
+            document.getElementById('recipe-form').reset();
+        }
+
+        // Handle form submission
+        document.getElementById('recipe-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                showMessage('Creating recipe...', 'info');
+                
+                const formData = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    category: document.getElementById('category').value,
+                    ingredients: document.getElementById('ingredients').value.split('\n').filter(i => i.trim()),
+                    instructions: document.getElementById('instructions').value.split('\n').filter(i => i.trim()),
+                    prepTime: parseInt(document.getElementById('prepTime').value) || 0,
+                    cookTime: parseInt(document.getElementById('cookTime').value) || 0,
+                    servings: parseInt(document.getElementById('servings').value) || 1,
+                    difficulty: document.getElementById('difficulty').value,
+                    tags: ['frontend-test'],
+                    tips: ['Created via frontend test'],
+                    region: 'Bengal'
+                };
+
+                const result = await apiCall('', 'POST', formData);
+                
+                showMessage(`✅ Recipe "${result.data.title}" created successfully! Status: ${result.data.status}`, 'success');
+                hideAddForm();
+                
+                // Reload my recipes to show the new one
+                setTimeout(loadMyRecipes, 1000);
+                
+            } catch (error) {
+                showMessage(`❌ Error creating recipe: ${error.message}`, 'error');
+            }
+        });
+
+        // Initialize
+        updateRoleDisplay();
+        showMessage('🍛 Recipe Vault Frontend Test Ready!', 'success');
+        showMessage('Click "Load All Recipes" to start testing', 'info');
+    </script>
+</body>
+</html>

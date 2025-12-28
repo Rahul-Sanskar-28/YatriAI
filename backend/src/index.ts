@@ -19,6 +19,9 @@ import pictureDeckRoutes from './routes/pictureDeckRoutes.js';
 
 import placesRoutes from './routes/placesRoutes.js';
 import beaconRoutes from './routes/beaconRoutes.js';
+import recipeRoutes from './routes/recipeRoutes.js';
+import pattachitraRoutes from './routes/pattachitraRoutes.js';
+import artisanRoutes from './routes/artisanRoutes.js';
 import { beaconService } from './services/beaconService.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -57,6 +60,9 @@ app.use('/api/picture-deck', pictureDeckRoutes);
 
 app.use('/api/places', placesRoutes);
 app.use('/api/beacon', beaconRoutes);
+app.use('/api/recipes', recipeRoutes);
+app.use('/api/pattachitra', pattachitraRoutes);
+app.use('/api/artisans', artisanRoutes);
 
 
 // Initialize Gemini AI client

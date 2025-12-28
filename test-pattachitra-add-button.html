@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattachitra Archive Add Button Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .test-btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-btn:hover {
+            background: #0056b3;
+        }
+        .artwork-form {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .role-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .role-btn {
+            background: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .role-btn.active {
+            background: #007bff;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Pattachitra Archive Add Button Test</h1>
+        <p>Testing the Add Artwork functionality in the Pattachitra Archive with different user roles.</p>
+
+        <!-- Role Selector -->
+        <div class="role-selector">
+            <h3>Select User Role for Testing:</h3>
+            <button class="role-btn active" onclick="setRole('guide')" id="guide-btn">Guide User</button>
+            <button class="role-btn" onclick="setRole('admin')" id="admin-btn">Admin User</button>
+            <button class="role-btn" onclick="setRole('tourist')" id="tourist-btn">Tourist User</button>
+            <p id="current-role">Current Role: <strong>Guide</strong> (Can create artworks)</p>
+        </div>
+
+        <!-- Test 1: Backend Health Check -->
+        <div class="test-section">
+            <h3>1️⃣ Backend Health Check</h3>
+            <p>Verify that the Pattachitra API backend is running and accessible.</p>
+            <button class="test-btn" onclick="testBackendHealth()">Test Backend Health</button>
+            <div id="health-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 2: API Endpoints Test -->
+        <div class="test-section">
+            <h3>2️⃣ API Endpoints Test</h3>
+            <p>Test all Pattachitra API endpoints with current user role.</p>
+            <button class="test-btn" onclick="testApiEndpoints()">Test API Endpoints</button>
+            <div id="api-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 3: Create Artwork Test -->
+        <div class="test-section">
+            <h3>3️⃣ Create Artwork Test</h3>
+            <p>Test creating a new Pattachitra artwork (only available for Guides and Admins).</p>
+            
+            <div class="artwork-form">
+                <div class="form-group">
+                    <label>Artwork Title:</label>
+                    <input type="text" id="artwork-title" value="Test Pattachitra Artwork" />
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="artwork-description" rows="3">A beautiful test artwork created to verify the Add button functionality in the Pattachitra Archive.</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Art Style:</label>
+                    <select id="artwork-style">
+                        <option value="Traditional Pattachitra">Traditional Pattachitra</option>
+                        <option value="Classical Pattachitra">Classical Pattachitra</option>
+                        <option value="Modern Pattachitra">Modern Pattachitra</option>
+                        <option value="Contemporary Pattachitra">Contemporary Pattachitra</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Region:</label>
+                    <input type="text" id="artwork-region" value="Puri, Odisha" />
+                </div>
+                <div class="form-group">
+                    <label>Artist Notes:</label>
+                    <textarea id="artwork-notes" rows="2">This artwork was created as part of testing the Pattachitra Archive functionality.</textarea>
+                </div>
+            </div>
+            
+            <button class="test-btn" onclick="testCreateArtwork()">Create Test Artwork</button>
+            <div id="create-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 4: Image Upload Test -->
+        <div class="test-section">
+            <h3>4️⃣ Image Upload Test</h3>
+            <p>Test the image upload functionality for Pattachitra artworks.</p>
+            <button class="test-btn" onclick="testImageUpload()">Test Image Upload</button>
+            <div id="upload-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test 5: My Artworks Test -->
+        <div class="test-section">
+            <h3>5️⃣ My Artworks Test</h3>
+            <p>Test retrieving user's own artworks (Guide/Admin only).</p>
+            <button class="test-btn" onclick="testMyArtworks()">Test My Artworks</button>
+            <div id="my-artworks-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Test Summary -->
+        <div class="test-section">
+            <h3>📊 Test Summary</h3>
+            <div id="test-summary">
+                <p>Run the tests above to see the summary.</p>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Running test...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/pattachitra';
+        let currentRole = 'guide';
+        let testResults = [];
+
+        // Role management
+        function setRole(role) {
+            currentRole = role;
+            
+            // Update button states
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${role}-btn`).classList.add('active');
+            
+            // Update role display
+            const roleInfo = {
+                guide: 'Guide (Can create artworks)',
+                admin: 'Admin (Can create and manage artworks)',
+                tourist: 'Tourist (View only)'
+            };
+            document.getElementById('current-role').innerHTML = `Current Role: <strong>${role.charAt(0).toUpperCase() + role.slice(1)}</strong> (${roleInfo[role]})`;
+            
+            // Clear previous results
+            testResults = [];
+            updateTestSummary();
+        }
+
+        function getAuthToken() {
+            const tokens = {
+                guide: 'mock-token-guide-123456789',
+                admin: 'mock-token-admin-987654321',
+                tourist: 'mock-token-tourist-123456789'
+            };
+            return tokens[currentRole];
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showResult(resultId, success, message, data = null) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.className = `result ${success ? 'success' : 'error'}`;
+            resultDiv.style.display = 'block';
+            
+            let content = `${success ? '✅' : '❌'} ${message}\n`;
+            if (data) {
+                content += `\nResponse Data:\n${JSON.stringify(data, null, 2)}`;
+            }
+            resultDiv.textContent = content;
+            
+            // Add to test results
+            testResults.push({
+                test: resultId.replace('-result', ''),
+                success,
+                message,
+                role: currentRole,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            updateTestSummary();
+        }
+
+        function updateTestSummary() {
+            const summaryDiv = document.getElementById('test-summary');
+            if (testResults.length === 0) return;
+            
+            const successCount = testResults.filter(r => r.success).length;
+            const totalCount = testResults.length;
+            
+            let summary = `<h4>Results for ${currentRole.toUpperCase()} role: ${successCount}/${totalCount} tests passed</h4>\n<ul>`;
+            testResults.forEach(result => {
+                summary += `<li>${result.success ? '✅' : '❌'} ${result.test}: ${result.message} (${result.timestamp})</li>`;
+            });
+            summary += '</ul>';
+            
+            summaryDiv.innerHTML = summary;
+        }
+
+        // Test 1: Backend Health Check
+        async function testBackendHealth() {
+            showLoading();
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('health-result', true, `Backend is healthy! Status: ${data.status}`, data);
+                } else {
+                    showResult('health-result', false, `Backend health check failed: ${response.status}`);
+                }
+            } catch (error) {
+                showResult('health-result', false, `Backend connection failed: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Test 2: API Endpoints Test
+        async function testApiEndpoints() {
+            showLoading();
+            const token = getAuthToken();
+            const headers = { 'Authorization': `Bearer ${token}` };
+            
+            const endpoints = [
+                { name: 'Get Stats', url: `${API_BASE}/stats`, method: 'GET' },
+                { name: 'Get Artworks', url: `${API_BASE}`, method: 'GET' },
+                { name: 'Get My Artworks', url: `${API_BASE}/my-artworks`, method: 'GET', restrictedTo: ['guide', 'admin'] }
+            ];
+            
+            let results = [];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    if (endpoint.restrictedTo && !endpoint.restrictedTo.includes(currentRole)) {
+                        results.push(`${endpoint.name}: Skipped (not available for ${currentRole})`);
+                        continue;
+                    }
+                    
+                    const response = await fetch(endpoint.url, {
+                        method: endpoint.method,
+                        headers
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        results.push(`${endpoint.name}: ✅ Success (${data.data ? Object.keys(data.data).length : 0} items)`);
+                    } else {
+                        results.push(`${endpoint.name}: ❌ Failed (${response.status})`);
+                    }
+                } catch (error) {
+                    results.push(`${endpoint.name}: ❌ Error (${error.message})`);
+                }
+            }
+            
+            const allSuccess = results.every(r => r.includes('✅') || r.includes('Skipped'));
+            showResult('api-result', allSuccess, `API endpoints test completed`, { results });
+            hideLoading();
+        }
+
+        // Test 3: Create Artwork Test
+        async function testCreateArtwork() {
+            if (!['guide', 'admin'].includes(currentRole)) {
+                showResult('create-result', false, `Create artwork not available for ${currentRole} role`);
+                return;
+            }
+            
+            showLoading();
+            const token = getAuthToken();
+            
+            const artworkData = {
+                title: document.getElementById('artwork-title').value,
+                description: document.getElementById('artwork-description').value,
+                artStyle: document.getElementById('artwork-style').value,
+                region: document.getElementById('artwork-region').value,
+                artistNotes: document.getElementById('artwork-notes').value,
+                imageUrl: '/uploads/pattachitra/test-artwork.jpg',
+                colors: ['Red', 'Yellow', 'Blue'],
+                techniques: ['Traditional Brush Work', 'Natural Pigments'],
+                culturalSignificance: 'Test artwork for functionality verification'
+            };
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(artworkData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult('create-result', true, `Artwork created successfully! ID: ${result.data.id}`, result.data);
+                } else {
+                    showResult('create-result', false, `Failed to create artwork: ${result.message}`, result);
+                }
+            } catch (error) {
+                showResult('create-result', false, `Create artwork error: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Test 4: Image Upload Test
+        async function testImageUpload() {
+            if (!['guide', 'admin'].includes(currentRole)) {
+                showResult('upload-result', false, `Image upload not available for ${currentRole} role`);
+                return;
+            }
+            
+            showLoading();
+            
+            // Create a test image (1x1 PNG)
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(0, 0, 1, 1);
+            
+            canvas.toBlob(async (blob) => {
+                try {
+                    const formData = new FormData();
+                    formData.append('recipeImage', blob, 'test-pattachitra.png');
+                    
+                    const token = getAuthToken();
+                    const response = await fetch(`${API_BASE}/upload-image`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        showResult('upload-result', true, `Image uploaded successfully! URL: ${result.data.imageUrl}`, result.data);
+                    } else {
+                        showResult('upload-result', false, `Image upload failed: ${result.message}`, result);
+                    }
+                } catch (error) {
+                    showResult('upload-result', false, `Image upload error: ${error.message}`);
+                } finally {
+                    hideLoading();
+                }
+            }, 'image/png');
+        }
+
+        // Test 5: My Artworks Test
+        async function testMyArtworks() {
+            if (!['guide', 'admin'].includes(currentRole)) {
+                showResult('my-artworks-result', false, `My Artworks not available for ${currentRole} role`);
+                return;
+            }
+            
+            showLoading();
+            const token = getAuthToken();
+            
+            try {
+                const response = await fetch(`${API_BASE}/my-artworks`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const artworkCount = result.data.artworks.length;
+                    showResult('my-artworks-result', true, `Retrieved ${artworkCount} artworks successfully`, {
+                        count: artworkCount,
+                        artworks: result.data.artworks.map(a => ({ id: a.id, title: a.title, status: a.status }))
+                    });
+                } else {
+                    showResult('my-artworks-result', false, `Failed to get my artworks: ${result.message}`, result);
+                }
+            } catch (error) {
+                showResult('my-artworks-result', false, `My artworks error: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Initialize with backend health check
+        window.addEventListener('load', () => {
+            console.log('🎨 Pattachitra Archive Add Button Test initialized');
+            console.log('Backend URL:', API_BASE);
+            console.log('Current Role:', currentRole);
+        });
+    </script>
+</body>
+</html>

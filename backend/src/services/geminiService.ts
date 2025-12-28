@@ -79,12 +79,96 @@ Generate the narrative now:
     return this.generateContent(prompt);
   }
 
+  async generateArtStory(artworkData: {
+    title: string;
+    description: string;
+    artStyle: string;
+    region: string;
+    culturalSignificance: string;
+    colors: string[];
+    techniques: string[];
+  }): Promise<string> {
+    const prompt = `
+You are an expert art historian and storyteller specializing in traditional Indian art forms, particularly Pattachitra and Bengali cultural arts.
+
+Create a captivating story about this artwork:
+- Title: ${artworkData.title}
+- Description: ${artworkData.description}
+- Art Style: ${artworkData.artStyle}
+- Region: ${artworkData.region}
+- Cultural Significance: ${artworkData.culturalSignificance}
+- Colors Used: ${artworkData.colors.join(', ')}
+- Techniques: ${artworkData.techniques.join(', ')}
+
+Write a compelling narrative story (2-3 paragraphs) that:
+- Brings the artwork to life with vivid imagery
+- Explains the cultural and spiritual significance
+- Describes the artistic techniques and their importance
+- Connects the artwork to its regional heritage
+- Uses poetic and engaging language
+- Makes the reader feel the emotion and devotion behind the art
+
+Write as if you're guiding someone through a museum, sharing the deep cultural stories behind this masterpiece.
+    `;
+
+    return this.generateContent(prompt);
+  }
+
   isAvailable(): boolean {
     return this.genAI !== null;
   }
 }
 
 export const geminiService = new GeminiService();
+
+// Export individual functions for backward compatibility
+export const generateBeaconNarrative = (locationString: string) => 
+  geminiService.generateNarrative(locationString);
+
+export const generateArtStory = (artworkData: {
+  title: string;
+  description: string;
+  artStyle: string;
+  region: string;
+  culturalSignificance: string;
+  colors: string[];
+  techniques: string[];
+}) => geminiService.generateArtStory(artworkData);
+
+// Generate AI story for Artisan Chronicles
+export const generateArtisanStory = async (artisanData: {
+  name: string;
+  specialization: string;
+  location: string;
+  experience: number;
+  generation?: string;
+  bio: string;
+}): Promise<string> => {
+  const prompt = `
+You are a master storyteller specializing in Bengali cultural heritage and traditional crafts.
+
+Create a compelling narrative story about this master artisan:
+- Name: ${artisanData.name}
+- Specialization: ${artisanData.specialization}
+- Location: ${artisanData.location}
+- Experience: ${artisanData.experience} years
+- Generation: ${artisanData.generation || 'Traditional craftsperson'}
+- Bio: ${artisanData.bio}
+
+Write a captivating story (2-3 paragraphs) that:
+- Captures the artisan's journey and dedication to their craft
+- Describes the traditional techniques and skills they've mastered
+- Connects their work to Bengali cultural heritage and traditions
+- Mentions their location and its significance to the craft
+- Uses respectful, inspiring language that honors their expertise
+- Includes sensory details about their workshop and craft process
+- Shows the continuity of tradition from generation to generation
+
+Write as if you're documenting the living heritage of Bengal, preserving the stories of master craftspeople for future generations.
+  `;
+
+  return geminiService.generateContent(prompt);
+};
 
 // Legacy function for monument story generation (from picture deck feature)
 export async function generateMonumentStory(imageBase64: string): Promise<string> {

@@ -63,6 +63,24 @@ enum ProductStatus {
   Draft
 }
 
+enum RecipeStatus {
+  Draft
+  Pending
+  Approved
+  Rejected
+}
+
+enum RecipeCategory {
+  Bengali_Sweets
+  Street_Food
+  Traditional_Meals
+  Festival_Specials
+  Tea_Snacks
+  Fish_Curry
+  Rice_Dishes
+  Vegetarian
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -82,6 +100,7 @@ model User {
   guide         Guide?
   seller        Seller?
   feedback      Feedback[]
+  recipes       Recipe[]
 
   @@map("users")
 }
@@ -284,6 +303,39 @@ model Testimonial {
   createdAt DateTime @default(now())
 
   @@map("testimonials")
+}
+
+model Recipe {
+  id            String        @id @default(cuid())
+  title         String
+  description   String
+  ingredients   String[]
+  instructions  String[]
+  prepTime      Int           // in minutes
+  cookTime      Int           // in minutes
+  servings      Int
+  difficulty    String        // Easy, Medium, Hard
+  category      RecipeCategory
+  tags          String[]      // e.g., ["vegetarian", "spicy", "traditional"]
+  image         String?
+  videoUrl      String?
+  nutritionInfo Json?         // flexible nutrition data
+  tips          String[]      // cooking tips
+  story         String?       // cultural story behind the recipe
+  region        String?       // specific region in Bengal/Kolkata
+  status        RecipeStatus  @default(Draft)
+  authorId      String
+  approvedBy    String?       // admin who approved
+  approvedAt    DateTime?
+  views         Int           @default(0)
+  likes         Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  author        User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("recipes")
 }
 
 

@@ -27,17 +27,18 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     // Handle mock tokens in development
     if (token && token.startsWith('mock-token-')) {
       console.log('🔐 Auth Debug - Mock token detected');
-      // Extract user ID from mock token format: mock-token-{userId}-{timestamp}
+      // Extract role and user ID from mock token format: mock-token-{role}-{userId}
       const parts = token.split('-');
-      if (parts.length >= 3) {
-        const userId = parts[2];
+      if (parts.length >= 4) {
+        const role = parts[2]; // Extract role (tourist, admin, guide, seller)
+        const userId = parts[3]; // Extract user ID
         // Create a mock user payload for development
         req.user = {
           userId: userId,
-          email: 'mock@example.com',
-          role: 'tourist' // Default role for mock users
+          email: `mock-${role}@example.com`,
+          role: role as 'tourist' | 'admin' | 'guide' | 'seller'
         };
-        console.log('✅ Auth Debug - Mock token accepted');
+        console.log(`✅ Auth Debug - Mock token accepted for ${role} user ${userId}`);
         next();
         return;
       }
