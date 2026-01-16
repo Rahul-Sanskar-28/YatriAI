@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { caseInsensitiveContains } from '../utils/dbHelpers.js';
 
 const prisma = new PrismaClient();
 
@@ -43,6 +44,7 @@ const formatDestination = (d: any) => ({
 });
 
 // Search destinations by name, location, category, or tags
+// Note: Uses case-insensitive search which requires PostgreSQL
 export const searchDestinations = async (req: Request, res: Response) => {
   try {
     const { query, category, city } = req.query;
@@ -62,9 +64,10 @@ export const searchDestinations = async (req: Request, res: Response) => {
       const searchQuery = query as string;
       searchConditions.AND.push({
         OR: [
-          { name: { contains: searchQuery, mode: 'insensitive' } },
-          { description: { contains: searchQuery, mode: 'insensitive' } },
-          { address: { contains: searchQuery, mode: 'insensitive' } }
+          // Case-insensitive search (PostgreSQL-specific feature)
+          { name: caseInsensitiveContains(searchQuery) },
+          { description: caseInsensitiveContains(searchQuery) },
+          { address: caseInsensitiveContains(searchQuery) }
         ]
       });
     }
@@ -74,8 +77,9 @@ export const searchDestinations = async (req: Request, res: Response) => {
     }
 
     if (city) {
+      // Case-insensitive city search (PostgreSQL-specific feature)
       searchConditions.AND.push({ 
-        city: { contains: city as string, mode: 'insensitive' } 
+        city: caseInsensitiveContains(city as string) 
       });
     }
 

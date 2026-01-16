@@ -14,12 +14,16 @@ import testimonialRoutes from './routes/testimonialRoutes.js';
 import trainRoutes from './routes/trainRoutes.js';
 import mlRoutes from './routes/mlRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { validateDatabaseProvider } from './utils/dbHelpers.js';
 
 // Load env from backend/.env and fallback to root .env
 dotenv.config();
 try {
   dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 } catch {}
+
+// Validate database provider on startup
+validateDatabaseProvider();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
